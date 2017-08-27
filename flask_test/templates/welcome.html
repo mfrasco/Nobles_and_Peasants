@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block body %}
+  <p>Welcome to Nobles and Peasants. If you want to learn what this game is and
+      how you can play it, click the button below.</p>
+  <form action="{{ url_for('show_rules') }}">
+    <input type="submit" name="Rules Button" value="Show Rules">
+  </form>
+  <p>If you already know how to play and want to get started, enter some information
+      below, and hit Get Started.</p>
+  <form action="{{ url_for('start_game') }}">
+      <input type="submit" name="Start Button" value="Get Started">
+  </form>
+{% endblock %}

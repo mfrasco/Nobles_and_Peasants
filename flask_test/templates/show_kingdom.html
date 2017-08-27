@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block body %}
+  <ul class=kingdom>
+  {% for person in kingdom %}
+    <li><h2>{{ person.id }}</h2>{{ person.status }}
+  {% else %}
+    <li><em>There is no one at the party yet.</em>
+  {% endfor %}
+  </ul>
+{% endblock %}

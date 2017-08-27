@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block body %}
+    <h2>What is Nobles and Peasants?</h2>
+    <p>Nobles and Peasants aims to provide a middle ground between a theme party
+        and a regular party. For those who just want to drink and hang out with
+        friends, you can do that without much interaction with the rest of the game.
+        For those who want to embrace the inner-workings of this medieval society,
+        you can do that too. Nobles and Peasants establishes the minimal amount of
+        rules so that youre night can become as wild as your own imagination.
+    </p>
+    <h2>How Does Nobles and Peasants Work?</h2>
+    <p>Each person at the party is assigned to be a noble or a peasant. You can
+        make this assignment random, or you can control the status of the person
+        that you want to be. Your status can change throughout the game.
+    </p>
+    <p>At the start of the game, nobles are given coin and peasants are given nothing.
+        Coin can be used to purchase alcohol from the Pope (a.k.a. the bartender).
+        In order for a peasant to get alcohol, they must pledge allegiance to a
+        noble, which allows the peasant to get drinks using that noble's coin. The noble
+        with the most peasants in his or her army is the Almighty Ruler of Heaven
+        and Earth. This position is highly desirable.
+    </p>
+    <form action="{{ url_for('welcome') }}">
+        <input type="submit" name="Welcome Button" value="Back To Welcome Page">
+    </form>
+{% endblock %}

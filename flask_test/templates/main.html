@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+{% block body %}
+	<h2 class="subtitle">Nobles have the money. Peasants have the power.</h2>
+	<div class="sign">
+		<h3>Sign In</h3>
+		<form action="{{ url_for('sign_in') }}" method="post">
+			<dl>
+				<dt>Choose your ID:</dt>
+				<dd><input type="text" name="userID"></dd>
+				<p></p>
+				<dd><input type="submit" value="Sign In"></dd>
+			</dl>
+		</form>
+	</div>
+	<div class="pledge">
+		<h3>Pledge Allegiance</h3>
+		<form action="{{ url_for('pledge_allegiance') }}" method="post">
+			<dl>
+				<dt>Enter your ID:</dt>
+				<dd><input type="text" name="userID"></dd>
+				<p></p>
+				<dt>Enter the noble's ID:</dt>
+				<dd><input type="text" name="nobleID"></dd>
+				<p></p>
+				<dd><input type="submit" value="Pledge Allegiance"></dd>
+			</dl>
+		</form>
+	</div>
+	<div class="buy">
+		<h3>Buy a drink</h3>
+		<form action="{{ url_for('buy_drink') }}" method="post">
+			<dl>
+				<dt>Enter your ID:</dt>
+				<dd><input type="text" name="userID"></dd>
+				<p></p>
+				<dt>Choose your drink:</dt>
+				<dd><select name="drink">
+					<option value='beer'>Beer</option>
+					<option value='cider'>Cider</option>
+					<option value='svedka'>Svedka</option>
+					<option value='absolute'>Absolute</option>
+					<option value='fireball'>Fireball</option>
+					<option value='camarena'>Camarena</option>
+					<option value='patron'>Patron</option>
+				</select></dd>
+				<p></p>
+				<dt>How many?</dt>
+				<dd>
+					<input name="quantity" type="number"></input>
+				</dd>
+				<p></p>
+				<dd><input type="submit" value="Buy Drink"></dd>
+			</dl>
+		</form>
+	</div>
+	<div class="ban">
+		<h3>Ban a Peasant</h3>
+		<form action="{{ url_for('ban_peasant') }}" method="post">
+			<dl>
+				<dt>Enter your ID:</dt>
+				<dd><input type="text" name="nobleID"></dd>
+				<p></p>
+				<dt>Enter peasant ID:</dt>
+				<dd><input type="text" name="peasantID"></dd>
+				<p></p>
+				<dd><input type="submit" value="Ban Peasant"></dd>
+			</dl>
+		</form>
+	</div>
+	<div class="dare">
+		<h3>Truth or Dare</h3>
+		<form action="{{ url_for('get_dare') }}" method="post">
+			<dl>
+				<dd><input type="submit" value="Get Dare"></dd>
+			</dl>
+		</form>
+	</div>
+	<!-- <div class="kill">
+		<h3>Kill a Target</h3>
+		<form action="{{ url_for('kill') }}" method="post">
+			<dl>
+				<dt>Enter your ID:</dt>
+				<dd><input type="text" name="userID"></dd>
+				<p></p>
+				<dt>Enter your target's ID:</dt>
+				<dd><input type="text" name="targetID"></dd>
+				<p></p>
+				<dd><input type="submit" value="Kill"></dd>
+			</dl>
+		</form>
+	</div> -->
+{% endblock %}
