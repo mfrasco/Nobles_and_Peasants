@@ -67,6 +67,30 @@ def start_game():
 def show_main():
     return render_template('main.html')
 
+@app.route('/main', methods=['POST'])
+def sign_in():
+    return redirect(url_for('show_main'))
+
+@app.route('/main', methods=['POST'])
+def pledge_allegiance():
+    return redirect(url_for('show_main'))
+
+@app.route('/main', methods=['POST'])
+def buy_drink():
+    return redirect(url_for('show_main'))
+
+@app.route('/main', methods=['POST'])
+def ban_peasant():
+    return redirect(url_for('show_main'))
+
+@app.route('/main', methods=['POST'])
+def get_dare():
+    return redirect(url_for('show_main'))
+
+@app.route('/main', methods=['POST'])
+def kill():
+    return redirect(url_for('show_main'))
+
 @app.route('/kingdom')
 def show_kingdom():
     query = 'select id, status, coin, allegiance, drinks, soldiers from kingdom order by allegiance, coin desc, soldiers desc'

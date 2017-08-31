@@ -1,6 +1,5 @@
 {% extends "layout.html" %}
 {% block body %}
-	<h2 class="subtitle">Nobles have the money. Peasants have the power.</h2>
 	<div class="sign">
 		<h3>Sign In</h3>
 		<form action="{{ url_for('sign_in') }}" method="post">
@@ -75,7 +74,7 @@
 			</dl>
 		</form>
 	</div>
-	<!-- <div class="kill">
+	<div class="kill">
 		<h3>Kill a Target</h3>
 		<form action="{{ url_for('kill') }}" method="post">
 			<dl>
@@ -88,5 +87,5 @@
 				<dd><input type="submit" value="Kill"></dd>
 			</dl>
 		</form>
-	</div> -->
+	</div>
 {% endblock %}

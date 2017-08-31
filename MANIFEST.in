@@ -1,3 +1,3 @@
-graft flask_test/templates
-graft flask_test/static
-include flask_test/schema.sql
+graft Nobles_and_Peasants/templates
+graft Nobles_and_Peasants/static
+include Nobles_and_Peasants/schema.sql

@@ -1,9 +1,0 @@
-MANIFEST.in
-flask_test/__init__.py
-flask_test/flask_test.py
-flask_test/schema.sql
-flask_test.egg-info/PKG-INFO
-flask_test.egg-info/SOURCES.txt
-flask_test.egg-info/dependency_links.txt
-flask_test.egg-info/requires.txt
-flask_test.egg-info/top_level.txt

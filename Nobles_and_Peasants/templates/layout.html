@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+    <head>{% block head %}
+        <meta charset="UTF-8">
+        <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+        <title>Nobles and Peasants</title>
+    {% endblock %}</head>
+    <body>
+        <div class=page>
+            <a class=castleImage href="{{ url_for('show_kingdom') }}">
+                <img src="{{ url_for('static', filename='castle.jpg') }}" style="width:120px;height:120px;">
+            </a>
+            <a class=titleText href="{{ url_for('show_main') }}">
+                <h1>Nobles and Peasants</h1>
+            </a>
+                <h2>Nobles have the coin. Peasants have the power.</h2>
+            <a class=nobleImage href="{{ url_for('show_leaderboard') }}">
+                <img src="{{ url_for('static', filename='nobles.jpg') }}" style="width:120px;height:120px;">
+            </a>
+            {% block body %}
+            {% endblock %}
+        </div>
+    </body>
+</div>
