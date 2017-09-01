@@ -1,13 +1,48 @@
 {% extends "layout.html" %}
 {% block body %}
-  <p>Welcome to Nobles and Peasants. If you want to learn what this game is and
-      how you can play it, click the button below.</p>
-  <form action="{{ url_for('show_rules') }}">
-    <input type="submit" name="Rules Button" value="Show Rules">
-  </form>
-  <p>If you already know how to play and want to get started, enter some information
-      below, and hit Get Started.</p>
-  <form action="{{ url_for('start_game') }}">
-      <input type="submit" name="Start Button" value="Get Started">
-  </form>
+    <p>Welcome to Nobles and Peasants. If you want to learn what this game is and
+        how you can play it, click the button below.</p>
+    <form action="{{ url_for('show_rules') }}">
+        <input type="submit" name="Rules Button" value="Show Rules">
+    </form>
+    <p>If you already know how to play and want to get started, enter some information
+        below, and hit Get Started.</p>
+    <p>You can choose what types of drinks you have at your party and how much each of these drinks cost. For example, water has already been added to the party. It costs -1 coin. (You get money for drinking water. Please drink responsibly.)</p>
+    <ul class=drinks>
+      {% for drink in drinks %}
+        <li><h2>{{ drink.name }}</h2>{{ drink.coin }}
+      {% else %}
+        <li><em>You can add drinks with the form below.</em>
+      {% endfor %}
+    </ul>
+    <form action="{{ url_for('add_drink') }}">
+        Enter your drink name:
+        <dd><input type="text" name="drink_name"></dd>
+        <p></p>
+        Enter the amount of coin necessary to buy that drink:
+        <dd><input type="number" name="quantity"></input></dd>
+        <p></p>
+        <dd><input type="submit" value="Add Drink"></dd>
+    </form>
+    <p>You can control how much coin a noble receives when they start the game. Nobles should have enough money to support a moderate number of peasants, but not too much money that they will never run out. Peasants don't get any coin. However, they can earn coin by performing dares.</p>
+    <ul class=coinstatus>
+      {% for person in starting_coin %}
+        <li><h2>{{ person.status }}</h2>{{ person.coin }}
+      {% else %}
+        <li><em>You can update the starting coin for nobles with the form below.</em>
+      {% endfor %}
+    </ul>
+    <form action="{{ url_for('set_starting_coin') }}">
+        Noble Starting Coin:
+        <dd><input type="number" name="noble_coin"></dd>
+        <p></p>
+        Peasant Starting Coin:
+        <dd><input type="number" name="peasant_coin"></input></dd>
+        <p></p>
+        <dd><input type="submit" value="set starting coin"></dd>
+    </form>
+    <p>Click here to start the game!</p>
+    <form action="{{ url_for('start_game') }}">
+        <input type="submit" name="Start Button" value="Get Started">
+    </form>
 {% endblock %}

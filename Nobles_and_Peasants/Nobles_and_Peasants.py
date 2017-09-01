@@ -9,12 +9,12 @@ app.config.from_object(__name__)
 
 # load default config and override config from an environment variable
 app.config.update(dict(
-    DATABASE=os.path.join(app.root_path, 'flask_test.db'),
+    DATABASE=os.path.join(app.root_path, 'nobles_and_peasants.db'),
     SECRET_KEY='development_key',
     USERNAME='admin',
     PASSWORD='default'
 ))
-app.config.from_envvar('FLASK_TEST_SETTINGS', silent=True)
+app.config.from_envvar('NOBLES_AND_PEASANTS_SETTINGS', silent=True)
 
 def connect_db():
     """Connects to the specific database."""
@@ -51,13 +51,34 @@ def close_db(error):
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
 
-@app.route('/')
+# Helper functions
+def fetch_one(query_string, args):
+    db = get_db()
+    return db.execute(query_string, args).fetchone()
+
+@app.route('/', methods=['GET'])
 def welcome():
-    return render_template('welcome.html')
+    db = get_db()
+    drinks = db.execute('select * from drinks').fetchall()
+    return render_template('welcome.html', drinks = drinks)
 
 @app.route('/rules')
 def show_rules():
     return render_template('rules.html')
+
+@app.route('/', methods=['POST'])
+def add_drink():
+    db = get_db()
+    drink_name = request.form['drink_name']
+    quantity = request.form['quantity']
+    query = 'insert into drinks values (?, ?)'
+    db.execute(query, [drink_name, quantity])
+    db.commit()
+    return redirect(url_for('welcome'))
+
+@app.route('/')
+def set_starting_coin():
+    return redirect(url_for('welcome'))
 
 @app.route('/main')
 def start_game():
