@@ -1,7 +1,17 @@
 # all the imports
 import os
 import sqlite3
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
+from flask import (
+    Flask,
+    request,
+    session,
+    g,
+    redirect,
+    url_for,
+    abort,
+    render_template,
+    flash
+)
 
 # create the application instance and load config
 app = Flask(__name__)
@@ -66,7 +76,7 @@ def welcome():
 def show_rules():
     return render_template('rules.html')
 
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['GET', 'POST'])
 def add_drink():
     db = get_db()
     drink_name = request.form['drink_name']
@@ -125,3 +135,8 @@ def show_leaderboard():
     db = get_db()
     leaderboard = db.execute(query).fetchall()
     return render_template('show_leaderboard.html', leaderboard=leaderboard)
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0')
+

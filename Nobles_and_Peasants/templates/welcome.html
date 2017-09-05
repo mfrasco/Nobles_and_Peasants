@@ -15,7 +15,7 @@
         <li><em>You can add drinks with the form below.</em>
       {% endfor %}
     </ul>
-    <form action="{{ url_for('add_drink') }}">
+    <form action="{{ url_for('add_drink') }}" method=post>
         Enter your drink name:
         <dd><input type="text" name="drink_name"></dd>
         <p></p>
