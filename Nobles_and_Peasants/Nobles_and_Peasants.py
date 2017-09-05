@@ -12,6 +12,7 @@ from flask import (
     render_template,
     flash
 )
+from random import randint, uniform
 
 # create the application instance and load config
 app = Flask(__name__)
@@ -22,7 +23,8 @@ app.config.update(dict(
     DATABASE=os.path.join(app.root_path, 'nobles_and_peasants.db'),
     SECRET_KEY='development_key',
     USERNAME='admin',
-    PASSWORD='default'
+    PASSWORD='default',
+    DEBUG=True
 ))
 app.config.from_envvar('NOBLES_AND_PEASANTS_SETTINGS', silent=True)
 
@@ -70,36 +72,80 @@ def fetch_one(query_string, args):
 def welcome():
     db = get_db()
     drinks = db.execute('select * from drinks').fetchall()
-    return render_template('welcome.html', drinks = drinks)
+    starting_coin = db.execute('select * from starting_coin').fetchall()
+    return render_template('welcome.html', drinks=drinks, starting_coin=starting_coin)
 
 @app.route('/rules')
 def show_rules():
     return render_template('rules.html')
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/add_drink', methods=['POST'])
 def add_drink():
     db = get_db()
     drink_name = request.form['drink_name']
-    quantity = request.form['quantity']
+    price = request.form['price']
     query = 'insert into drinks values (?, ?)'
-    db.execute(query, [drink_name, quantity])
+    db.execute(query, [drink_name, price])
     db.commit()
     return redirect(url_for('welcome'))
 
-@app.route('/')
-def set_starting_coin():
+@app.route('/set_coin', methods=['POST'])
+def set_coin():
+    db = get_db()
+    noble_coin = request.form['noblecoin']
+    query = 'update starting_coin set coin = ? where status = ?'
+    db.execute(query, [noble_coin, 'noble'])
+    db.commit()
     return redirect(url_for('welcome'))
-
-@app.route('/main')
-def start_game():
-    return render_template('main.html')
 
 @app.route('/main')
 def show_main():
     return render_template('main.html')
 
+def get_starting_info(status, user_id):
+    query = 'select coin from starting_coin where status = ?'
+    starting_coin = db.execute(query, [status]).fetchone()
+    if status = 'peasant':
+        allegiance = None
+        soldiers = 0
+    else:
+        allegiance = user_id
+        soldiers = 1
+    return starting_coin, allegiance, soldiers
+
 @app.route('/main', methods=['POST'])
 def sign_in():
+    user_id = request.form['user_id']
+    user_status = request.form['user_status']
+    db = get_db()
+
+    # check that the id is not already taken
+    current_ids = db.execute('select id from kingdom').fetchall()
+    if user_id in current_ids:
+        error = 'Please choose a different id. Someone already has this one.'
+        return render_template('error.html', error = error, image = 'oops.jpg')
+
+    if user_status = 'randomly decide':
+        statuses = db.execute('select status from kingdom').fetchall()
+        num_people = len(statuses)
+        if num_people == 0:
+            starting_coin, allegiance, soldiers = get_starting_info('noble', user_id)
+        elif (num_nobles / num_people) < 0.2:
+            if random_num < 0.5:
+                starting_coin, allegiance, soldiers = get_starting_info('noble', user_id)
+            else:
+                starting_coin, allegiance, soldiers = get_starting_info('peasant', user_id)
+        else:
+            starting_coin, allegiance, soldiers = get_starting_info('peasant', user_id)
+
+        num_nobles = statuses.count('noble')
+
+    else:
+        starting_coin, allegiance, soldiers = get_starting_info(user_status, user_id)
+
+    db.execute('insert into kingdom (id, status, coin, allegiance, drinks, soldiers) values (?, ?, ?, ?, ?, ?)',
+               [user_id, user_status, coin, allegiance, 0, soldiers])
+    db.commit()
     return redirect(url_for('show_main'))
 
 @app.route('/main', methods=['POST'])

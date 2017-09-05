@@ -15,16 +15,16 @@
         <li><em>You can add drinks with the form below.</em>
       {% endfor %}
     </ul>
-    <form action="{{ url_for('add_drink') }}" method=post>
+    <form action="{{ url_for('add_drink') }}" method="post" class="adddrink">
         Enter your drink name:
-        <dd><input type="text" name="drink_name"></dd>
+        <dd><input type="text" name="drink_name"></input></dd>
         <p></p>
         Enter the amount of coin necessary to buy that drink:
-        <dd><input type="number" name="quantity"></input></dd>
+        <dd><input type="number" name="price"></input></dd>
         <p></p>
-        <dd><input type="submit" value="Add Drink"></dd>
+        <dd><input type="submit" value="Add Drink"></input></dd>
     </form>
-    <p>You can control how much coin a noble receives when they start the game. Nobles should have enough money to support a moderate number of peasants, but not too much money that they will never run out. Peasants don't get any coin. However, they can earn coin by performing dares.</p>
+    <p>You can control how much coin a noble receives when they start the game. Nobles should have enough money to support a moderate number of peasants, but not too much money that they will never run out. The default amount is 50 coin. Peasants don't get any coin. However, they can earn coin by performing dares.</p>
     <ul class=coinstatus>
       {% for person in starting_coin %}
         <li><h2>{{ person.status }}</h2>{{ person.coin }}
@@ -32,17 +32,14 @@
         <li><em>You can update the starting coin for nobles with the form below.</em>
       {% endfor %}
     </ul>
-    <form action="{{ url_for('set_starting_coin') }}">
+    <form action="{{ url_for('set_coin') }}" method="post" class="setcoin">
         Noble Starting Coin:
-        <dd><input type="number" name="noble_coin"></dd>
+        <dd><input type="number" name="noblecoin"></input></dd>
         <p></p>
-        Peasant Starting Coin:
-        <dd><input type="number" name="peasant_coin"></input></dd>
-        <p></p>
-        <dd><input type="submit" value="set starting coin"></dd>
+        <dd><input type="submit" value="Set Noble Coin"></input></dd>
     </form>
     <p>Click here to start the game!</p>
-    <form action="{{ url_for('start_game') }}">
-        <input type="submit" name="Start Button" value="Get Started">
+    <form action="{{ url_for('show_main') }}">
+        <input type="submit" value="Get Started">
     </form>
 {% endblock %}
