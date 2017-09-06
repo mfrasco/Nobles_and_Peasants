@@ -1,10 +1,25 @@
 {% extends "layout.html" %}
 {% block body %}
-  <ul class=kingdom>
-  {% for person in kingdom %}
-    <li><h2>{{ person.id }}</h2>{{ person.status }}
-  {% else %}
-    <li><em>There is no one at the party yet.</em>
-  {% endfor %}
-  </ul>
+    <div class=kingdom>
+        <table class=kingdom style="width:100%">
+            <tr>
+                <td><b>ID</b></td>
+                <td><b>Status</b></td>
+                <td><b>Allegiance</b></td>
+                <td><b>Coin</b></td>
+                <td><b>Drinks</b></td>
+                <td><b>Soldiers</b></td>
+            </tr>
+            {% for person in kingdom %}
+            <tr>
+                <td>{{person.id}}</td>
+                <td>{{person.status}}</td>
+                <td>{{person.allegiance}}</td>
+                <td>{{person.coin}}</td>
+                <td>{{person.drinks}}</td>
+                <td>{{person.soldiers}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 {% endblock %}

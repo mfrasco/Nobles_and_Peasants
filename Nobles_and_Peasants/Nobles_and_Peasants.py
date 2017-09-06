@@ -64,9 +64,12 @@ def close_db(error):
         g.sqlite_db.close()
 
 # Helper functions
-def fetch_one(query_string, args):
-    db = get_db()
-    return db.execute(query_string, args).fetchone()
+def fetch_one(db, query_string, args):
+    rv = db.execute(query_string, args).fetchone()
+    if rv is None:
+        return None
+    else:
+        return rv[0]
 
 @app.route('/', methods=['GET'])
 def welcome():
@@ -102,10 +105,10 @@ def set_coin():
 def show_main():
     return render_template('main.html')
 
-def get_starting_info(status, user_id):
+def get_starting_info(db, status, user_id):
     query = 'select coin from starting_coin where status = ?'
-    starting_coin = db.execute(query, [status]).fetchone()
-    if status = 'peasant':
+    starting_coin = fetch_one(db, query, [status])
+    if status == 'peasant':
         allegiance = None
         soldiers = 0
     else:
@@ -113,7 +116,7 @@ def get_starting_info(status, user_id):
         soldiers = 1
     return starting_coin, allegiance, soldiers
 
-@app.route('/main', methods=['POST'])
+@app.route('/sign_in', methods=['POST'])
 def sign_in():
     user_id = request.form['user_id']
     user_status = request.form['user_status']
@@ -121,50 +124,91 @@ def sign_in():
 
     # check that the id is not already taken
     current_ids = db.execute('select id from kingdom').fetchall()
-    if user_id in current_ids:
-        error = 'Please choose a different id. Someone already has this one.'
-        return render_template('error.html', error = error, image = 'oops.jpg')
+    if user_id in [row[0] for row in current_ids]:
+        flash('Unsuccessful! Please choose a different id. Someone already selected that one.')
+        return redirect(url_for('show_main'))
 
-    if user_status = 'randomly decide':
+    if user_status == 'randomly decide':
         statuses = db.execute('select status from kingdom').fetchall()
         num_people = len(statuses)
-        if num_people == 0:
-            starting_coin, allegiance, soldiers = get_starting_info('noble', user_id)
-        elif (num_nobles / num_people) < 0.2:
-            if random_num < 0.5:
-                starting_coin, allegiance, soldiers = get_starting_info('noble', user_id)
-            else:
-                starting_coin, allegiance, soldiers = get_starting_info('peasant', user_id)
-        else:
-            starting_coin, allegiance, soldiers = get_starting_info('peasant', user_id)
-
         num_nobles = statuses.count('noble')
+        if num_people == 0:
+            user_status =  'noble'
+        elif (num_nobles / num_people) < 0.2:
+            if uniform(0, 1) < 0.5:
+                user_status = 'noble'
+            else:
+                user_status = 'peasant'
+        else:
+            user_status = 'peasant'
 
-    else:
-        starting_coin, allegiance, soldiers = get_starting_info(user_status, user_id)
+    start_info = get_starting_info(db, user_status, user_id)
 
+    starting_coin, allegiance, soldiers = start_info
     db.execute('insert into kingdom (id, status, coin, allegiance, drinks, soldiers) values (?, ?, ?, ?, ?, ?)',
-               [user_id, user_status, coin, allegiance, 0, soldiers])
+               [user_id, user_status, starting_coin, allegiance, 0, soldiers])
     db.commit()
     return redirect(url_for('show_main'))
 
-@app.route('/main', methods=['POST'])
+@app.route('/pledge', methods=['POST'])
 def pledge_allegiance():
+    user_id = request.form['user_id']
+    noble_id = request.form['noble_id']
+
+    db = get_db()
+
+    # check the request values are valid
+    query = 'select status from kingdom where id = ?'
+    user_status = fetch_one(db, query, [user_id])
+    noble_status = fetch_one(db, query, [noble_id])
+
+    # error checking
+    if user_status is None:
+        flash('Unsuccessful! Please enter a valid id for yourself. Have you signed in?')
+        return redirect(url_for('show_main'))
+
+    if noble_status is None:
+        flash('Unsuccessful! Please enter a valid id for the noble.')
+        return redirect(url_for('show_main'))
+
+    if noble_status != 'noble':
+        flash('Unsuccessful! That person is not a noble')
+        return redirect(url_for('show_main'))
+
+    if user_status == 'noble':
+        flash('Unsuccessful! You are a noble. You must be allied to yourself.')
+        return redirect(url_for('show_main'))
+
+    # query = 'select outlaw from banned where noble = ?'
+    # outlaws = db.execute(query, [noble_id]).fetchall()
+    # if len(outlaws) > 0 and user_id in outlaws[0]:
+    #     flash('Unsuccessful! This noble has banned you from their kingdom!')
+    #     return redirect(url_for('show_main'))
+        
+    # update the allegiance in the database
+    query = 'select allegiance from kingdom where id = ?'
+    previous_noble = fetch_one(query, [user_id])
+    db.execute('update kingdom set allegiance = ? where id = ?', [noble_id, user_id])
+    db.execute('update kingdom set soldiers = soldiers + 1 where id = ?', [noble_id])
+    if previous_noble is not None:
+        db.execute('update kingdom set soldiers = soldiers - 1 where id = ?', [previous_noble])
+
+    db.commit()
     return redirect(url_for('show_main'))
 
-@app.route('/main', methods=['POST'])
+@app.route('/buy_drink', methods=['POST'])
 def buy_drink():
     return redirect(url_for('show_main'))
 
-@app.route('/main', methods=['POST'])
+@app.route('/ban', methods=['POST'])
 def ban_peasant():
     return redirect(url_for('show_main'))
 
-@app.route('/main', methods=['POST'])
+@app.route('/get_dare', methods=['POST'])
 def get_dare():
     return redirect(url_for('show_main'))
 
-@app.route('/main', methods=['POST'])
+@app.route('/kill', methods=['POST'])
 def kill():
     return redirect(url_for('show_main'))
 

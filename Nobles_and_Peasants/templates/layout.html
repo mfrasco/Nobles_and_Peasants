@@ -17,6 +17,9 @@
             <a class=nobleImage href="{{ url_for('show_leaderboard') }}">
                 <img src="{{ url_for('static', filename='nobles.jpg') }}" style="width:120px;height:120px;">
             </a>
+            {% for message in get_flashed_messages() %}
+                <div class=flash>{{ message }}</div>
+            {% endfor %}
             {% block body %}
             {% endblock %}
         </div>

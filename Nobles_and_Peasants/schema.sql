@@ -1,6 +1,6 @@
 drop table if exists kingdom;
 create table kingdom (
-    id integer primary key,
+    id text primary key,
     status text not null,
     coin integer,
     allegiance text,
@@ -27,5 +27,5 @@ create table starting_coin (
 );
 
 insert into drinks values ('water', -1);
-insert into starting_coin values ('noble', 40);
+insert into starting_coin values ('noble', 50);
 insert into starting_coin values ('peasant', 0);

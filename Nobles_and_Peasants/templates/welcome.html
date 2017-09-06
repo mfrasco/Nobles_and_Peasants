@@ -8,13 +8,21 @@
     <p>If you already know how to play and want to get started, enter some information
         below, and hit Get Started.</p>
     <p>You can choose what types of drinks you have at your party and how much each of these drinks cost. For example, water has already been added to the party. It costs -1 coin. (You get money for drinking water. Please drink responsibly.)</p>
-    <ul class=drinks>
-      {% for drink in drinks %}
-        <li><h2>{{ drink.name }}</h2>{{ drink.coin }}
-      {% else %}
-        <li><em>You can add drinks with the form below.</em>
-      {% endfor %}
-    </ul>
+    <div class=drinks>
+        <table class=drinks style="width:100%">
+            <tr>
+                <td><b>Drink Name</b></td>
+                <td><b>Price</b></td>
+            </tr>
+            {% for drink in drinks %}
+            <tr>
+                <td>{{drink.name}}</td>
+                <td>{{drink.coin}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <p></p>
     <form action="{{ url_for('add_drink') }}" method="post" class="adddrink">
         Enter your drink name:
         <dd><input type="text" name="drink_name"></input></dd>
@@ -25,13 +33,21 @@
         <dd><input type="submit" value="Add Drink"></input></dd>
     </form>
     <p>You can control how much coin a noble receives when they start the game. Nobles should have enough money to support a moderate number of peasants, but not too much money that they will never run out. The default amount is 50 coin. Peasants don't get any coin. However, they can earn coin by performing dares.</p>
-    <ul class=coinstatus>
-      {% for person in starting_coin %}
-        <li><h2>{{ person.status }}</h2>{{ person.coin }}
-      {% else %}
-        <li><em>You can update the starting coin for nobles with the form below.</em>
-      {% endfor %}
-    </ul>
+    <div class=coinstatus>
+        <table class=coinstatus style="width:100%">
+            <tr>
+                <td><b>Status</b></td>
+                <td><b>Coin to Start Game</b></td>
+            </tr>
+            {% for person in starting_coin %}
+            <tr>
+                <td>{{person.status}}</td>
+                <td>{{person.coin}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <p></p>
     <form action="{{ url_for('set_coin') }}" method="post" class="setcoin">
         Noble Starting Coin:
         <dd><input type="number" name="noblecoin"></input></dd>
