@@ -23,10 +23,10 @@
 		<form action="{{ url_for('pledge_allegiance') }}" method="post">
 			<dl>
 				<dt>Enter your ID:</dt>
-				<dd><input type="text" name="userID"></dd>
+				<dd><input type="text" name="user_id"></dd>
 				<p></p>
 				<dt>Enter the noble's ID:</dt>
-				<dd><input type="text" name="nobleID"></dd>
+				<dd><input type="text" name="noble_id"></dd>
 				<p></p>
 				<dd><input type="submit" value="Pledge Allegiance"></dd>
 			</dl>
@@ -37,23 +37,17 @@
 		<form action="{{ url_for('buy_drink') }}" method="post">
 			<dl>
 				<dt>Enter your ID:</dt>
-				<dd><input type="text" name="userID"></dd>
+				<dd><input type="text" name="user_id"></dd>
 				<p></p>
 				<dt>Choose your drink:</dt>
 				<dd><select name="drink">
-					<option value='beer'>Beer</option>
-					<option value='cider'>Cider</option>
-					<option value='svedka'>Svedka</option>
-					<option value='absolute'>Absolute</option>
-					<option value='fireball'>Fireball</option>
-					<option value='camarena'>Camarena</option>
-					<option value='patron'>Patron</option>
+					{% for d in drinks %}
+						<option value="{{ d }}">{{ d }}</option>
+					{% endfor %}
 				</select></dd>
 				<p></p>
 				<dt>How many?</dt>
-				<dd>
-					<input name="quantity" type="number"></input>
-				</dd>
+				<dd><input type="number" name="quantity"></input></dd>
 				<p></p>
 				<dd><input type="submit" value="Buy Drink"></dd>
 			</dl>
@@ -64,10 +58,10 @@
 		<form action="{{ url_for('ban_peasant') }}" method="post">
 			<dl>
 				<dt>Enter your ID:</dt>
-				<dd><input type="text" name="nobleID"></dd>
+				<dd><input type="text" name="noble_id"></dd>
 				<p></p>
 				<dt>Enter peasant ID:</dt>
-				<dd><input type="text" name="peasantID"></dd>
+				<dd><input type="text" name="peasant_id"></dd>
 				<p></p>
 				<dd><input type="submit" value="Ban Peasant"></dd>
 			</dl>
@@ -86,10 +80,10 @@
 		<form action="{{ url_for('kill') }}" method="post">
 			<dl>
 				<dt>Enter your ID:</dt>
-				<dd><input type="text" name="userID"></dd>
+				<dd><input type="text" name="user_id"></dd>
 				<p></p>
 				<dt>Enter your target's ID:</dt>
-				<dd><input type="text" name="targetID"></dd>
+				<dd><input type="text" name="target_id"></dd>
 				<p></p>
 				<dd><input type="submit" value="Kill"></dd>
 			</dl>

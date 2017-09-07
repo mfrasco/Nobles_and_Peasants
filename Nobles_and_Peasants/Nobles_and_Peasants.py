@@ -103,7 +103,11 @@ def set_coin():
 
 @app.route('/main')
 def show_main():
-    return render_template('main.html')
+    db = get_db()
+    query = 'select name from drinks'
+    drinks = db.execute(query).fetchall()
+    drinks = [d[0] for d in drinks]
+    return render_template('main.html', drinks = drinks)
 
 def get_starting_info(db, status, user_id):
     query = 'select coin from starting_coin where status = ?'
@@ -130,12 +134,13 @@ def sign_in():
 
     if user_status == 'randomly decide':
         statuses = db.execute('select status from kingdom').fetchall()
+        statuses = [s[0] for s in statuses]
         num_people = len(statuses)
         num_nobles = statuses.count('noble')
-        if num_people == 0:
+        if num_nobles < 2:
             user_status =  'noble'
-        elif (num_nobles / num_people) < 0.2:
-            if uniform(0, 1) < 0.5:
+        elif (float(num_nobles) / num_people) < 0.2:
+            if uniform(0, 1) < 0.75:
                 user_status = 'noble'
             else:
                 user_status = 'peasant'
@@ -184,10 +189,10 @@ def pledge_allegiance():
     # if len(outlaws) > 0 and user_id in outlaws[0]:
     #     flash('Unsuccessful! This noble has banned you from their kingdom!')
     #     return redirect(url_for('show_main'))
-        
+
     # update the allegiance in the database
     query = 'select allegiance from kingdom where id = ?'
-    previous_noble = fetch_one(query, [user_id])
+    previous_noble = fetch_one(db, query, [user_id])
     db.execute('update kingdom set allegiance = ? where id = ?', [noble_id, user_id])
     db.execute('update kingdom set soldiers = soldiers + 1 where id = ?', [noble_id])
     if previous_noble is not None:
@@ -198,10 +203,98 @@ def pledge_allegiance():
 
 @app.route('/buy_drink', methods=['POST'])
 def buy_drink():
+    user_id = request.form['user_id']
+    drink = request.form['drink']
+    quantity = int(request.form['quantity'])
+
+    db = get_db()
+
+    # check noble status
+    query = 'select allegiance from kingdom where id = ?'
+    noble_id = fetch_one(db, query, [user_id])
+    if noble_id is None:
+        flash('Unsuccessful! You need to ally yourself to a noble before you can buy a drink.')
+        return redirect(url_for('show_main'))
+
+    query = 'select coin from drinks where name = ?'
+    price = fetch_one(db, query, [drink])
+    cost = price * quantity
+
+    # If the noble has enough money, take it. If not, create a new noble.
+    query = 'select coin from kingdom where id = ?'
+    noble_coin = fetch_one(db, query, [noble_id])
+
+    db.execute('update kingdom set coin = ? where id = ?', [noble_coin - cost, noble_id])
+    db.execute('update kingdom set drinks = drinks + ? where id = ?', [quantity, user_id])
+
+    if noble_coin >= cost:
+        db.commit()
+    else:
+        promote_new_noble(db = db, old_noble = noble_id)
+
     return redirect(url_for('show_main'))
+
+def promote_new_noble(db, old_noble):
+    # determine new noble id
+    query = 'select id from kingdom where status = ? order by coin desc'
+    new_noble = fetch_one(db, query, ['peasant'])
+
+    # determine the previous noble of the new noble and decrement the number of soldiers
+    query = 'update kingdom set soldiers = soldiers - 1 where id = (select allegiance from kingdom where id = ?)'
+    db.execute(query, [new_noble])
+
+    # switch allegiance from old noble to new noble
+    query = 'update kingdom set allegiance = ? where allegiance = ?'
+    db.execute(query, [new_noble, old_noble])
+
+    # update status, allegiance, coin, soldiers for new noble
+    query = '''
+    update kingdom set status = ?
+                       , allegiance = ?
+                       , coin = coin + (select coin from starting_coin where status = ?)
+                       , soldiers = (select count(*) from kingdom where allegiance = ?)
+                   where id = ?
+    '''
+    db.execute(query, ['noble', new_noble, 'noble', new_noble, new_noble])
+
+    # remove titles from old noble
+    query = 'update kingdom set status = ?, soldiers = ? where id = ?'
+    db.execute(query, ['peasant', 0, old_noble])
+
+    # remove any entries in banned table for old noble
+    db.execute('delete from banned where noble = ?', [old_noble])
+    db.commit()
 
 @app.route('/ban', methods=['POST'])
 def ban_peasant():
+    noble_id = request.form['noble_id']
+    peasant_id = request.form['peasant_id']
+
+    # check input validity
+    query = 'select status from kingdom where id = ?'
+    noble_status = fetch_one(query_string, [noble_id])
+
+    if noble_status is None:
+        flash('Unsuccessful! Unknown noble id? Did you enter your id correctly?')
+        return redirect(url_for('show_main'))
+
+    if noble_status != 'noble':
+        flash('Unsuccessful! You are not a noble. You cannot ban people from kingdom you do not have.')
+        return redirect(url_for('show_main'))
+
+    query = 'select allegiance from kingdom where id = ?'
+    peasant_allegiance = fetch_one(query_string, [peasant_id])
+    if peasant_allegiance is None:
+        flash('Unsuccessful! The peasant id that you entered does not exist.')
+        return redirect(url_for('show_main'))
+
+    # remove the peasant's allegiance to the noble that is banning her
+    if peasant_allegiance == noble_id:
+        db.execute('update kingdom set allegiance = ? where id = ?', [None, peasant_id])
+        db.execute('update kingdom set soldiers = soldiers - 1 where id = ?', [noble_id])
+
+    # add the peasant to a banned table
+    db.execute('insert into banned (noble, outlaw) values (?, ?)', [noble_id, peasant_id])
     return redirect(url_for('show_main'))
 
 @app.route('/get_dare', methods=['POST'])
@@ -229,4 +322,3 @@ def show_leaderboard():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
-
