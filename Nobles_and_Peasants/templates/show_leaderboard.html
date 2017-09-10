@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class=leaderboard>
+        <table class=leaderboard style="width:100%">
+            <tr>
+                <td><b>ID</b></td>
+                <td><b>Soldiers</b></td>
+                <td><b>Coin</b></td>
+                <td><b>Drinks</b></td>
+            </tr>
+            {% for noble in leaderboard %}
+            <tr>
+                <td>{{noble.id}}</td>
+                <td>{{noble.soldiers}}</td>
+                <td>{{noble.coin}}</td>
+                <td>{{noble.drinks}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

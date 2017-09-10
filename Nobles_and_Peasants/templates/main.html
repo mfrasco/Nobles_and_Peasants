@@ -47,7 +47,7 @@
 				</select></dd>
 				<p></p>
 				<dt>How many?</dt>
-				<dd><input type="number" name="quantity"></input></dd>
+				<dd><input type="number" name="quantity" value="1"></input></dd>
 				<p></p>
 				<dd><input type="submit" value="Buy Drink"></dd>
 			</dl>
@@ -67,11 +67,21 @@
 			</dl>
 		</form>
 	</div>
-	<div class="dare">
-		<h3>Truth or Dare</h3>
-		<form action="{{ url_for('get_dare') }}" method="post">
+	<div class="quest">
+		<h3>Attempt a Quest</h3>
+		<form action="{{ url_for('get_quest') }}" method="post">
 			<dl>
-				<dd><input type="submit" value="Get Dare"></dd>
+				<dt>Enter the ID of the person you want to receive the quest reward:</dt>
+				<dd><input type="text" name="user_id"></dd>
+				<p></p>
+				<dt>Choose the quest difficulty</dt>
+				<dd>
+					<input type="radio" name="level" value="easy" checked required>Easy
+					<input type="radio" name="level" value="medium" required>Medium
+					<input type="radio" name="level" value="hard" required>Hard
+				</dd>
+				<p></p>
+				<dd><input type="submit" value="Get Quest"></dd>
 			</dl>
 		</form>
 	</div>

@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class=questText>
+        <h3>{{quest}}</h3>
+        <div class=result>
+            <form action="{{ url_for('add_money') }}" method="post">
+                <d1>
+                    <dt>Enter your ID:</dt>
+                    <dd><input type="text" name="user_id" value="{{ id }}" readonly></input></dd>
+                    <dt>Choose your difficulty level:</dt>
+                    <dd><input type="text" name="level" value="{{ level }}" readonly></input></dd>
+                    <dt>Did you complete your quest?:
+                    <dd><select name="result">
+                        <option value='yes'>Yes</option>
+                        <option value='no'>No</option>
+                    </select>
+                    <dd><input type="submit" value="Submit">
+                </d1>
+            </form>
+        </div>
+    </div>
+{% endblock %}

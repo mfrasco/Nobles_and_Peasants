@@ -1,13 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
-    <p>Welcome to Nobles and Peasants. If you want to learn what this game is and
-        how you can play it, click the button below.</p>
+    <p>Welcome to Nobles and Peasants. Click the button below for answers to some frequently asked questions.</p>
     <form action="{{ url_for('show_rules') }}">
-        <input type="submit" name="Rules Button" value="Show Rules">
+        <input type="submit" name="Rules Button" value="Show FAQ">
     </form>
-    <p>If you already know how to play and want to get started, enter some information
-        below, and hit Get Started.</p>
-    <p>You can choose what types of drinks you have at your party and how much each of these drinks cost. For example, water has already been added to the party. It costs -1 coin. (You get money for drinking water. Please drink responsibly.)</p>
+    <p>Below, you can change some of aspects of the game. Most importantly, you need to select what types of drinks are available at your party. For example, water has already been added to the party. It costs -1 coin. (You get money for drinking water. Please drink responsibly.)</p>
     <div class=drinks>
         <table class=drinks style="width:100%">
             <tr>
@@ -32,7 +29,7 @@
         <p></p>
         <dd><input type="submit" value="Add Drink"></input></dd>
     </form>
-    <p>You can control how much coin a noble receives when they start the game. Nobles should have enough money to support a moderate number of peasants, but not too much money that they will never run out. The default amount is 50 coin. Peasants don't get any coin. However, they can earn coin by performing dares.</p>
+    <p>Set the amount of money that nobles get when they start the game. They should have enough to allow the peasants in their army to buy a few drinks.</p>
     <div class=coinstatus>
         <table class=coinstatus style="width:100%">
             <tr>
@@ -50,9 +47,37 @@
     <p></p>
     <form action="{{ url_for('set_coin') }}" method="post" class="setcoin">
         Noble Starting Coin:
-        <dd><input type="number" name="noblecoin"></input></dd>
+        <dd><input type="number" name="noble_coin"></input></dd>
         <p></p>
         <dd><input type="submit" value="Set Noble Coin"></input></dd>
+    </form>
+    <p></p>
+    <p>By choosing the reward amounts for different quests, you can control how easily a peasant can get rich.</p>
+    <div class=wages>
+        <table class=wages style="width:100%">
+            <tr>
+                <td><b>Quest Difficulty</b></td>
+                <td><b>Coin Rewarded</b></td>
+            </tr>
+            {% for wage in wages %}
+            <tr>
+                <td>{{wage.level}}</td>
+                <td>{{wage.coin}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <form action="{{ url_for('set_wages') }}" method="post" class="setdrink">
+        Coin Given For Easy Dares:
+        <dd><input type="number" name="easy"></input></dd>
+        <p></p>
+        Coin Given For Medium Dares:
+        <dd><input type="number" name="medium"></input></dd>
+        <p></p>
+        Coin Given For Hard Dares:
+        <dd><input type="number" name="hard"></input></dd>
+        <p></p>
+        <dd><input type="submit" value="Set Dare Wages"></input></dd>
     </form>
     <p>Click here to start the game!</p>
     <form action="{{ url_for('show_main') }}">

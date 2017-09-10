@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class=killBody>
+        <h2>{{user_id}} vs. {{target_id}}</h2>
+        <h2>In order to kill your target, you must complete this one task:</h2>
+        <h3>{{challenge}}</h3>
+        <div class=assassinate>
+            <h3>Challenge Accomplished</h3>
+            <form action="{{ url_for('assassinate') }}" method=post>
+                <d1>
+                    <dt>Challenger ID:</dt>
+                    <dd><input type="text" name="user_id" value="{{ user_id }}" readonly></input></dt>
+                    <dt>Target ID:</dt>
+                    <dd><input type="text" name="target_id" value="{{ target_id }}" readonly></input></dd>
+                    <dt>Winner:</dt>
+                    <dd>
+                        <input type="radio" name="winner" value="{{ user_id }}" checked required>{{ user_id }}</input>
+                        <input type="radio" name="winner" value="{{ target_id }}" required>{{ target_id }}</input>
+                    </dd>
+                    <dd><input type=submit value="Submit">
+                </d1>
+            </form>
+        </div>
+    </div>
+{% endblock %}
