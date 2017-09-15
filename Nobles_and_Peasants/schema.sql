@@ -45,6 +45,7 @@ create table wages (
 );
 
 insert into drinks values ('water', -1);
+insert into drinks values ('beer', 5);
 insert into starting_coin values ('noble', 50);
 insert into starting_coin values ('peasant', 0);
 insert into wages values ('easy', 10);

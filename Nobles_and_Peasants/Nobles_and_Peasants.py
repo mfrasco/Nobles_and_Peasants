@@ -12,6 +12,7 @@ from flask import (
     render_template,
     flash
 )
+from flask_login import LoginManager, UserMixin
 from random import randint, uniform
 
 # create the application instance and load config
@@ -71,7 +72,16 @@ def fetch_one(db, query_string, args):
     else:
         return rv[0]
 
-@app.route('/', methods=['GET'])
+@app.route('/')
+def show_login():
+    return render_template('login.html')
+
+@app.route('/login', methods=['POST'])
+def login():
+    party_id = request.form['party_id']
+    return redirect(url_for('welcome'))
+
+@app.route('/set_up', methods=['GET'])
 def welcome():
     db = get_db()
     drinks = db.execute('select * from drinks order by coin').fetchall()

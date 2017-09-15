@@ -1,86 +1,102 @@
 {% extends "layout.html" %}
 {% block body %}
-    <p>Welcome to Nobles and Peasants. Click the button below for answers to some frequently asked questions.</p>
-    <form action="{{ url_for('show_rules') }}">
-        <input type="submit" name="Rules Button" value="Show FAQ">
-    </form>
-    <p>Below, you can change some of aspects of the game. Most importantly, you need to select what types of drinks are available at your party. For example, water has already been added to the party. It costs -1 coin. (You get money for drinking water. Please drink responsibly.)</p>
-    <div class=drinks>
-        <table class=drinks style="width:100%">
-            <tr>
-                <td><b>Drink Name</b></td>
-                <td><b>Price</b></td>
-            </tr>
-            {% for drink in drinks %}
-            <tr>
-                <td>{{drink.name}}</td>
-                <td>{{drink.coin}}</td>
-            </tr>
-            {% endfor %}
-        </table>
+    <div class="container">
+        <form id="faq_button" action="{{ url_for('show_rules') }}">
+            <input class="submit_button" type="submit" name="Rules Button" value="Show FAQ">
+        </form>
+        <form id="start_button" action="{{ url_for('show_main') }}">
+            <input class="submit_button" type="submit" value="Main Page">
+        </form></div>
     </div>
-    <p></p>
-    <form action="{{ url_for('add_drink') }}" method="post" class="adddrink">
-        Enter your drink name:
-        <dd><input type="text" name="drink_name"></input></dd>
-        <p></p>
-        Enter the amount of coin necessary to buy that drink:
-        <dd><input type="number" name="price"></input></dd>
-        <p></p>
-        <dd><input type="submit" value="Add Drink"></input></dd>
-    </form>
-    <p>Set the amount of money that nobles get when they start the game. They should have enough to allow the peasants in their army to buy a few drinks.</p>
-    <div class=coinstatus>
-        <table class=coinstatus style="width:100%">
+    <table class="current_tables">
+        <tbody>
             <tr>
-                <td><b>Status</b></td>
-                <td><b>Coin to Start Game</b></td>
+                <td><div>
+                    <h3>Drinks At Your Party</h3>
+                    <p>Water costs -1 coin. Please drink responsibly.</p>
+                </div></td>
+                <td><div>
+                    <h3>Starting Coin For Nobles and Peasants</h3>
+                    <p>Give nobles just enough money to support an army</p>
+                </div></td>
+                <td><div>
+                    <h3>Rewards For Completing Quests</h3>
+                    <p>Control how easily peasants can get coin</p>
+                </div></td>
             </tr>
-            {% for person in starting_coin %}
             <tr>
-                <td>{{person.status}}</td>
-                <td>{{person.coin}}</td>
+                <td><table class="fixed" id="drinks_table">
+                    <thead>
+                        <tr>
+                            <td>Drink Name</td>
+                            <td>Price</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for drink in drinks %}
+                        <tr>
+                            <td>{{drink.name}}</td>
+                            <td>{{drink.coin}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table></td>
+                <td><table class="fixed" id="coin_table">
+                    <thead>
+                        <tr>
+                            <td>Status</td>
+                            <td>Starting Coin</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for role in starting_coin %}
+                        <tr>
+                            <td>{{role.status}}</td>
+                            <td>{{role.coin}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table></td>
+                <td><table class="fixed" id="wages_table">
+                    <thead>
+                        <tr>
+                            <td>Quest Difficulty</td>
+                            <td>Coin Rewarded</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for wage in wages %}
+                        <tr>
+                            <td>{{wage.level}}</td>
+                            <td>{{wage.coin}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table></td>
             </tr>
-            {% endfor %}
-        </table>
-    </div>
-    <p></p>
-    <form action="{{ url_for('set_coin') }}" method="post" class="setcoin">
-        Noble Starting Coin:
-        <dd><input type="number" name="noble_coin"></input></dd>
-        <p></p>
-        <dd><input type="submit" value="Set Noble Coin"></input></dd>
-    </form>
-    <p></p>
-    <p>By choosing the reward amounts for different quests, you can control how easily a peasant can get rich.</p>
-    <div class=wages>
-        <table class=wages style="width:100%">
             <tr>
-                <td><b>Quest Difficulty</b></td>
-                <td><b>Coin Rewarded</b></td>
+                <td><div class="setup_form">
+                    <form action="{{ url_for('add_drink') }}" method="post" class="add_drink_form">
+                        <input class="input_box" type="text" name="drink_name" placeholder="Drink Name"></input>
+                        <input class="input_box" type="number" name="price" placeholder="Drink Price"></input>
+                        <input class="submit_button" type="submit" value="Add Drink To The Party"></input>
+                    </form>
+                </div></td>
+                <td><div class="setup_form">
+                    <form action="{{ url_for('set_coin') }}" method="post" class="set_coin_form">
+                        <input class="input_box" type="number" name="noble_coin" placeholder="Noble Starting Coin"></input>
+                        <input class="submit_button" type="submit" value="Update Starting Coin"></input>
+                    </form>
+                </div></td>
+                <td><div class="setup_form">
+                    <form action="{{ url_for('set_wages') }}" method="post" class="set_wage_form">
+                        <input class="input_box" type="number" name="easy" placeholder="Easy Reward"></input>
+                        <input class="input_box" type="number" name="medium" placeholder="Medium Reward"></input>
+                        <input class="input_box" type="number" name="hard" placeholder="Hard Reward"></input>
+                        <input class="submit_button" type="submit" value="Set Quest Rewards"></input>
+                    </form>
+                </div></td>
             </tr>
-            {% for wage in wages %}
-            <tr>
-                <td>{{wage.level}}</td>
-                <td>{{wage.coin}}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-    <form action="{{ url_for('set_wages') }}" method="post" class="setdrink">
-        Coin Given For Easy Dares:
-        <dd><input type="number" name="easy"></input></dd>
-        <p></p>
-        Coin Given For Medium Dares:
-        <dd><input type="number" name="medium"></input></dd>
-        <p></p>
-        Coin Given For Hard Dares:
-        <dd><input type="number" name="hard"></input></dd>
-        <p></p>
-        <dd><input type="submit" value="Set Dare Wages"></input></dd>
-    </form>
-    <p>Click here to start the game!</p>
-    <form action="{{ url_for('show_main') }}">
-        <input type="submit" value="Get Started">
-    </form>
+        </tbody>
+    </table>
 {% endblock %}

@@ -1,16 +1,143 @@
-body            { font-family: sans-serif; background: #eee; }
-a, h1, h2       { color: #377ba8; }
-h1, h2          { font-family: 'Georgia', serif; margin: 0; }
-h1              { border-bottom: 2px solid #eee; }
-h2              { font-size: 1.2em; }
+body { font-family: sans-serif; background-color: white; }
+a { color: #C09F80; }
+p { color: #565656; }
 
-.page           { margin: 2em auto; width: 35em; border: 5px solid #ccc;
-                  padding: 0.8em; background: white; }
-.kingdom        { list-style: none; margin: 0; padding: 0; }
-.kingdom li     { margin: 0.8em 1.2em; }
-.kingdom li h2  { margin-left: -1em; }
-.metanav        { text-align: right; font-size: 0.8em; padding: 0.3em;
-                  margin-bottom: 1em; background: #fafafa; }
-.flash          { background: #cee5F5; padding: 0.5em;
-                  border: 1px solid #aacbe2; }
-.error          { background: #f0d6d6; padding: 0.5em; }
+.titles { margin: 0 auto; color: #76323F; text-align: center; }
+.title {font-size: 2.5em; position: relative; top: -60px;}
+.subtitle {font-size: 1.2em; position: relative; top: -125px;}
+
+ul.nav_bar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #565656;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+/* Change the link color to #111 (black) on hover */
+li a:hover {
+    background-color: #76323F;
+}
+
+.submit_button {
+    background-color: #565656;
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.submit_button:hover {
+    background-color: #76323F;;
+    color: white;
+}
+
+.container{
+    width: 60%;
+    margin: 0 auto;
+    position: relative;
+    top: -140px;
+}
+
+#faq_button{
+    float: left;
+}
+
+#start_button{
+    float: right;
+}
+
+.fixed {
+    table-layout: fixed; border-collapse: collapse;
+}
+
+.fixed th {
+    text-decoration: underline;
+}
+
+.fixed th,
+.fixed td {
+    padding: 5px;
+    text-align: left;
+    min-width: 150px;
+}
+
+.fixed thead {
+    background-color: #76323F;
+    color: white;
+}
+
+.fixed thead tr {
+    display: block;
+    position: relative;
+}
+
+.fixed tbody {
+  display: block;
+  overflow: auto;
+  width: 100%;
+  height: 100px;
+  overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.current_tables{
+    width: 95%;
+    margin: 0 auto;
+    position: absolute;
+    top: 280px;
+    text-align: center;
+}
+
+#drinks_table {
+    margin: auto auto auto 0;
+}
+
+#coin_table {
+    margin: auto;
+}
+
+#wages_table {
+    margin: auto 0 auto auto;
+}
+
+.setup_form { background: #C09F80; padding: 0.5em; border: 1pm solid #565656;}
+
+.input_box {
+  padding: 10px;
+  border: solid 2px #565656;
+  transition: border 0.3s;
+  font-size: 1em;
+}
+
+.input_box:focus {
+    outline: none !important;
+    border:1px solid #76323F;
+    box-shadow: 0 0 10px #76323F;
+}
+
+.kingdom { list-style: none; margin: 0; padding: 0; }
+.kingdom li { margin: 0.8em 1.2em; }
+.kingdom li h2 { margin-left: -1em; }
+
+.flash { background: #76323F; padding: 0.5em; border: 1px solid #aacbe2; }
+.error { background: #f0d6d6; padding: 0.5em; }

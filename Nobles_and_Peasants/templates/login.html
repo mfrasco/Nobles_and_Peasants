@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class=login>
+        <form action="{{ url_for('login') }}" method="post">
+            <d1>
+                <dt>Enter a name for your party:</dt>
+                <dd><input type="text" name="party_id"></input></dd>
+                <dd><input type="submit" value="Create Party"></input><dd>
+            </d1>
+        </form>
+    </div>
+{% endblock %}

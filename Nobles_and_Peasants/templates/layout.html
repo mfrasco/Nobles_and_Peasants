@@ -6,19 +6,19 @@
         <title>Nobles and Peasants</title>
     {% endblock %}</head>
     <body>
-        <div class=page>
-            <a class=castleImage href="{{ url_for('show_kingdom') }}">
-                <img src="{{ url_for('static', filename='castle.jpg') }}" style="width:120px;height:120px;">
-            </a>
-            <a class=titleText href="{{ url_for('show_main') }}">
-                <h1>Nobles and Peasants</h1>
-            </a>
-                <h2>Nobles have the coin. Peasants have the power.</h2>
-            <a class=nobleImage href="{{ url_for('show_leaderboard') }}">
-                <img src="{{ url_for('static', filename='nobles.jpg') }}" style="width:120px;height:120px;">
-            </a>
+        <div class="page">
+            <ul class="nav_bar">
+                <li><a href="{{ url_for('welcome') }}">Set Up Page</a></li>
+                <li><a href="{{ url_for('show_main') }}">Main Game Page</a></li>
+                <li><a href="{{ url_for('show_kingdom') }}">Kingdom</a></li>
+                <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard</a></li>
+            </ul>
+            <div class="titles">
+                <div class="title"><h1>Nobles and Peasants</h1></div>
+                <div class="subtitle"><h2>Nobles have the coin. Peasants have the power.</h2></div>
+            </div>
             {% for message in get_flashed_messages() %}
-                <div class=flash>{{ message }}</div>
+                <div class="flash">{{ message }}</div>
             {% endfor %}
             {% block body %}
             {% endblock %}
