@@ -1,10 +1,7 @@
 body { font-family: sans-serif; background-color: white; }
 a { color: #C09F80; }
-p { color: #565656; }
-
-.titles { margin: 0 auto; color: #76323F; text-align: center; }
-.title {font-size: 2.5em; position: relative; top: -60px;}
-.subtitle {font-size: 1.2em; position: relative; top: -125px;}
+p { color: #565656; text-align: center; margin: 1px auto; }
+h3 { color: #76323F; text-align: center; margin: 1px auto; font-size: 1.25em; }
 
 ul.nav_bar {
     list-style-type: none;
@@ -18,7 +15,7 @@ li {
     float: left;
 }
 
-li a {
+li.nav_bar a {
     display: block;
     color: white;
     text-align: center;
@@ -26,9 +23,25 @@ li a {
     text-decoration: none;
 }
 
-/* Change the link color to #111 (black) on hover */
 li a:hover {
     background-color: #76323F;
+}
+
+.titles { margin: 0 auto; color: #76323F; text-align: center; }
+#title {font-size: 3.0em; }
+#subtitle {font-size: 1.25em; }
+
+#welcome_button {
+    width: 60%;
+    margin: 0 auto;
+}
+
+#faq_button {
+    float: left;
+}
+
+#start_button {
+    float: right;
 }
 
 .submit_button {
@@ -40,7 +53,7 @@ li a:hover {
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
-    margin: 4px 2px;
+    margin: 15px auto 5px auto;
     -webkit-transition-duration: 0.4s; /* Safari */
     transition-duration: 0.4s;
     cursor: pointer;
@@ -51,82 +64,69 @@ li a:hover {
     color: white;
 }
 
-.container{
-    width: 60%;
+#setup_info {
+    clear: both;
+    padding-top: 20px;
     margin: 0 auto;
-    position: relative;
-    top: -140px;
 }
 
-#faq_button{
+.setup_block {
     float: left;
+    width: 33%;
 }
 
-#start_button{
-    float: right;
+.setup_table {
+    width: 90%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin: 30px auto 10px auto;
 }
 
-.fixed {
-    table-layout: fixed; border-collapse: collapse;
-}
-
-.fixed th {
+.setup_table th {
     text-decoration: underline;
 }
 
-.fixed th,
-.fixed td {
+.setup_table th,
+.setup_table td {
     padding: 5px;
     text-align: left;
     min-width: 150px;
 }
 
-.fixed thead {
+.setup_table thead {
     background-color: #76323F;
     color: white;
 }
 
-.fixed thead tr {
+.setup_table thead tr {
     display: block;
     position: relative;
 }
 
-.fixed tbody {
+.setup_table tbody {
   display: block;
   overflow: auto;
   width: 100%;
-  height: 100px;
+  height: 150px;
   overflow-y: scroll;
     overflow-x: hidden;
 }
 
-.current_tables{
-    width: 95%;
-    margin: 0 auto;
-    position: absolute;
-    top: 280px;
-    text-align: center;
-}
-
-#drinks_table {
-    margin: auto auto auto 0;
-}
-
-#coin_table {
-    margin: auto;
-}
-
-#wages_table {
-    margin: auto 0 auto auto;
-}
-
-.setup_form { background: #C09F80; padding: 0.5em; border: 1pm solid #565656;}
+.setup_form { margin: 10px auto 10px auto;
+              width: 90%;
+              background: #C09F80;
+              padding: 0.5em;
+              height: 160px;
+              display: inline-block;
+              text-align: center; }
 
 .input_box {
+  width: 100px;
   padding: 10px;
   border: solid 2px #565656;
   transition: border 0.3s;
   font-size: 1em;
+  margin: 0;
 }
 
 .input_box:focus {
@@ -135,9 +135,63 @@ li a:hover {
     box-shadow: 0 0 10px #76323F;
 }
 
+.num_box {
+  width: 100px;
+  padding: 10px;
+  border: solid 2px #565656;
+  transition: border 0.3s;
+  font-size: 1em;
+  margin: 2px auto 2px auto;
+}
+
+.num_box:focus {
+    outline: none !important;
+    border:1px solid #76323F;
+    box-shadow: 0 0 10px #76323F;
+}
+
+.main_form {
+    background-color: #C09F80;
+}
+
+.radio_wrapper {
+    position: absolute;
+}
+
+.radio_wrapper input {
+    visibility: hidden;
+    width: 0;
+}
+
+.radio_wrapper label:hover {
+    font-weight: bold;
+    color: #76323F;
+}
+
+.radio_wrapper label:checked + label {
+    font-weight: bold;
+    color: #76323F;
+}
+
 .kingdom { list-style: none; margin: 0; padding: 0; }
 .kingdom li { margin: 0.8em 1.2em; }
 .kingdom li h2 { margin-left: -1em; }
 
 .flash { background: #76323F; padding: 0.5em; border: 1px solid #aacbe2; }
 .error { background: #f0d6d6; padding: 0.5em; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,102 +1,90 @@
 {% extends "layout.html" %}
 {% block body %}
-    <div class="container">
+    <div id="welcome_button">
         <form id="faq_button" action="{{ url_for('show_rules') }}">
             <input class="submit_button" type="submit" name="Rules Button" value="Show FAQ">
         </form>
         <form id="start_button" action="{{ url_for('show_main') }}">
             <input class="submit_button" type="submit" value="Main Page">
-        </form></div>
+        </form>
     </div>
-    <table class="current_tables">
-        <tbody>
-            <tr>
-                <td><div>
-                    <h3>Drinks At Your Party</h3>
-                    <p>Water costs -1 coin. Please drink responsibly.</p>
-                </div></td>
-                <td><div>
-                    <h3>Starting Coin For Nobles and Peasants</h3>
-                    <p>Give nobles just enough money to support an army</p>
-                </div></td>
-                <td><div>
-                    <h3>Rewards For Completing Quests</h3>
-                    <p>Control how easily peasants can get coin</p>
-                </div></td>
-            </tr>
-            <tr>
-                <td><table class="fixed" id="drinks_table">
-                    <thead>
-                        <tr>
-                            <td>Drink Name</td>
-                            <td>Price</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for drink in drinks %}
-                        <tr>
-                            <td>{{drink.name}}</td>
-                            <td>{{drink.coin}}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table></td>
-                <td><table class="fixed" id="coin_table">
-                    <thead>
-                        <tr>
-                            <td>Status</td>
-                            <td>Starting Coin</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for role in starting_coin %}
-                        <tr>
-                            <td>{{role.status}}</td>
-                            <td>{{role.coin}}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table></td>
-                <td><table class="fixed" id="wages_table">
-                    <thead>
-                        <tr>
-                            <td>Quest Difficulty</td>
-                            <td>Coin Rewarded</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for wage in wages %}
-                        <tr>
-                            <td>{{wage.level}}</td>
-                            <td>{{wage.coin}}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table></td>
-            </tr>
-            <tr>
-                <td><div class="setup_form">
-                    <form action="{{ url_for('add_drink') }}" method="post" class="add_drink_form">
-                        <input class="input_box" type="text" name="drink_name" placeholder="Drink Name"></input>
-                        <input class="input_box" type="number" name="price" placeholder="Drink Price"></input>
-                        <input class="submit_button" type="submit" value="Add Drink To The Party"></input>
-                    </form>
-                </div></td>
-                <td><div class="setup_form">
-                    <form action="{{ url_for('set_coin') }}" method="post" class="set_coin_form">
-                        <input class="input_box" type="number" name="noble_coin" placeholder="Noble Starting Coin"></input>
-                        <input class="submit_button" type="submit" value="Update Starting Coin"></input>
-                    </form>
-                </div></td>
-                <td><div class="setup_form">
-                    <form action="{{ url_for('set_wages') }}" method="post" class="set_wage_form">
-                        <input class="input_box" type="number" name="easy" placeholder="Easy Reward"></input>
-                        <input class="input_box" type="number" name="medium" placeholder="Medium Reward"></input>
-                        <input class="input_box" type="number" name="hard" placeholder="Hard Reward"></input>
-                        <input class="submit_button" type="submit" value="Set Quest Rewards"></input>
-                    </form>
-                </div></td>
-            </tr>
-        </tbody>
-    </table>
+    <div id="setup_info">
+        <div class="setup_block" id="set_drinks">
+            <h3>Drinks At Your Party</h3>
+            <p>Water costs -1 coin. Please drink responsibly.</p>
+            <table class="setup_table" id="drinks_table">
+                <thead>
+                    <tr>
+                        <td>Drink Name</td>
+                        <td>Price</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for drink in drinks %}
+                    <tr>
+                        <td>{{drink.name}}</td>
+                        <td>{{drink.coin}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <form action="{{ url_for('add_drink') }}" method="post" class="setup_form" class="add_drink_form">
+                <input class="input_box" type="text" name="drink_name" placeholder="Name"></input>
+                <input class="num_box" type="number" name="price" placeholder="Price"></input>
+                <input class="submit_button" type="submit" value="Add Drink To The Party"></input>
+            </form>
+        </div>
+        <div class="setup_block" id="set_coin">
+            <h3>Starting Coin For Nobles and Peasants</h3>
+            <p>Give nobles just enough money to support an army</p>
+            <table class="setup_table" id="coin_table">
+                <thead>
+                    <tr>
+                        <td>Status</td>
+                        <td>Starting Coin</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for role in starting_coin %}
+                    <tr>
+                        <td>{{role.status}}</td>
+                        <td>{{role.coin}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <form action="{{ url_for('set_coin') }}" method="post" class="setup_form" id="set_coin_form">
+                <input class="num_box" type="number" name="noble_coin" placeholder="Noble Coin"></input>
+                <p></p>
+                <input class="submit_button" type="submit" value="Update Starting Coin"></input>
+            </form>
+        </div>
+        <div class="setup_block" id="set_reward">
+            <h3>Rewards For Completing Quests</h3>
+            <p>Control how easily peasants can get coin</p>
+            <table class="setup_table" id="reward_table">
+                <thead>
+                    <tr>
+                        <td>Quest Difficulty</td>
+                        <td>Coin Rewarded</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for wage in wages %}
+                    <tr>
+                        <td>{{wage.level}}</td>
+                        <td>{{wage.coin}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <form action="{{ url_for('set_wages') }}" method="post" class="setup_form" id="set_wage_form">
+                <input class="num_box" type="number" name="easy" placeholder="Easy"></input>
+                <input class="num_box" type="number" name="medium" placeholder="Medium"></input>
+                <input class="num_box" type="number" name="hard" placeholder="Hard"></input>
+                <p></p>
+                <input class="submit_button" type="submit" value="Set Quest Rewards"></input>
+            </form>
+        </div>
+    </div>
 {% endblock %}
