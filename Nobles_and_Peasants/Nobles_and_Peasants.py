@@ -132,7 +132,7 @@ def set_wages():
     hard_wage = request.form['hard']
 
     db = get_db()
-    query = 'update wages set coin = ? where job = ?'
+    query = 'update wages set coin = ? where level = ?'
 
     if easy_wage != '':
         db.execute(query, [int(easy_wage), 'easy'])

@@ -1,36 +1,38 @@
 {% extends "layout.html" %}
 {% block body %}
-    <h2>What is Nobles and Peasants?</h2>
-    <p>Nobles and Peasants provides a middle ground between a theme party and a regular party. For those who just want to drink and hang out with friends, you can do that without much interaction with the rest of the game. For those who want to embrace the inner-workings of this medieval society, you can do that too. Nobles and Peasants establishes the minimal amount of structure so that your night can become as entertaining as your own imagination.
-    </p>
-    <h2>What is a noble? What is a peasant?</h2>
-    <p>Nobles start the game with some amount of coin. Peasants start with nothing. Coin is used to buy drinks. Since they do not have any coin, peasants must pledge allegiance to a noble, which allows them to get drinks using that noble's coin.
-    </p>
-    <h2>Why would a noble allow a peasant to use their coin?</h2>
-    <p>When a peasant pledges allegiance to a noble, the peasant becomes a soldier in that noble's army. The noble with the most soldiers is <b>The Almighty Ruler of Heaven and Earth</b>. The person with this title is allowed to do whatever he or she wants. Everyone must obey.
-    </p>
-    <h2>How do I become a noble or a peasant?</h2>
-    <p>You can choose which status you want to have, or you can let the game decide for you. Peasants can become nobles later in the game.
-    </p>
-    <h2>What happens when a noble runs out of coin?</h2>
-    <p>When a noble does not have any more coin, that person becomes a peasant. Also, the peasant with the most coin becomes a noble and takes over as the ruler of the previous noble's army.
-    </p>
-    <h2>How does a peasant get coin?</h2>
-    <p>A peasants earns coin by completing quests. An an example of a quest is, "Dance with an inanimate object for a minute." If you complete the quest, you get some coin. There are three difficulty levels for quests, each with a different reward for completion.
-    </p>
-    <h2>Can a peasant change allegiances?</h2>
-    <p>Yes. A peasant can change allegiances as they wish.
-    </p>
-    <h2>Can a noble prevent a peasant from being in their army?</h2>
-    <p>Yes. A noble can ban a peasant, which prevents the peasant from using their coin to drink. However, peasants do not have to get permission from a noble to join the noble's army.
-    </p>
-    <h2>How can a peasant become a noble?</h2>
-    <p>In addition to being the richest peasant when a noble runs out of coin, there is another way for a peasant to become a noble. A peasant can attempt to assassinate a noble. In order to even be allowed to attempt an assassination, the peasant must have a certain amount of coin compared to the noble. If the peasant has enough coin, they must also complete an assassination quest, which is a quest of the highest difficulty. If they succeed, the peasant takes the status, coin, and soldiers from their target.
-    </p>
-    <h2>Can nobles assassinate nobles?</h2>
-    <p>Yes.
-    </p>
-    <form action="{{ url_for('welcome') }}">
-        <input type="submit" name="Welcome Button" value="Back To Welcome Page">
+    <form id="back_to_welcome" action="{{ url_for('welcome') }}">
+        <input class="submit_button" type="submit" name="Welcome Button" value="Back To Welcome Page">
     </form>
+    <div id="rules">
+        <h2>What is Nobles and Peasants?</h2>
+        <p class="rule">Nobles and Peasants provides a middle ground between a theme party and a regular party. For those who just want to drink and hang out with friends, you can do that without much interaction with the rest of the game. For those who want to embrace the inner-workings of this medieval society, you can do that too. Nobles and Peasants establishes the minimal amount of structure so that your night can become as entertaining as your own imagination.
+        </p>
+        <h2>What is a noble? What is a peasant?</h2>
+        <p class="rule">Nobles start the game with some amount of coin. Peasants start with nothing. Coin is used to buy drinks. Since they do not have any coin, peasants must pledge allegiance to a noble, which allows them to get drinks using that noble's coin.
+        </p>
+        <h2>Why would a noble allow a peasant to use their coin?</h2>
+        <p class="rule">When a peasant pledges allegiance to a noble, the peasant becomes a soldier in that noble's army. The noble with the most soldiers is <b>The Almighty Ruler of Heaven and Earth</b>. The person with this title is allowed to do whatever he or she wants. Everyone must obey.
+        </p>
+        <h2>How do I become a noble or a peasant?</h2>
+        <p class="rule">You can choose which status you want to have, or you can let the game decide for you. Peasants can become nobles later in the game.
+        </p>
+        <h2>What happens when a noble runs out of coin?</h2>
+        <p class="rule">When a noble does not have any more coin, that person becomes a peasant. Also, the peasant with the most coin becomes a noble and takes over as the ruler of the previous noble's army.
+        </p>
+        <h2>How does a peasant get coin?</h2>
+        <p class="rule">A peasants earns coin by completing quests. An an example of a quest is, "Dance with an inanimate object for a minute." If you complete the quest, you get some coin. There are three difficulty levels for quests, each with a different reward for completion.
+        </p>
+        <h2>Can a peasant change allegiances?</h2>
+        <p class="rule">Yes. A peasant can change allegiances as they wish.
+        </p>
+        <h2>Can a noble prevent a peasant from being in their army?</h2>
+        <p class="rule">Yes. A noble can ban a peasant, which prevents the peasant from using their coin to drink. However, peasants do not have to get permission from a noble to join the noble's army.
+        </p>
+        <h2>How can a peasant become a noble?</h2>
+        <p class="rule">In addition to being the richest peasant when a noble runs out of coin, there is another way for a peasant to become a noble. A peasant can attempt to assassinate a noble. In order to even be allowed to attempt an assassination, the peasant must have a certain amount of coin compared to the noble. If the peasant has enough coin, they must also complete an assassination quest, which is a quest of the highest difficulty. If they succeed, the peasant takes the status, coin, and soldiers from their target.
+        </p>
+        <h2>Can nobles assassinate nobles?</h2>
+        <p class="rule">Yes.
+        </p>
+    </div>
 {% endblock %}

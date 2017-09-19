@@ -1,77 +1,81 @@
 {% extends "layout.html" %}
 {% block body %}
-	<div class="main_form" id="sign_in_form">
-		<form action="{{ url_for('sign_in') }}" method="post">
-			<input class="input_box" type="text" name="user_id" placeholder="Choose a Name"></input>
-			<div class="radio_wrapper" id="wrap_random_status">
-				<input type="radio" name="user_status" value="randomly decide" id="random_status" checked required></input>
-				<label for="random_status">Randomly Decide</label>
+	<div id="main_page">
+		<div class="main_col" id="left_col">
+			<div class="main_form" id="sign_in_form">
+				<form action="{{ url_for('sign_in') }}" method="post">
+					<input class="input_box" type="text" name="user_id" placeholder="Choose a Name"></input>
+					<p></p>
+					<select class="select_box" name="user_status">
+						<option value="None">Choose a Status</option>
+						<option value="randomly decide">Randomly Decide</option>
+						<option value="noble">Noble</option>
+						<option value="peasant">Peasant</option>
+					</select>
+					<p></p>
+					<input class="submit_button" type="submit" value="Enter Party"></input>
+				</form>
 			</div>
-			<div class="radio_wrapper" id="wrap_peasant_status">
-				<input type="radio" name="user_status" value="peasant" id="peasant_status" required></input>
-				<label for="peasant_status">Peasant</label>
+			<div class="main_form" id="ban_form">
+				<form action="{{ url_for('ban_peasant') }}" method="post">
+					<input class="input_box" type="text" name="noble_id" placeholder="Your Name"></input>
+					<p></p>
+					<input class="input_box" type="text" name="peasant_id" placeholder="Peasant Name"></input>
+					<p></p>
+					<input class="submit_button" type="submit" value="Ban This Peasant"></input>
+				</form>
 			</div>
-			<div class="radio_wrapper" id="wrap_noble_status">
-				<input type="radio" name="user_status" value="noble" id="noble_status" required></input>
-				<label for="noble_status">Noble</label>
+		</div>
+		<div class="main_col" id="center_col">
+			<div class="main_form" id="pledge_form">
+				<form action="{{ url_for('pledge_allegiance') }}" method="post">
+					<input class="input_box" type="text" name="user_id" placeholder="Your Name"></input>
+					<p></p>
+					<input class="input_box" type="text" name="noble_id" placeholder="Noble's Name"></input>
+					<p></p>
+					<input class="submit_button" type="submit" value="Pledge Allegiance"></input>
+				</form>
 			</div>
-			<input class="submit_button" type="submit" value="Sign In"></input>
-		</form>
-	</div>
-
-	<div class="main_form" id="pledge_form">
-		<form action="{{ url_for('pledge_allegiance') }}" method="post">
-			<input class="input_box" type="text" name="user_id" placeholder="Enter Your Name"></input>
-			<input class="input_box" type="text" name="noble_id" placeholder="Enter Your Noble's Name"></input>
-			<input class="submit_button" type="submit" value="Pledge Allegiance"></input>
-		</form>
-	</div>
-	
-	<div class="main_form" id="buy_drink_form">
-		<form action="{{ url_for('buy_drink') }}" method="post">
-			<input class="input_box" type="text" name="user_id" placeholder="Enter Your Name"></input>
-			<select name="drink">
-				{% for d in drinks %}
-					<option value="{{ d }}">{{ d }}</option>
-				{% endfor %}
-			</select>
-			<input class="input_box" type="number" name="quantity" placeholder="How Many Drinks" value="1"></input>
-			<input class="submit_button" type="submit" value="Buy Drink"></input>
-		</form>
-	</div>
-
-	<div class="main_form" id="ban_form">
-		<form action="{{ url_for('ban_peasant') }}" method="post">
-			<input class="input_box" type="text" name="noble_id" placeholder="Enter Your Name"></input>
-			<input class="input_box" type="text" name="peasant_id" placeholder="Enter a Peasant's Name"></input>
-			<input class="submit_button" type="submit" value="Ban This Peasant"></input>
-		</form>
-	</div>
-
-	<div class="main_form" id="quest_form">
-		<form action="{{ url_for('get_quest') }}" method="post">
-			<input class="input_box" type="text" name="user_id" placeholder="Enter Name of Person to Receive Reward"></input>
-			<div class="radio_wrapper" id="wrap_easy_wage">
-				<input type="radio" name="level" value="easy" id="easy_level" checked required></input>
-				<label for="easy_level">Easy</label>
+			<div class="main_form" id="quest_form">
+				<form action="{{ url_for('get_quest') }}" method="post">
+					<input class="input_box" id="receive_reward" type="text" name="user_id" placeholder="Name To Receive Reward"></input>
+					<p></p>
+					<select class="select_box" name="level">
+						<option value="None">Choose a Level</option>
+						<option value="easy">Easy</option>
+						<option value="medium">Medium</option>
+						<option value="hard">Hard</option>
+					</select>
+					<p></p>
+					<input class="submit_button" type="submit" value="Get a Quest"></input>
+				</form>
 			</div>
-			<div class="radio_wrapper" id="wrap_medium_wage">
-				<input type="radio" name="level" value="medium" id="medium_level" required></input>
-				<label for="medium_level">Medium</label>
+		</div>
+		<div class="main_col" id="right_col">
+			<div class="main_form" id="buy_drink_form">
+				<form action="{{ url_for('buy_drink') }}" method="post">
+					<input class="input_box" type="text" name="user_id" placeholder="Your Name"></input>
+					<p></p>
+					<select class="select_box" name="drink">
+							<option value="None">Choose a Drink</option>
+						{% for d in drinks %}
+							<option value="{{ d }}">{{ d }}</option>
+						{% endfor %}
+					</select>
+					<input class="input_box" type="number" name="quantity" placeholder="Quantity"></input>
+					<p></p>
+					<input class="submit_button" type="submit" value="Buy Drink"></input>
+				</form>
 			</div>
-			<div class="radio_wrapper" id="wrap_hard_wage">
-				<input type="radio" name="level" value="hard" id="hard_level" required></input>
-				<label for="hard_level">Hard</label>
+			<div class="main_form" id="kill_form">
+				<form action="{{ url_for('kill') }}" method="post">
+					<input class="input_box" type="text" name="user_id" placeholder="Your Name"></input>
+					<p></p>
+					<input class="input_box" type="text" name="target_id" placeholder="Target Name"></input>
+					<p></p>
+					<input class="submit_button" type="submit" value="Kill a Target"></input>
+				</form>
 			</div>
-			<input class="submit_button" type="submit" value="Get a Quest"></input>
-		</form>
-	</div>
-
-	<div class="main_form" id="kill_form">
-		<form action="{{ url_for('kill') }}" method="post">
-			<input class="input_box" type="text" name="user_id" placeholder="Enter Your Name"></input>
-			<input class="input_box" type="text" name="target_id" placeholder="Enter Your Target's Name"></input>
-			<input class="submit_button" type="submit" value="Kill a Target"></input>
-		</form>
+		</div>
 	</div>
 {% endblock %}

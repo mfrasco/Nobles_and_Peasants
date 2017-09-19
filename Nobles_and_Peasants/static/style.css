@@ -1,7 +1,32 @@
+/*-------------------Universal Elements and Layout------------------------*/
 body { font-family: sans-serif; background-color: white; }
 a { color: #C09F80; }
 p { color: #565656; text-align: center; margin: 1px auto; }
+h2 { color: #76323F;}
 h3 { color: #76323F; text-align: center; margin: 1px auto; font-size: 1.25em; }
+
+.flash { background: #76323F; padding: 0.5em; border: 1px solid #aacbe2; }
+.error { background: #f0d6d6; padding: 0.5em; }
+
+.submit_button {
+    background-color: #565656;
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 10px auto 3px auto;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.submit_button:hover {
+    background-color: #76323F;;
+    color: white;
+}
 
 ul.nav_bar {
     list-style-type: none;
@@ -31,6 +56,79 @@ li a:hover {
 #title {font-size: 3.0em; }
 #subtitle {font-size: 1.25em; }
 
+.input_box {
+  width: 130px;
+  padding: 10px;
+  border: solid 2px #565656;
+  transition: border 0.3s;
+  font-size: 1em;
+  margin: 4px auto 4px auto;
+}
+
+.input_box:focus {
+    outline: none !important;
+    border:1px solid #76323F;
+    box-shadow: 0 0 10px #76323F;
+}
+
+.num_box {
+  width: 100px;
+  padding: 10px;
+  border: solid 2px #565656;
+  transition: border 0.3s;
+  font-size: 1em;
+  margin: 4px auto 4px auto;
+}
+
+.num_box:focus {
+    outline: none !important;
+    border:1px solid #76323F;
+    box-shadow: 0 0 10px #76323F;
+}
+
+
+
+/*-------------------Login Page------------------------*/
+
+#login_form {
+    width: 300px;
+    height: 120px;
+    background-color: #C09F80;
+
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    padding: 0.5em;
+
+    margin: auto;
+    text-align: center;
+}
+
+#enter_party {
+    width: 180px;
+}
+
+#back_to_welcome {
+    margin: 0 auto;
+    width: 200px;
+}
+
+/*-------------------FAQ Page------------------------*/
+
+.rule {
+    text-align: left;
+}
+
+#rules {
+    width: 80%;
+    margin: 0 auto;
+}
+
+/*-------------------Welcome Page------------------------*/
+
 #welcome_button {
     width: 60%;
     margin: 0 auto;
@@ -42,26 +140,6 @@ li a:hover {
 
 #start_button {
     float: right;
-}
-
-.submit_button {
-    background-color: #565656;
-    border: none;
-    color: white;
-    padding: 16px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 15px auto 5px auto;
-    -webkit-transition-duration: 0.4s; /* Safari */
-    transition-duration: 0.4s;
-    cursor: pointer;
-}
-
-.submit_button:hover {
-    background-color: #76323F;;
-    color: white;
 }
 
 #setup_info {
@@ -112,7 +190,7 @@ li a:hover {
     overflow-x: hidden;
 }
 
-.setup_form { margin: 10px auto 10px auto;
+.setup_form { margin: 10px auto 0px auto;
               width: 90%;
               background: #C09F80;
               padding: 0.5em;
@@ -120,65 +198,43 @@ li a:hover {
               display: inline-block;
               text-align: center; }
 
-.input_box {
-  width: 100px;
-  padding: 10px;
-  border: solid 2px #565656;
-  transition: border 0.3s;
-  font-size: 1em;
-  margin: 0;
+/*-------------------Main Page------------------------*/
+
+#main_page {
+    clear: both;
+    padding-top: 20px;
+    margin: 0 auto;
 }
 
-.input_box:focus {
-    outline: none !important;
-    border:1px solid #76323F;
-    box-shadow: 0 0 10px #76323F;
-}
-
-.num_box {
-  width: 100px;
-  padding: 10px;
-  border: solid 2px #565656;
-  transition: border 0.3s;
-  font-size: 1em;
-  margin: 2px auto 2px auto;
-}
-
-.num_box:focus {
-    outline: none !important;
-    border:1px solid #76323F;
-    box-shadow: 0 0 10px #76323F;
+.main_col {
+    float: left;
+    width: 33%;
 }
 
 .main_form {
     background-color: #C09F80;
+    margin: 40px;
+    padding: 15px 2px 5px 2px;
+    text-align: center;
+    height: 180px;
 }
 
-.radio_wrapper {
-    position: absolute;
+.select_box {
+    width: 150px;
+    height: 40px;
+    font-size: 1em;
 }
 
-.radio_wrapper input {
-    visibility: hidden;
-    width: 0;
+#receive_reward {
+    width: 200px;
 }
 
-.radio_wrapper label:hover {
-    font-weight: bold;
-    color: #76323F;
-}
-
-.radio_wrapper label:checked + label {
-    font-weight: bold;
-    color: #76323F;
-}
+/*-------------------Main Page------------------------*/
 
 .kingdom { list-style: none; margin: 0; padding: 0; }
 .kingdom li { margin: 0.8em 1.2em; }
 .kingdom li h2 { margin-left: -1em; }
 
-.flash { background: #76323F; padding: 0.5em; border: 1px solid #aacbe2; }
-.error { background: #f0d6d6; padding: 0.5em; }
 
 
 

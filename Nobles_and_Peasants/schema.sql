@@ -26,7 +26,6 @@ create table starting_coin (
     coin integer not null
 );
 
-drop table if exists dares;
 drop table if exists quests;
 create table quests (
     quest text,

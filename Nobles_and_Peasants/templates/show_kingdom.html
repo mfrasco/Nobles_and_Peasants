@@ -1,15 +1,16 @@
 {% extends "layout.html" %}
 {% block body %}
-    <div class=kingdom>
-        <table class=kingdom style="width:100%">
-            <tr>
-                <td><b>ID</b></td>
-                <td><b>Status</b></td>
-                <td><b>Allegiance</b></td>
-                <td><b>Coin</b></td>
-                <td><b>Drinks</b></td>
-                <td><b>Soldiers</b></td>
-            </tr>
+    <div class="kingdom">
+        <table class="setup_table">
+            <thead><tr>
+                <td>ID</td>
+                <td>Status</td>
+                <td>Allegiance</td>
+                <td>Coin</td>
+                <td>Drinks</td>
+                <td>Soldiers</td>
+            </tr></thead>
+            <tbody>
             {% for person in kingdom %}
             <tr>
                 <td>{{person.id}}</td>
@@ -20,6 +21,7 @@
                 <td>{{person.soldiers}}</td>
             </tr>
             {% endfor %}
+        </tbody>
         </table>
     </div>
 {% endblock %}

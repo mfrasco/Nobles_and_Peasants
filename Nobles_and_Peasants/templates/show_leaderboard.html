@@ -1,13 +1,14 @@
 {% extends "layout.html" %}
 {% block body %}
-    <div class=leaderboard>
-        <table class=leaderboard style="width:100%">
-            <tr>
-                <td><b>ID</b></td>
-                <td><b>Soldiers</b></td>
-                <td><b>Coin</b></td>
-                <td><b>Drinks</b></td>
-            </tr>
+    <div class="leaderboard">
+        <table class="setup_table">
+            <thead><tr>
+                <td>ID</td>
+                <td>Soldiers</td>
+                <td>Coin</td>
+                <td>Drinks</td>
+            </tr></thead>
+            <tbody>
             {% for noble in leaderboard %}
             <tr>
                 <td>{{noble.id}}</td>
@@ -16,6 +17,7 @@
                 <td>{{noble.drinks}}</td>
             </tr>
             {% endfor %}
+        </tbody>
         </table>
     </div>
 {% endblock %}
