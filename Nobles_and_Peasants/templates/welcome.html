@@ -29,8 +29,8 @@
                 </tbody>
             </table>
             <form action="{{ url_for('add_drink') }}" method="post" class="setup_form" class="add_drink_form">
-                <input class="input_box" type="text" name="drink_name" placeholder="Name"></input>
-                <input class="num_box" type="number" name="price" placeholder="Price"></input>
+                <input class="input_box" type="text" name="drink_name" placeholder="Name" required></input>
+                <input class="num_box" type="number" name="price" placeholder="Price" min=0 required></input>
                 <input class="submit_button" type="submit" value="Add or Update Drink"></input>
             </form>
         </div>
@@ -54,7 +54,7 @@
                 </tbody>
             </table>
             <form action="{{ url_for('set_coin') }}" method="post" class="setup_form" id="set_coin_form">
-                <input class="num_box" type="number" name="noble_coin" placeholder="Noble Coin"></input>
+                <input class="num_box" type="number" name="noble_coin" placeholder="Noble Coin" min=0 required></input>
                 <p></p>
                 <input class="submit_button" type="submit" value="Update Starting Coin"></input>
             </form>
@@ -79,9 +79,9 @@
                 </tbody>
             </table>
             <form action="{{ url_for('set_wages') }}" method="post" class="setup_form" id="set_wage_form">
-                <input class="num_box" type="number" name="easy" placeholder="Easy"></input>
-                <input class="num_box" type="number" name="medium" placeholder="Medium"></input>
-                <input class="num_box" type="number" name="hard" placeholder="Hard"></input>
+                <input class="num_box" type="number" name="easy" placeholder="Easy" min=0 required></input>
+                <input class="num_box" type="number" name="medium" placeholder="Medium" min=0 required></input>
+                <input class="num_box" type="number" name="hard" placeholder="Hard" min=0 required></input>
                 <p></p>
                 <input class="submit_button" type="submit" value="Set Quest Rewards"></input>
             </form>

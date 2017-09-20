@@ -96,16 +96,8 @@ def show_rules():
 @app.route('/add_drink', methods=['POST'])
 def add_drink():
     db = get_db()
-    drink_name = request.form['drink_name']
-    price = request.form['price']
-
-    if drink_name == '':
-        flash('You must enter a name for the drink')
-        return redirect(url_for('welcome'))
-
-    if price == '':
-        flash('You must enter a price for the drink')
-        return redirect(url_for('welcome'))
+    drink_name = request.form['drink_name'].strip()
+    price = int(request.form['price'])
 
     if drink_name == 'water' and price >= 0:
         flash('Unsuccessful! Water must have a negative price.')
@@ -119,7 +111,7 @@ def add_drink():
 @app.route('/set_coin', methods=['POST'])
 def set_coin():
     db = get_db()
-    noble_coin = request.form['noble_coin']
+    noble_coin = int(request.form['noble_coin'])
     query = 'update starting_coin set coin = ? where status = ?'
     db.execute(query, [noble_coin, 'noble'])
     db.commit()
@@ -127,22 +119,27 @@ def set_coin():
 
 @app.route('/set_wages', methods=['POST'])
 def set_wages():
-    easy_wage = request.form['easy']
-    medium_wage = request.form['medium']
-    hard_wage = request.form['hard']
+    easy_wage = int(request.form['easy'])
+    medium_wage = int(request.form['medium'])
+    hard_wage = int(request.form['hard'])
+
+    if medium_wage < easy_wage:
+        flash('Medium reward cannot be less than easy reward')
+        return redirect(url_for('welcome'))
+
+    if hard_wage < medium_wage:
+        flash('Hard reward cannot be less than medium reward')
+        return redirect(url_for('welcome'))
 
     db = get_db()
-    query = 'update wages set coin = ? where level = ?'
+    query = '''
+    update wages set coin = (case when level = ? then ?
+                                  when level = ? then ?
+                                  else ?
+                             end)
+    '''
 
-    if easy_wage != '':
-        db.execute(query, [int(easy_wage), 'easy'])
-
-    if medium_wage != '':
-        db.execute(query, [int(medium_wage), 'medium'])
-
-    if hard_wage != '':
-        db.execute(query, [int(hard_wage), 'hard'])
-
+    db.execute(query, ['easy', easy_wage, 'medium', medium_wage, hard_wage])
     db.commit()
     return redirect(url_for('welcome'))
 
@@ -167,13 +164,9 @@ def get_starting_info(db, status, user_id):
 
 @app.route('/sign_in', methods=['POST'])
 def sign_in():
-    user_id = request.form['user_id']
+    user_id = request.form['user_id'].strip()
     user_status = request.form['user_status']
     db = get_db()
-
-    if user_id == '':
-        flash('Unsuccessful! You must enter a non-empty username.')
-        return redirect(url_for('show_main'))
 
     # check that the id is not already taken
     current_ids = db.execute('select id from kingdom').fetchall()
@@ -206,13 +199,10 @@ def sign_in():
 
 @app.route('/pledge', methods=['POST'])
 def pledge_allegiance():
-    user_id = request.form['user_id']
-    noble_id = request.form['noble_id']
+    user_id = request.form['user_id'].strip()
+    noble_id = request.form['noble_id'].strip()
 
     db = get_db()
-
-    if noble_id == '':
-        noble_id = None
 
     # check the request values are valid
     query = 'select status from kingdom where id = ?'
@@ -224,11 +214,11 @@ def pledge_allegiance():
         flash('Unsuccessful! Please enter a valid id for yourself. Have you signed in?')
         return redirect(url_for('show_main'))
 
-    if noble_id is not None and noble_status is None:
+    if noble_status is None:
         flash('Unsuccessful! Please enter a valid id for the noble.')
         return redirect(url_for('show_main'))
 
-    if noble_id is not None and noble_status != 'noble':
+    if noble_status != 'noble':
         flash('Unsuccessful! That person is not a noble')
         return redirect(url_for('show_main'))
 
@@ -237,21 +227,18 @@ def pledge_allegiance():
         return redirect(url_for('show_main'))
 
     # check if noble has banned peasant
-    if noble_id is not None:
-        query = 'select outlaw from banned where noble = ?'
-        outlaws = db.execute(query, [noble_id]).fetchall()
-        outlaws = [x[0] for x in outlaws]
-        if len(outlaws) > 0 and user_id in outlaws[0]:
-            flash('Unsuccessful! This noble has banned you from their kingdom!')
-            return redirect(url_for('show_main'))
+    query = 'select outlaw from banned where noble = ?'
+    outlaws = db.execute(query, [noble_id]).fetchall()
+    outlaws = [x[0] for x in outlaws]
+    if len(outlaws) > 0 and user_id in outlaws[0]:
+        flash('Unsuccessful! This noble has banned you from their kingdom!')
+        return redirect(url_for('show_main'))
 
     # update the allegiance in the database
     query = 'select allegiance from kingdom where id = ?'
     previous_noble = fetch_one(db, query, [user_id])
     db.execute('update kingdom set allegiance = ? where id = ?', [noble_id, user_id])
-
-    if noble_id is not None:
-        db.execute('update kingdom set soldiers = soldiers + 1 where id = ?', [noble_id])
+    db.execute('update kingdom set soldiers = soldiers + 1 where id = ?', [noble_id])
     
     if previous_noble is not None:
         db.execute('update kingdom set soldiers = soldiers - 1 where id = ?', [previous_noble])
@@ -261,15 +248,9 @@ def pledge_allegiance():
 
 @app.route('/buy_drink', methods=['POST'])
 def buy_drink():
-    user_id = request.form['user_id']
+    user_id = request.form['user_id'].strip()
     drink = request.form['drink']
-    quantity = request.form['quantity']
-
-    if quantity == '':
-        flash('Unsuccessful! You need to enter a valid number of drinks.')
-        return redirect(url_for('show_main'))
-
-    quantity = int(quantity)
+    quantity = int(request.form['quantity'])
 
     db = get_db()
 
@@ -355,8 +336,8 @@ def make_noble_peasant(db, old_noble):
 
 @app.route('/ban', methods=['POST'])
 def ban_peasant():
-    noble_id = request.form['noble_id']
-    peasant_id = request.form['peasant_id']
+    noble_id = request.form['noble_id'].strip()
+    peasant_id = request.form['peasant_id'].strip()
 
     db = get_db()
 
@@ -390,12 +371,8 @@ def ban_peasant():
 
 @app.route('/get_quest', methods=['POST'])
 def get_quest():
-    user_id = request.form['user_id']
-    level = request.form['level']
-    
-    if user_id == '':
-        flash('Unsuccessful! Please enter a non-empty id.')
-        return redirect(url_for('show_main'))
+    user_id = request.form['user_id'].strip()
+    level = request.form['level'].strip()
 
     db = get_db()
     query = 'select id from kingdom where id = ?'
@@ -410,7 +387,7 @@ def get_quest():
 
 @app.route('/add_money', methods=['POST'])
 def add_money():
-    user_id = request.form['user_id']
+    user_id = request.form['user_id'].strip()
     level = request.form['level']
     result = request.form['result']
 
@@ -424,8 +401,8 @@ def add_money():
 
 @app.route('/kill', methods=['POST'])
 def kill():
-    user_id = request.form['user_id']
-    target_id = request.form['target_id']
+    user_id = request.form['user_id'].strip()
+    target_id = request.form['target_id'].strip()
     db = get_db()
 
     query = 'select coin, status from kingdom where id = ?'
@@ -500,7 +477,7 @@ def n_beats_p(db, winner, loser):
     take_money(db = db, winner = winner, loser = loser)
 
     # before chaning allegiances of loser, decrement soldiers for previous noble of loser
-    decrement_previous_noble(db = db, user = loser)
+    decrement_previous_noble(db = db, new_noble = loser)
 
     # ally loser to winner and increment soldiers
     db.execute('update kingdom set allegiance = ? where id = ?', [winner, loser])

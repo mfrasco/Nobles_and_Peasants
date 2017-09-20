@@ -57,7 +57,7 @@ li a:hover {
 #subtitle {font-size: 1.25em; }
 
 .input_box {
-  width: 130px;
+  width: 40%;
   padding: 10px;
   border: solid 2px #565656;
   transition: border 0.3s;
@@ -72,7 +72,7 @@ li a:hover {
 }
 
 .num_box {
-  width: 100px;
+  width: 40%;
   padding: 10px;
   border: solid 2px #565656;
   transition: border 0.3s;
@@ -151,6 +151,7 @@ li a:hover {
 .setup_block {
     float: left;
     width: 33%;
+    min-width: 320px;
 }
 
 .setup_table {
@@ -209,6 +210,7 @@ li a:hover {
 .main_col {
     float: left;
     width: 33%;
+    min-width: 300px;
 }
 
 .main_form {
@@ -217,6 +219,7 @@ li a:hover {
     padding: 15px 2px 5px 2px;
     text-align: center;
     height: 180px;
+    overflow: auto;
 }
 
 .select_box {
