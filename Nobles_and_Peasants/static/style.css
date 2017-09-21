@@ -86,7 +86,54 @@ li a:hover {
     box-shadow: 0 0 10px #76323F;
 }
 
+.nap_table {
+    width: 90%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin: 30px auto 10px auto;
+}
 
+.nap_table th {
+    text-decoration: underline;
+}
+
+.nap_table th,
+.nap_table td {
+    padding: 5px;
+    text-align: left;
+    min-width: 150px;
+}
+
+.nap_table thead {
+    background-color: #76323F;
+    color: white;
+}
+
+.nap_table thead tr {
+    display: block;
+    position: relative;
+}
+
+.nap_table tbody {
+  display: block;
+  overflow: auto;
+  width: 100%;
+  /*height: 150px;*/
+  overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+#drinks_table tbody {
+  height: 150px;
+}
+
+#coin_table tbody {
+  height: 150px;
+}
+
+#reward_table tbody {
+  height: 150px;
+}
 
 /*-------------------Login Page------------------------*/
 
@@ -152,43 +199,6 @@ li a:hover {
     float: left;
     width: 33%;
     min-width: 320px;
-}
-
-.setup_table {
-    width: 90%;
-    table-layout: fixed;
-    border-collapse: collapse;
-    margin: 30px auto 10px auto;
-}
-
-.setup_table th {
-    text-decoration: underline;
-}
-
-.setup_table th,
-.setup_table td {
-    padding: 5px;
-    text-align: left;
-    min-width: 150px;
-}
-
-.setup_table thead {
-    background-color: #76323F;
-    color: white;
-}
-
-.setup_table thead tr {
-    display: block;
-    position: relative;
-}
-
-.setup_table tbody {
-  display: block;
-  overflow: auto;
-  width: 100%;
-  height: 150px;
-  overflow-y: scroll;
-    overflow-x: hidden;
 }
 
 .setup_form { margin: 10px auto 0px auto;

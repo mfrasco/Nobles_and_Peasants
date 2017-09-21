@@ -96,7 +96,7 @@ def show_rules():
 @app.route('/add_drink', methods=['POST'])
 def add_drink():
     db = get_db()
-    drink_name = request.form['drink_name'].strip()
+    drink_name = request.form['drink_name'].strip().lower()
     price = int(request.form['price'])
 
     if drink_name == 'water' and price >= 0:
@@ -146,10 +146,22 @@ def set_wages():
 @app.route('/main')
 def show_main():
     db = get_db()
+    # get drink names
     query = 'select name from drinks order by coin'
     drinks = db.execute(query).fetchall()
     drinks = [d[0] for d in drinks]
-    return render_template('main.html', drinks = drinks)
+
+    # get people names
+    query = 'select id from kingdom order by id'
+    people = db.execute(query).fetchall()
+    people = [p[0] for p in people]
+
+    # get noble names
+    query = 'select id from kingdom where status = ? order by id'
+    nobles = db.execute(query, ['noble']).fetchall()
+    nobles = [n[0] for n in nobles]
+
+    return render_template('main.html', drinks = drinks, people = people, nobles = nobles)
 
 def get_starting_info(db, status, user_id):
     query = 'select coin from starting_coin where status = ?'
@@ -164,7 +176,7 @@ def get_starting_info(db, status, user_id):
 
 @app.route('/sign_in', methods=['POST'])
 def sign_in():
-    user_id = request.form['user_id'].strip()
+    user_id = request.form['user_id'].strip().lower()
     user_status = request.form['user_status']
     db = get_db()
 
@@ -199,8 +211,8 @@ def sign_in():
 
 @app.route('/pledge', methods=['POST'])
 def pledge_allegiance():
-    user_id = request.form['user_id'].strip()
-    noble_id = request.form['noble_id'].strip()
+    user_id = request.form['user_id'].strip().lower()
+    noble_id = request.form['noble_id'].strip().lower()
 
     db = get_db()
 
@@ -248,7 +260,7 @@ def pledge_allegiance():
 
 @app.route('/buy_drink', methods=['POST'])
 def buy_drink():
-    user_id = request.form['user_id'].strip()
+    user_id = request.form['user_id'].strip().lower()
     drink = request.form['drink']
     quantity = int(request.form['quantity'])
 
@@ -276,10 +288,10 @@ def buy_drink():
     query = 'select coin from kingdom where id = ?'
     noble_coin = fetch_one(db, query, [noble_id])
 
-    db.execute('update kingdom set coin = ? where id = ?', [noble_coin - cost, noble_id])
+    db.execute('update kingdom set coin = ? where id = ?', [max(noble_coin - cost, 0), noble_id])
     db.execute('update kingdom set drinks = drinks + ? where id = ?', [quantity, user_id])
 
-    if noble_coin < cost:
+    if noble_coin <= cost:
         new_noble = find_richest_peasant(db = db)
         decrement_previous_noble(db = db, new_noble = new_noble)
         switch_allegiances(db = db, new_noble = new_noble, old_noble = noble_id)
@@ -336,8 +348,8 @@ def make_noble_peasant(db, old_noble):
 
 @app.route('/ban', methods=['POST'])
 def ban_peasant():
-    noble_id = request.form['noble_id'].strip()
-    peasant_id = request.form['peasant_id'].strip()
+    noble_id = request.form['noble_id'].strip().lower()
+    peasant_id = request.form['peasant_id'].strip().lower()
 
     db = get_db()
 
@@ -371,8 +383,8 @@ def ban_peasant():
 
 @app.route('/get_quest', methods=['POST'])
 def get_quest():
-    user_id = request.form['user_id'].strip()
-    level = request.form['level'].strip()
+    user_id = request.form['user_id'].strip().lower()
+    level = request.form['level'].strip().lower()
 
     db = get_db()
     query = 'select id from kingdom where id = ?'
@@ -387,7 +399,7 @@ def get_quest():
 
 @app.route('/add_money', methods=['POST'])
 def add_money():
-    user_id = request.form['user_id'].strip()
+    user_id = request.form['user_id'].strip().lower()
     level = request.form['level']
     result = request.form['result']
 
@@ -401,8 +413,8 @@ def add_money():
 
 @app.route('/kill', methods=['POST'])
 def kill():
-    user_id = request.form['user_id'].strip()
-    target_id = request.form['target_id'].strip()
+    user_id = request.form['user_id'].strip().lower()
+    target_id = request.form['target_id'].strip().lower()
     db = get_db()
 
     query = 'select coin, status from kingdom where id = ?'
