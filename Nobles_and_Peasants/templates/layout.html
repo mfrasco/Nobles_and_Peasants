@@ -15,9 +15,6 @@
             </ul>
             <h1 class="titles" id="title">Nobles and Peasants</h1>
             <h2 class="titles" id="subtitle">Nobles have the coin. Peasants have the power.</h2>
-            {% for message in get_flashed_messages() %}
-                <div class="flash">{{ message }}</div>
-            {% endfor %}
             {% block body %}
             {% endblock %}
         </div>

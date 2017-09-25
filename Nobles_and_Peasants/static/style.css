@@ -5,9 +5,6 @@ p { color: #565656; text-align: center; margin: 1px auto; }
 h2 { color: #76323F;}
 h3 { color: #76323F; text-align: center; margin: 1px auto; font-size: 1.25em; }
 
-.flash { background: #76323F; padding: 0.5em; border: 1px solid #aacbe2; }
-.error { background: #f0d6d6; padding: 0.5em; }
-
 .submit_button {
     background-color: #565656;
     border: none;
@@ -84,6 +81,15 @@ li a:hover {
     outline: none !important;
     border:1px solid #76323F;
     box-shadow: 0 0 10px #76323F;
+}
+
+.data_list {
+  width: 50%;
+  padding: 10px;
+  border: solid 2px #565656;
+  transition: border 0.3s;
+  font-size: 1em;
+  margin: 4px auto 4px auto;
 }
 
 .nap_table {
@@ -177,13 +183,29 @@ li a:hover {
 /*-------------------Welcome Page------------------------*/
 
 #welcome_button {
-    width: 60%;
+    width: 70%;
+    height: 70px;
     margin: 0 auto;
 }
 
 #faq_button {
     float: left;
 }
+
+/*.flash_div {
+  position: relative;
+  top: -70px;
+  width: 30%;
+  margin: 0 auto;
+  text-align: center;
+  border: solid 1px blue;
+}*/
+
+/*.flash_welcome { background: #76323F;
+                 padding: 0.5em;
+                 color: white;
+                 border: solid 1px blue;
+}*/
 
 #start_button {
     float: right;
@@ -210,6 +232,8 @@ li a:hover {
               text-align: center; }
 
 /*-------------------Main Page------------------------*/
+
+.flash_main { background: #76323F; padding: 0.5em; color: white; width: 50%}
 
 #main_page {
     clear: both;
@@ -239,28 +263,53 @@ li a:hover {
 }
 
 #receive_reward {
-    width: 200px;
+    width: 70%;
 }
 
-/*-------------------Main Page------------------------*/
+/*-------------------Quest Page------------------------*/
 
-.kingdom { list-style: none; margin: 0; padding: 0; }
-.kingdom li { margin: 0.8em 1.2em; }
-.kingdom li h2 { margin-left: -1em; }
+.quest_title {
+  border: solid 5px #565656;
+  position: relative;
+  top: 100px;
+  width: 50%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.quest_title h3, h4 {
+  margin: 4px 4px 4px 4px;
+}
+
+.result_form {
+    position: relative;
+    top: 150px;
+    background-color: #C09F80;
+    margin: 40px;
+    padding: 15px 2px 5px 2px;
+    text-align: center;
+    height: 180px;
+    overflow: auto;
+    clear: both;
+    width: 40%;
+    margin: 0 auto;
+}
 
 
+/*-------------------Leaderboard------------------------*/
 
+.almighty {
+  position: relative;
+  top: 50px;
+  width: 50%;
+  margin: 0 auto;
+  text-align: center;
+  clear: both;
+}
 
-
-
-
-
-
-
-
-
-
-
-
+.leaderboard {
+  position: relative;
+  top: 50px;
+}
 
 

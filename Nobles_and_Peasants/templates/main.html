@@ -1,5 +1,8 @@
 {% extends "layout.html" %}
 {% block body %}
+	{% for message in get_flashed_messages() %}
+		<div class="flash_main">{{ message }}</div>
+	{% endfor %}
 	<div id="main_page">
 		<div class="main_col" id="left_col">
 			<div class="main_form" id="sign_in_form">
@@ -18,7 +21,7 @@
 			</div>
 			<div class="main_form" id="ban_form">
 				<form action="{{ url_for('ban_peasant') }}" method="post">
-					<input list="nobles" name="noble_id" placeholder="Your Name" required>
+					<input class="data_list" list="nobles" name="noble_id" placeholder="Your Name" required>
 						<datalist id="nobles">
 							{% for n in nobles %}
 								<option value="{{ n }}"></option>
@@ -26,7 +29,7 @@
 						</datalist>
 					</input>
 					<p></p>
-					<input list="people" name="peasant_id" placeholder="Peasant Name" required>
+					<input class="data_list" list="people" name="peasant_id" placeholder="Peasant Name" required>
 						<datalist id="people">
 							{% for p in people %}
 								<option value="{{ p }}"></option>
@@ -41,16 +44,34 @@
 		<div class="main_col" id="center_col">
 			<div class="main_form" id="pledge_form">
 				<form action="{{ url_for('pledge_allegiance') }}" method="post">
-					<input class="input_box" type="text" name="user_id" placeholder="Your Name" required></input>
+					<input class="data_list" list="people" name="user_id" placeholder="Your Name" required>
+						<datalist id="people">
+							{% for p in people %}
+								<option value="{{ p }}"></option>
+							{% endfor %}
+						</datalist>
+					</input>
 					<p></p>
-					<input class="input_box" type="text" name="noble_id" placeholder="Noble's Name" required></input>
+					<input class="data_list" list="nobles" name="noble_id" placeholder="Noble's Name" required>
+						<datalist id="nobles">
+							{% for n in nobles %}
+								<option value="{{ n }}"></option>
+							{% endfor %}
+						</datalist>
+					</input>
 					<p></p>
 					<input class="submit_button" type="submit" value="Pledge Allegiance"></input>
 				</form>
 			</div>
 			<div class="main_form" id="quest_form">
 				<form action="{{ url_for('get_quest') }}" method="post">
-					<input class="input_box" id="receive_reward" type="text" name="user_id" placeholder="Name To Receive Reward" required></input>
+					<input class="data_list" id="receive_reward" list="people" name="user_id" placeholder="Name To Receive Reward" required>
+						<datalist id="people">
+							{% for p in people %}
+								<option value="{{ p }}"></option>
+							{% endfor %}
+						</datalist>
+					</input>
 					<p></p>
 					<select class="select_box" name="level" required>
 						<option value="" disabled selected>Choose a Level</option>
@@ -66,7 +87,13 @@
 		<div class="main_col" id="right_col">
 			<div class="main_form" id="buy_drink_form">
 				<form action="{{ url_for('buy_drink') }}" method="post">
-					<input class="input_box" type="text" name="user_id" placeholder="Your Name" required></input>
+					<input class="data_list" list="people" name="user_id" placeholder="Your Name" required>
+						<datalist id="people">
+							{% for p in people %}
+								<option value="{{ p }}"></option>
+							{% endfor %}
+						</datalist>
+					</input>
 					<p></p>
 					<select class="select_box" name="drink" required>
 							<option value="" disabled selected>Choose a Drink</option>
@@ -81,9 +108,21 @@
 			</div>
 			<div class="main_form" id="kill_form">
 				<form action="{{ url_for('kill') }}" method="post">
-					<input class="input_box" type="text" name="user_id" placeholder="Your Name" required></input>
+					<input class="data_list" list="people" name="user_id" placeholder="Your Name" required>
+						<datalist id="people">
+							{% for p in people %}
+								<option value="{{ p }}"></option>
+							{% endfor %}
+						</datalist>
+					</input>
 					<p></p>
-					<input class="input_box" type="text" name="target_id" placeholder="Target Name" required></input>
+					<input class="data_list" list="people" name="target_id" placeholder="Target Name" required>
+						<datalist id="people">
+							{% for p in people %}
+								<option value="{{ p }}"></option>
+							{% endfor %}
+						</datalist>
+					</input>
 					<p></p>
 					<input class="submit_button" type="submit" value="Kill a Target"></input>
 				</form>

@@ -403,7 +403,7 @@ def add_money():
     level = request.form['level']
     result = request.form['result']
 
-    if result == 'yes':
+    if result == 'Yes':
         db = get_db()
         query = 'update kingdom set coin = coin + (select coin from wages where level = ?) where id = ?'
         db.execute(query, [level, user_id])
@@ -547,7 +547,11 @@ def show_leaderboard():
     '''
     db = get_db()
     leaderboard = db.execute(query).fetchall()
-    return render_template('show_leaderboard.html', leaderboard = leaderboard)
+    query = 'select id from kingdom order by soldiers desc limit 1'
+    almighty_ruler = fetch_one(db, query, [])
+    return render_template('show_leaderboard.html'
+                           , leaderboard = leaderboard
+                           , almighty_ruler = almighty_ruler)
 
 
 if __name__ == '__main__':
