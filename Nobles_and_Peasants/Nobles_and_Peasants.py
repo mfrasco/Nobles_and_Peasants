@@ -4,16 +4,27 @@ import sqlite3
 from flask import (
     Flask,
     request,
-    session,
     g,
     redirect,
     url_for,
-    abort,
     render_template,
     flash
 )
 from flask_login import LoginManager, UserMixin
-from random import randint, uniform
+from random import uniform
+from Nobles_and_Peasants.nap_helpers import (
+    fetch_one,
+    get_starting_info,
+    find_richest_peasant,
+    decrement_previous_noble,
+    switch_allegiances,
+    update_new_noble,
+    make_noble_peasant,
+    take_money,
+    n_beats_p,
+    p_beats_n,
+    n_beats_n
+)
 
 # create the application instance and load config
 app = Flask(__name__, instance_relative_config=True)
@@ -27,6 +38,10 @@ app.config.from_pyfile('application.cfg', silent=True)
 # @login_manager.user_loader
 # def load_user(user_id):
 #     return User.get(user_id)
+
+############################################################
+################# Setup Database ########################
+############################################################
 
 
 def connect_db():
@@ -64,13 +79,10 @@ def close_db(error):
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
 
-# Helper functions
-def fetch_one(db, query_string, args):
-    rv = db.execute(query_string, args).fetchone()
-    if rv is None:
-        return None
-    else:
-        return rv[0]
+
+############################################################
+################# Show setup pages ########################
+############################################################
 
 @app.route('/')
 def show_login():
@@ -94,6 +106,10 @@ def welcome():
 @app.route('/rules')
 def show_rules():
     return render_template('rules.html')
+
+############################################################
+################# Setup Party ########################
+############################################################
 
 @app.route('/add_drink', methods=['POST'])
 def add_drink():
@@ -145,6 +161,10 @@ def set_wages():
     db.commit()
     return redirect(url_for('welcome'))
 
+############################################################
+################# Show main page ########################
+############################################################
+
 @app.route('/main')
 def show_main():
     db = get_db()
@@ -165,16 +185,9 @@ def show_main():
 
     return render_template('main.html', drinks = drinks, people = people, nobles = nobles)
 
-def get_starting_info(db, status, user_id):
-    query = 'select coin from starting_coin where status = ?'
-    starting_coin = fetch_one(db, query, [status])
-    if status == 'peasant':
-        allegiance = None
-        soldiers = 0
-    else:
-        allegiance = user_id
-        soldiers = 1
-    return starting_coin, allegiance, soldiers
+############################################################
+################# Sign In ########################
+############################################################
 
 @app.route('/sign_in', methods=['POST'])
 def sign_in():
@@ -210,6 +223,10 @@ def sign_in():
                [user_id, user_status, starting_coin, allegiance, 0, soldiers])
     db.commit()
     return redirect(url_for('show_main'))
+
+############################################################
+################# Pledge Allegiance ########################
+############################################################
 
 @app.route('/pledge', methods=['POST'])
 def pledge_allegiance():
@@ -260,6 +277,10 @@ def pledge_allegiance():
     db.commit()
     return redirect(url_for('show_main'))
 
+############################################################
+################# Buy a Drink ########################
+############################################################
+
 @app.route('/buy_drink', methods=['POST'])
 def buy_drink():
     user_id = request.form['user_id'].strip().lower()
@@ -304,49 +325,9 @@ def buy_drink():
 
     return redirect(url_for('show_main'))
 
-def find_richest_peasant(db):
-    query = 'select id from kingdom where status = ? order by coin desc, drinks desc limit 1'
-    new_noble = fetch_one(db, query, ['peasant'])
-    return new_noble
-
-def decrement_previous_noble(db, new_noble):
-    query = '''
-    update kingdom
-    set soldiers = soldiers - 1
-    where id = (select allegiance from kingdom where id = ?)
-    '''
-    db.execute(query, [new_noble])
-    return None
-
-def switch_allegiances(db, new_noble, old_noble):
-    # switch allegiance from old noble to new noble
-    query = 'update kingdom set allegiance = ? where allegiance = ?'
-    db.execute(query, [new_noble, old_noble])
-    return None
-
-def update_new_noble(db, new_noble):
-    # update status, allegiance, coin, soldiers for new noble
-    query = 'select coin from starting_coin where status = ?'
-    starting_coin = fetch_one(db, query, ['noble'])
-    query = '''
-    update kingdom set status = ?
-                       , allegiance = ?
-                       , coin = (case when coin > ? then coin else ? end)
-                       , soldiers = 1 + (select count(*) from kingdom where allegiance = ? and id != ?)
-                   where id = ?
-    '''
-    db.execute(query, ['noble', new_noble, starting_coin, starting_coin, new_noble, new_noble, new_noble])
-    return None
-
-def make_noble_peasant(db, old_noble):
-    # remove titles from old noble
-    query = 'update kingdom set status = ?, soldiers = ? where id = ?'
-    db.execute(query, ['peasant', 0, old_noble])
-
-    # remove any entries in banned table for old noble
-    db.execute('delete from banned where noble = ?', [old_noble])
-
-    return None
+############################################################
+################# Ban a Peasant ########################
+############################################################
 
 @app.route('/ban', methods=['POST'])
 def ban_peasant():
@@ -383,6 +364,10 @@ def ban_peasant():
     db.commit()
     return redirect(url_for('show_main'))
 
+############################################################
+################# Get a Quest ########################
+############################################################
+
 @app.route('/get_quest', methods=['POST'])
 def get_quest():
     user_id = request.form['user_id'].strip().lower()
@@ -412,6 +397,10 @@ def add_money():
         db.commit()
 
     return redirect(url_for('show_main'))
+
+############################################################
+################# Kill a Peasant ########################
+############################################################
 
 @app.route('/kill', methods=['POST'])
 def kill():
@@ -475,58 +464,9 @@ def assassinate():
 
     return redirect(url_for('show_main'))
 
-def take_money(db, winner, loser):
-    query = 'select coin from kingdom where id = ?'
-    loser_coin = fetch_one(db, query, [loser])
-
-    if loser_coin > 0:
-        query = 'update kingdom set coin = coin + ? where id = ?'
-        db.execute(query, [loser_coin, winner])
-        query = 'update kingdom set coin = 0 where id = ?'
-        db.execute(query, [loser])
-
-    return None
-
-def n_beats_p(db, winner, loser):
-    take_money(db = db, winner = winner, loser = loser)
-
-    # before chaning allegiances of loser, decrement soldiers for previous noble of loser
-    decrement_previous_noble(db = db, new_noble = loser)
-
-    # ally loser to winner and increment soldiers
-    db.execute('update kingdom set allegiance = ? where id = ?', [winner, loser])
-    db.execute('update kingdom set soldiers = soldiers + 1 where id = ?', [winner])
-
-    return None
-
-def p_beats_n(db, winner, loser):
-    take_money(db = db, winner = winner, loser = loser)
-    decrement_previous_noble(db = db, new_noble = winner)
-    switch_allegiances(db = db, new_noble = winner, old_noble = loser)
-    update_new_noble(db = db, new_noble = winner)
-    make_noble_peasant(db = db, old_noble = loser)
-    return None
-
-def n_beats_n(db, winner, loser):
-    # give the money from the loser to the winner
-    take_money(db = db, winner = winner, loser = loser)
-
-    # give the soldiers from the loser to the winner
-    switch_allegiances(db = db, new_noble = winner, old_noble = loser)
-    query = '''
-    update kingdom set soldiers = (
-        select count(*) from kingdom where allegiance = ?
-    ) where id = ?
-    '''
-    db.execute(query, [winner, winner])
-
-    # find the next noble and make the loser a peasant
-    new_noble = find_richest_peasant(db = db)
-    make_noble_peasant(db = db, old_noble = loser)
-
-    decrement_previous_noble(db = db, new_noble = new_noble)
-    update_new_noble(db = db, new_noble = new_noble)
-    return None
+############################################################
+################# View the Database ########################
+############################################################
 
 @app.route('/kingdom')
 def show_kingdom():
