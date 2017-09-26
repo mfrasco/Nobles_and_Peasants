@@ -29,15 +29,24 @@ app.config.update(dict(
 ))
 app.config.from_envvar('NOBLES_AND_PEASANTS_SETTINGS', silent=True)
 
+# # handle the login manager
+# login_manager = LoginManager()
+# login_manager.init_app(app)
+
+# @login_manager.user_loader
+# def load_user(user_id):
+#     return User.get(user_id)
+
+
 def connect_db():
     """Connects to the specific database."""
     rv = sqlite3.connect(app.config['DATABASE'])
     rv.row_factory = sqlite3.Row
     return rv
 
-def init_db():
+def init_db(party_id):
     db = get_db()
-    with app.open_resource('schema.sql', mode='r') as f:
+    with app.open_resource('party_schema.sql', mode='r') as f:
         db.cursor().executescript(f.read())
     db.commit()
 
@@ -79,6 +88,8 @@ def show_login():
 @app.route('/login', methods=['POST'])
 def login():
     party_id = request.form['party_id']
+    password = request.form['password']
+    init_db(party_id)
     return redirect(url_for('welcome'))
 
 @app.route('/set_up', methods=['GET'])
