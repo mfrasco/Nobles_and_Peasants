@@ -9,7 +9,7 @@ def fetch_one(db, query_string, args):
 
 
 def get_starting_info(db, status, user_id):
-    query = 'select coin from starting_coin where status = ?'
+    query = 'select coin from starting_coin_%s where status = ?' % ('default')
     starting_coin = fetch_one(db, query, [status])
     if status == 'peasant':
         allegiance = None
@@ -21,62 +21,71 @@ def get_starting_info(db, status, user_id):
 
 
 def find_richest_peasant(db):
-    query = 'select id from kingdom where status = ? order by coin desc, drinks desc limit 1'
+    query = '''
+    select id
+    from kingdom_%s
+    where status = ?
+    order by coin desc, drinks desc
+    limit 1
+    ''' % ('default')
     new_noble = fetch_one(db, query, ['peasant'])
     return new_noble
 
 
 def decrement_previous_noble(db, new_noble):
     query = '''
-    update kingdom
+    update kingdom_%s
     set soldiers = soldiers - 1
-    where id = (select allegiance from kingdom where id = ?)
-    '''
+    where id = (select allegiance from kingdom_%s where id = ?)
+    ''' % ('default', 'default')
     db.execute(query, [new_noble])
     return None
 
 
 def switch_allegiances(db, new_noble, old_noble):
     # switch allegiance from old noble to new noble
-    query = 'update kingdom set allegiance = ? where allegiance = ?'
+    query = 'update kingdom_%s set allegiance = ? where allegiance = ?' % ('default')
     db.execute(query, [new_noble, old_noble])
     return None
 
 
 def update_new_noble(db, new_noble):
     # update status, allegiance, coin, soldiers for new noble
-    query = 'select coin from starting_coin where status = ?'
+    query = 'select coin from starting_coin_%s where status = ?' % ('default')
     starting_coin = fetch_one(db, query, ['noble'])
     query = '''
-    update kingdom set status = ?
-                       , allegiance = ?
-                       , coin = (case when coin > ? then coin else ? end)
-                       , soldiers = 1 + (select count(*) from kingdom where allegiance = ? and id != ?)
-                   where id = ?
-    '''
+    update kingdom_%s set status = ?
+                          , allegiance = ?
+                          , coin = (case when coin > ? then coin else ? end)
+                          , soldiers = 1 + (select count(*)
+                                            from kingdom_%s
+                                            where allegiance = ? and id != ?)
+                      where id = ?
+    ''' % ('default', 'default')
     db.execute(query, ['noble', new_noble, starting_coin, starting_coin, new_noble, new_noble, new_noble])
     return None
 
 
 def make_noble_peasant(db, old_noble):
     # remove titles from old noble
-    query = 'update kingdom set status = ?, soldiers = ? where id = ?'
+    query = 'update kingdom_%s set status = ?, soldiers = ? where id = ?' % ('default')
     db.execute(query, ['peasant', 0, old_noble])
 
     # remove any entries in banned table for old noble
-    db.execute('delete from banned where noble = ?', [old_noble])
+    query = 'delete from banned_%s where noble = ?' % ('default')
+    db.execute(query, [old_noble])
 
     return None
 
 
 def take_money(db, winner, loser):
-    query = 'select coin from kingdom where id = ?'
+    query = 'select coin from kingdom_%s where id = ?' % ('default')
     loser_coin = fetch_one(db, query, [loser])
 
     if loser_coin > 0:
-        query = 'update kingdom set coin = coin + ? where id = ?'
+        query = 'update kingdom_%s set coin = coin + ? where id = ?' % ('default')
         db.execute(query, [loser_coin, winner])
-        query = 'update kingdom set coin = 0 where id = ?'
+        query = 'update kingdom_%s set coin = 0 where id = ?' % ('default')
         db.execute(query, [loser])
 
     return None
@@ -89,8 +98,10 @@ def n_beats_p(db, winner, loser):
     decrement_previous_noble(db = db, new_noble = loser)
 
     # ally loser to winner and increment soldiers
-    db.execute('update kingdom set allegiance = ? where id = ?', [winner, loser])
-    db.execute('update kingdom set soldiers = soldiers + 1 where id = ?', [winner])
+    query = 'update kingdom_%s set allegiance = ? where id = ?' % ('default')
+    db.execute(query, [winner, loser])
+    query = 'update kingdom_%s set soldiers = soldiers + 1 where id = ?' % ('default')
+    db.execute(query, [winner])
 
     return None
 
@@ -111,10 +122,13 @@ def n_beats_n(db, winner, loser):
     # give the soldiers from the loser to the winner
     switch_allegiances(db = db, new_noble = winner, old_noble = loser)
     query = '''
-    update kingdom set soldiers = (
-        select count(*) from kingdom where allegiance = ?
+    update kingdom_%s
+    set soldiers = (
+        select count(*)
+        from kingdom_%s
+        where allegiance = ?
     ) where id = ?
-    '''
+    ''' % ('default', 'default')
     db.execute(query, [winner, winner])
 
     # find the next noble and make the loser a peasant

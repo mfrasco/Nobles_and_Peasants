@@ -1,6 +1,8 @@
 # all the imports
+import pdb
 import os
 import sqlite3
+import re
 from flask import (
     Flask,
     request,
@@ -10,7 +12,10 @@ from flask import (
     render_template,
     flash
 )
-from flask_login import LoginManager, UserMixin
+from flask_login import (
+    LoginManager,
+    UserMixin
+)
 from random import uniform
 from Nobles_and_Peasants.nap_helpers import (
     fetch_one,
@@ -31,14 +36,6 @@ app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('Nobles_and_Peasants.default_settings')
 app.config.from_pyfile('application.cfg', silent=True)
 
-# # handle the login manager
-# login_manager = LoginManager()
-# login_manager.init_app(app)
-
-# @login_manager.user_loader
-# def load_user(user_id):
-#     return User.get(user_id)
-
 ############################################################
 ################# Setup Database ########################
 ############################################################
@@ -50,17 +47,20 @@ def connect_db():
     rv.row_factory = sqlite3.Row
     return rv
 
-def init_db():
+
+def init_db(party_id):
     db = get_db()
     with app.open_resource('schema.sql', mode='r') as f:
-        db.cursor().executescript(f.read())
+        schema = f.read()
+        schema = re.sub('PARTY_ID', party_id, schema)
+        db.cursor().executescript(schema)
     db.commit()
 
 
 @app.cli.command('initdb')
 def initdb_command():
     """Initializes the database."""
-    init_db()
+    init_db(party_id = 'default')
     print('Initialized the database.')
 
 
@@ -81,6 +81,24 @@ def close_db(error):
 
 
 ############################################################
+################# Setup User Handling ######################
+############################################################
+
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
+
+
+# handle the login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
+
+############################################################
 ################# Show setup pages ########################
 ############################################################
 
@@ -92,15 +110,21 @@ def show_login():
 def login():
     party_id = request.form['party_id']
     # password = request.form['password']
-    init_db()
+    init_db(party_id)
     return redirect(url_for('welcome'))
 
 @app.route('/set_up', methods=['GET'])
 def welcome():
     db = get_db()
-    drinks = db.execute('select * from drinks order by coin').fetchall()
-    starting_coin = db.execute('select * from starting_coin').fetchall()
-    wages = db.execute('select * from wages').fetchall()
+
+    query = 'select * from drinks_%s order by coin' % ('default')
+    drinks = db.execute(query).fetchall()
+    
+    query = 'select * from starting_coin_%s' % ('default')
+    starting_coin = db.execute(query).fetchall()
+    
+    query = 'select * from wages_%s' % ('default')
+    wages = db.execute(query).fetchall()
     return render_template('welcome.html', drinks = drinks, starting_coin = starting_coin, wages = wages)
 
 @app.route('/rules')
@@ -121,7 +145,7 @@ def add_drink():
         flash('Unsuccessful! Water must have a negative price.')
         return redirect(url_for('welcome'))
 
-    query = 'replace into drinks (name, coin) values (?, ?)'
+    query = 'replace into drinks_%s (name, coin) values (?, ?)' % ('default')
     db.execute(query, [drink_name, price])
     db.commit()
     return redirect(url_for('welcome'))
@@ -130,7 +154,7 @@ def add_drink():
 def set_coin():
     db = get_db()
     noble_coin = int(request.form['noble_coin'])
-    query = 'update starting_coin set coin = ? where status = ?'
+    query = 'update starting_coin_%s set coin = ? where status = ?' % ('default')
     db.execute(query, [noble_coin, 'noble'])
     db.commit()
     return redirect(url_for('welcome'))
@@ -151,11 +175,11 @@ def set_wages():
 
     db = get_db()
     query = '''
-    update wages set coin = (case when level = ? then ?
-                                  when level = ? then ?
-                                  else ?
-                             end)
-    '''
+    update wages_%s set coin = (case when level = ? then ?
+                                     when level = ? then ?
+                                     else ?
+                                end)
+    ''' % ('default')
 
     db.execute(query, ['easy', easy_wage, 'medium', medium_wage, hard_wage])
     db.commit()
@@ -169,17 +193,17 @@ def set_wages():
 def show_main():
     db = get_db()
     # get drink names
-    query = 'select name from drinks order by coin'
+    query = 'select name from drinks_%s order by coin' % ('default')
     drinks = db.execute(query).fetchall()
     drinks = [d[0] for d in drinks]
 
     # get people names
-    query = 'select id from kingdom order by id'
+    query = 'select id from kingdom_%s order by id' % ('default')
     people = db.execute(query).fetchall()
     people = [p[0] for p in people]
 
     # get noble names
-    query = 'select id from kingdom where status = ? order by id'
+    query = 'select id from kingdom_%s where status = ? order by id' % ('default')
     nobles = db.execute(query, ['noble']).fetchall()
     nobles = [n[0] for n in nobles]
 
@@ -196,13 +220,15 @@ def sign_in():
     db = get_db()
 
     # check that the id is not already taken
-    current_ids = db.execute('select id from kingdom').fetchall()
+    query = 'select id from kingdom_%s' % ('default')
+    current_ids = db.execute(query).fetchall()
     if user_id in [row[0] for row in current_ids]:
         flash('Unsuccessful! Please choose a different id. Someone already selected that one.')
         return redirect(url_for('show_main'))
 
     if user_status == 'randomly decide':
-        statuses = db.execute('select status from kingdom').fetchall()
+        query = 'select status from kingdom_%s' % ('default')
+        statuses = db.execute(query).fetchall()
         statuses = [s[0] for s in statuses]
         num_people = len(statuses)
         num_nobles = statuses.count('noble')
@@ -219,8 +245,11 @@ def sign_in():
     start_info = get_starting_info(db, user_status, user_id)
 
     starting_coin, allegiance, soldiers = start_info
-    db.execute('insert into kingdom (id, status, coin, allegiance, drinks, soldiers) values (?, ?, ?, ?, ?, ?)',
-               [user_id, user_status, starting_coin, allegiance, 0, soldiers])
+    query = '''
+    insert into kingdom_%s (id, status, coin, allegiance, drinks, soldiers)
+    values (?, ?, ?, ?, ?, ?)
+    ''' % ('default')
+    db.execute(query, [user_id, user_status, starting_coin, allegiance, 0, soldiers])
     db.commit()
     return redirect(url_for('show_main'))
 
@@ -236,7 +265,7 @@ def pledge_allegiance():
     db = get_db()
 
     # check the request values are valid
-    query = 'select status from kingdom where id = ?'
+    query = 'select status from kingdom_%s where id = ?' % ('default')
     user_status = fetch_one(db, query, [user_id])
     noble_status = fetch_one(db, query, [noble_id])
 
@@ -258,7 +287,7 @@ def pledge_allegiance():
         return redirect(url_for('show_main'))
 
     # check if noble has banned peasant
-    query = 'select outlaw from banned where noble = ?'
+    query = 'select outlaw from banned_%s where noble = ?' % ('default')
     outlaws = db.execute(query, [noble_id]).fetchall()
     outlaws = [x[0] for x in outlaws]
     if len(outlaws) > 0 and user_id in outlaws[0]:
@@ -266,13 +295,16 @@ def pledge_allegiance():
         return redirect(url_for('show_main'))
 
     # update the allegiance in the database
-    query = 'select allegiance from kingdom where id = ?'
+    query = 'select allegiance from kingdom_%s where id = ?' % ('default')
     previous_noble = fetch_one(db, query, [user_id])
-    db.execute('update kingdom set allegiance = ? where id = ?', [noble_id, user_id])
-    db.execute('update kingdom set soldiers = soldiers + 1 where id = ?', [noble_id])
+    query = 'update kingdom_%s set allegiance = ? where id = ?' % ('default')
+    db.execute(query, [noble_id, user_id])
+    query = 'update kingdom_%s set soldiers = soldiers + 1 where id = ?' % ('default')
+    db.execute(query, [noble_id])
     
     if previous_noble is not None:
-        db.execute('update kingdom set soldiers = soldiers - 1 where id = ?', [previous_noble])
+        query = 'update kingdom_%s set soldiers = soldiers - 1 where id = ?' % ('default')
+        db.execute(query, [previous_noble])
 
     db.commit()
     return redirect(url_for('show_main'))
@@ -290,29 +322,31 @@ def buy_drink():
     db = get_db()
 
     # check noble status
-    query = 'select allegiance from kingdom where id = ?'
+    query = 'select allegiance from kingdom_%s where id = ?' % ('default')
     noble_id = fetch_one(db, query, [user_id])
     if noble_id is None:
         flash('Unsuccessful! You need to ally yourself to a noble before you can buy a drink.')
         return redirect(url_for('show_main'))
 
-    query = 'select coin from drinks where name = ?'
+    query = 'select coin from drinks_%s where name = ?' % ('default')
     price = fetch_one(db, query, [drink])
     cost = price * quantity
 
     # cut out for water
     if drink == 'water':
-        query = 'update kingdom set coin = coin - ? where id = ?'
+        query = 'update kingdom_%s set coin = coin - ? where id = ?' % ('default')
         db.execute(query, [cost, user_id])
         db.commit()
         return redirect(url_for('show_main'))
 
     # If the noble has enough money, take it. If not, create a new noble.
-    query = 'select coin from kingdom where id = ?'
+    query = 'select coin from kingdom_%s where id = ?' % ('default')
     noble_coin = fetch_one(db, query, [noble_id])
 
-    db.execute('update kingdom set coin = ? where id = ?', [max(noble_coin - cost, 0), noble_id])
-    db.execute('update kingdom set drinks = drinks + ? where id = ?', [quantity, user_id])
+    query = 'update kingdom_%s set coin = ? where id = ?' % ('default')
+    db.execute(query, [max(noble_coin - cost, 0), noble_id])
+    query = 'update kingdom_%s set drinks = drinks + ? where id = ?' % ('default')
+    db.execute(query, [quantity, user_id])
 
     if noble_coin <= cost:
         new_noble = find_richest_peasant(db = db)
@@ -337,7 +371,7 @@ def ban_peasant():
     db = get_db()
 
     # check input validity
-    query = 'select status from kingdom where id = ?'
+    query = 'select status from kingdom_%s where id = ?' % ('default')
     noble_status = fetch_one(db, query, [noble_id])
 
     if noble_status is None:
@@ -348,7 +382,7 @@ def ban_peasant():
         flash('Unsuccessful! You are not a noble. You cannot ban people from kingdom you do not have.')
         return redirect(url_for('show_main'))
 
-    query = 'select allegiance from kingdom where id = ?'
+    query = 'select allegiance from kingdom_%s where id = ?' % ('default')
     peasant_allegiance = fetch_one(db, query, [peasant_id])
     if peasant_allegiance is None:
         flash('Unsuccessful! The peasant id that you entered does not exist.')
@@ -356,11 +390,14 @@ def ban_peasant():
 
     # remove the peasant's allegiance to the noble that is banning her
     if peasant_allegiance == noble_id:
-        db.execute('update kingdom set allegiance = ? where id = ?', [None, peasant_id])
-        db.execute('update kingdom set soldiers = soldiers - 1 where id = ?', [noble_id])
+        query = 'update kingdom_%s set allegiance = ? where id = ?' % ('default')
+        db.execute(query, [None, peasant_id])
+        query = 'update kingdom_%s set soldiers = soldiers - 1 where id = ?' % ('default')
+        db.execute(query, [noble_id])
 
     # add the peasant to a banned table
-    db.execute('insert into banned (noble, outlaw) values (?, ?)', [noble_id, peasant_id])
+    query = 'insert into banned_%s (noble, outlaw) values (?, ?)' % ('default')
+    db.execute(query, [noble_id, peasant_id])
     db.commit()
     return redirect(url_for('show_main'))
 
@@ -374,13 +411,13 @@ def get_quest():
     level = request.form['level'].strip().lower()
 
     db = get_db()
-    query = 'select id from kingdom where id = ?'
+    query = 'select id from kingdom_%s where id = ?' % ('default')
     user_id = fetch_one(db, query, [user_id])
 
     if user_id is None:
         flash('Unsuccessful! You entered a bad id.')
 
-    query = 'select quest from quests where level = ? order by random() limit 1'
+    query = 'select quest from quests_%s where level = ? order by random() limit 1' % ('default')
     quest = fetch_one(db, query, [level])
     return render_template('quest.html', id = user_id, level = level, quest = quest)
 
@@ -392,7 +429,11 @@ def add_money():
 
     if result == 'Yes':
         db = get_db()
-        query = 'update kingdom set coin = coin + (select coin from wages where level = ?) where id = ?'
+        query = '''
+        update kingdom_%s
+        set coin = coin + (select coin from wages_%s where level = ?)
+        where id = ?
+        ''' % ('default', 'default')
         db.execute(query, [level, user_id])
         db.commit()
 
@@ -408,7 +449,7 @@ def kill():
     target_id = request.form['target_id'].strip().lower()
     db = get_db()
 
-    query = 'select coin, status from kingdom where id = ?'
+    query = 'select coin, status from kingdom_%s where id = ?' % ('default')
     user_info = db.execute(query, [user_id]).fetchone()
     target_info = db.execute(query, [target_id]).fetchone()
 
@@ -424,13 +465,13 @@ def kill():
     target_coin, target_status = target_info
 
     if user_status == 'peasant' and target_status == 'noble':
-        query = 'select coin from starting_coin where status = ?'
+        query = 'select coin from starting_coin_%s where status = ?' % ('default')
         coin_needed = fetch_one(db, query, ['noble'])
         if user_coin < coin_needed:
             flash('Unsuccessful! You do not have enough coin to assassinate a noble.')
             return redirect(url_for('show_main'))
 
-    query = 'select challenge from challenges order by random() limit 1'
+    query = 'select challenge from challenges_%s order by random() limit 1' % ('default')
     challenge = fetch_one(db, query, [])
 
     return render_template('kill.html', challenge = challenge, user_id = user_id, target_id = target_id)
@@ -447,7 +488,7 @@ def assassinate():
     else:
         loser = user_id
 
-    query = 'select status from kingdom where id = ?'
+    query = 'select status from kingdom_%s where id = ?' % ('default')
     winner_status = fetch_one(db, query, [winner])
     loser_status = fetch_one(db, query, [loser])
 
@@ -472,9 +513,9 @@ def assassinate():
 def show_kingdom():
     query = '''
     select id, status, coin, allegiance, drinks, soldiers
-    from kingdom
+    from kingdom_%s
     order by allegiance, coin desc, drinks desc, id
-    '''
+    ''' % ('default')
     db = get_db()
     kingdom = db.execute(query).fetchall()
     return render_template('show_kingdom.html', kingdom = kingdom)
@@ -483,10 +524,10 @@ def show_kingdom():
 def show_leaderboard():
     query = '''
     select id, soldiers, coin, drinks
-    from kingdom
+    from kingdom_%s
     where status = 'noble'
     order by soldiers desc, coin desc, drinks desc
-    '''
+    ''' % ('default')
     db = get_db()
     leaderboard = db.execute(query).fetchall()
     query = 'select id from kingdom order by soldiers desc limit 1'

@@ -1,5 +1,5 @@
-drop table if exists kingdom;
-create table kingdom (
+drop table if exists kingdom_PARTY_ID;
+create table kingdom_PARTY_ID (
     id text primary key,
     status text not null,
     coin integer not null,
@@ -8,50 +8,50 @@ create table kingdom (
     soldiers integer not null
 );
 
-drop table if exists banned;
-create table banned (
+drop table if exists banned_PARTY_ID;
+create table banned_PARTY_ID (
     noble text,
     outlaw text
 );
 
-drop table if exists drinks;
-create table drinks (
+drop table if exists drinks_PARTY_ID;
+create table drinks_PARTY_ID (
     name text primary key,
     coin integer not null
 );
 
-drop table if exists starting_coin;
-create table starting_coin (
+drop table if exists starting_coin_PARTY_ID;
+create table starting_coin_PARTY_ID (
     status text primary key,
     coin integer not null
 );
 
-drop table if exists quests;
-create table quests (
+drop table if exists quests_PARTY_ID;
+create table quests_PARTY_ID (
     quest text,
     level text
 );
 
-drop table if exists challenges;
-create table challenges (
+drop table if exists challenges_PARTY_ID;
+create table challenges_PARTY_ID (
     challenge text
 );
 
-drop table if exists wages;
-create table wages (
+drop table if exists wages_PARTY_ID;
+create table wages_PARTY_ID (
     level text primary key,
     coin integer not null
 );
 
-insert into drinks values ('water', -1);
-insert into drinks values ('beer', 5);
-insert into starting_coin values ('noble', 50);
-insert into starting_coin values ('peasant', 0);
-insert into wages values ('easy', 10);
-insert into wages values ('medium', 15);
-insert into wages values ('hard', 25);
+insert into drinks_PARTY_ID values ('water', -1);
+insert into drinks_PARTY_ID values ('beer', 5);
+insert into starting_coin_PARTY_ID values ('noble', 50);
+insert into starting_coin_PARTY_ID values ('peasant', 0);
+insert into wages_PARTY_ID values ('easy', 10);
+insert into wages_PARTY_ID values ('medium', 15);
+insert into wages_PARTY_ID values ('hard', 25);
 
-insert into quests (quest, level) values
+insert into quests_PARTY_ID (quest, level) values
     ("Stare into someone's eyes for a whole minute without laughing. You choose the person.", 'easy'),
     ("Write a Facebook message to the last person you messaged about how much you love one of the following: Star Wars, the Disney Channel, Spiderman.", 'medium'),
     ("Put a blindfold on, find someone at the party, and touch their face. Guess who.", 'medium'),
@@ -78,7 +78,7 @@ insert into quests (quest, level) values
     ("Put a blindfold on and slow dance with someone.", 'medium'),
     ("Pick your favorite song and dance to it until the song ends.", 'medium');
 
-insert into challenges (challenge) values
+insert into challenges_PARTY_ID (challenge) values
     ('DUEL: Challenge your target to a game of beer pong with one cup. The first person to make a shot wins. You go first.'),
     ('DEATH BY EMBARSSMENT: Convince your target to sing at least one line from the next song that plays.'),
     ('POISON: Poison the drink of your target with salt. He or she must take at least one sip of the poisoned drink.'),
