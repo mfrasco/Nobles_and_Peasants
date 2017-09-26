@@ -16,18 +16,9 @@ from flask_login import LoginManager, UserMixin
 from random import randint, uniform
 
 # create the application instance and load config
-app = Flask(__name__)
-app.config.from_object(__name__)
-
-# load default config and override config from an environment variable
-app.config.update(dict(
-    DATABASE=os.path.join(app.root_path, 'nobles_and_peasants.db'),
-    SECRET_KEY='development_key',
-    USERNAME='admin',
-    PASSWORD='default',
-    DEBUG=True
-))
-app.config.from_envvar('NOBLES_AND_PEASANTS_SETTINGS', silent=True)
+app = Flask(__name__, instance_relative_config=True)
+app.config.from_object('Nobles_and_Peasants.default_settings')
+app.config.from_pyfile('application.cfg', silent=True)
 
 # # handle the login manager
 # login_manager = LoginManager()
@@ -44,9 +35,9 @@ def connect_db():
     rv.row_factory = sqlite3.Row
     return rv
 
-def init_db(party_id):
+def init_db():
     db = get_db()
-    with app.open_resource('party_schema.sql', mode='r') as f:
+    with app.open_resource('schema.sql', mode='r') as f:
         db.cursor().executescript(f.read())
     db.commit()
 
@@ -88,8 +79,8 @@ def show_login():
 @app.route('/login', methods=['POST'])
 def login():
     party_id = request.form['party_id']
-    password = request.form['password']
-    init_db(party_id)
+    # password = request.form['password']
+    init_db()
     return redirect(url_for('welcome'))
 
 @app.route('/set_up', methods=['GET'])

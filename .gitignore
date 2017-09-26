@@ -1,3 +1,5 @@
-*/Nobles_and_Peasants.db
+*nobles_and_peasants.db
 Nobles_and_Peasants/__pycache__/
 *.egg-info
+
+*default_settings.py
