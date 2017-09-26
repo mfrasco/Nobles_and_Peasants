@@ -6,6 +6,7 @@ import re
 from flask import (
     Flask,
     request,
+    session,
     g,
     redirect,
     url_for,
@@ -109,7 +110,7 @@ def show_login():
 @app.route('/login', methods=['POST'])
 def login():
     party_id = request.form['party_id']
-    # password = request.form['password']
+    password = request.form['password']
     init_db(party_id)
     return redirect(url_for('welcome'))
 
