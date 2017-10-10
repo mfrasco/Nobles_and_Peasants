@@ -1,10 +1,20 @@
 {% extends "layout.html" %}
 {% block body %}
+    {% for message in get_flashed_messages() %}
+        <h4 class="flash_login">{{ message }}</h4>
+    {% endfor %}
+    <div id="signup_login"><div id="signup_form">
+        <form action="{{ url_for('signup') }}" method="post">
+            <input class="input_box" id="set_party" type="text" name="party_id" placeholder="Choose Your Party Name" required></input>
+            <input class="input_box" id="set_party_pass" type="password" name="password" placeholder="Choose Your Password" required></input>
+            <input class="submit_button" type="submit" value="Create Your Party"></input>
+        </form>
+    </div>
     <div id="login_form">
         <form action="{{ url_for('login') }}" method="post">
             <input class="input_box" id="enter_party" type="text" name="party_id" placeholder="Enter Your Party Name" required></input>
-            <input class="input_box" id="enter_party_pass" type="password" name="password" placeholder="Your Password" required></input>
+            <input class="input_box" id="enter_party_pass" type="password" name="password" placeholder="Enter Your Password" required></input>
             <input class="submit_button" type="submit" value="Start Your Party"></input>
         </form>
-    </div>
+    </div></div>
 {% endblock %}

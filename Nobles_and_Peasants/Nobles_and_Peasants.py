@@ -17,10 +17,13 @@ from flask_login import (
     LoginManager,
     UserMixin
 )
+from flask_bcrypt import generate_password_hash, check_password_hash
 from random import uniform
 from Nobles_and_Peasants.nap_helpers import (
     fetch_one,
     get_starting_info,
+    get_parties,
+    is_safe_url,
     find_richest_peasant,
     decrement_previous_noble,
     switch_allegiances,
@@ -49,8 +52,7 @@ def connect_db():
     return rv
 
 
-def init_db(party_id):
-    db = get_db()
+def init_party(db, party_id):
     with app.open_resource('schema.sql', mode='r') as f:
         schema = f.read()
         schema = re.sub('PARTY_ID', party_id, schema)
@@ -58,10 +60,17 @@ def init_db(party_id):
     db.commit()
 
 
+def init_db():
+    db = get_db()
+    with app.open_resource('login.sql', mode='r') as f:
+        db.cursor().executescript(f.read())
+    db.commit()
+
+
 @app.cli.command('initdb')
 def initdb_command():
     """Initializes the database."""
-    init_db(party_id = 'default')
+    init_db()
     print('Initialized the database.')
 
 
@@ -82,7 +91,7 @@ def close_db(error):
 
 
 ############################################################
-################# Setup User Handling ######################
+################# User Handling ######################
 ############################################################
 
 class User(UserMixin):
@@ -99,6 +108,12 @@ login_manager.init_app(app)
 def load_user(user_id):
     return User.get(user_id)
 
+def insert_party(party_id, password):
+    db = get_db()
+    query = 'insert into parties (party_id, password) values (?, ?)'
+    db.execute(query, [party_id, password])
+    db.commit()
+
 ############################################################
 ################# Show setup pages ########################
 ############################################################
@@ -107,12 +122,62 @@ def load_user(user_id):
 def show_login():
     return render_template('login.html')
 
+@app.route('/signup', methods=['POST'])
+def signup():
+    party_id = request.form['party_id']
+    password = request.form['password']
+
+    # get a list of all of the parties
+    db = get_db()
+    parties = get_parties(db = db)
+
+    # check if party_id is already taken
+    if party_id in [row[0] for row in parties]:
+        flash('Unsuccessful! Please choose a different party name. Someone already selected that one.')
+        return redirect(url_for('show_login'))
+
+    hashed_password = generate_password_hash(password, rounds = 12)
+
+    query = 'insert into parties (party_id, password) values (?, ?)'
+    db.execute(query, [party_id, hashed_password])
+    init_party(db = db, party_id = party_id)
+    db.commit()
+    flash('Success! You can now log in to your party!')
+    return redirect(url_for('show_login'))
+
+
 @app.route('/login', methods=['POST'])
 def login():
     party_id = request.form['party_id']
     password = request.form['password']
-    init_db(party_id)
-    return redirect(url_for('welcome'))
+
+    # check that the user name matches the hashed password
+    db = get_db()
+    query = 'select password from parties where party_id = ?'
+    result = fetch_one(db, query, [party_id])
+
+    if result is None:
+        flash('Unsuccessful! You need to sign up and create a party id before you can log in.')
+        return redirect(url_for('show_login'))
+
+    if not check_password_hash(result, password):
+        flash('Unsuccessful! That is not the correct password.')
+        return redirect(url_for('show_login'))
+
+    user = User(party_id)
+    load_user(user)
+
+    next = request.args.get('next')
+    if not is_safe_url:
+        flash('Unsuccessful! What is going on?')
+        return(redirect(url_for('show_login')))
+
+    return redirect(next or url_for('welcome'))
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('show_login'))
 
 @app.route('/set_up', methods=['GET'])
 def welcome():

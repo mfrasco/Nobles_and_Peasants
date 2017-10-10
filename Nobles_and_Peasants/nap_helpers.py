@@ -1,5 +1,7 @@
 # functions that help exectute the main functions in nobles and peasants
 
+from urllib.parse import urlparse, urljoin
+
 def fetch_one(db, query_string, args):
     rv = db.execute(query_string, args).fetchone()
     if rv is None:
@@ -18,6 +20,19 @@ def get_starting_info(db, status, user_id):
         allegiance = user_id
         soldiers = 1
     return starting_coin, allegiance, soldiers
+
+
+def get_parties(db):
+    query = 'select party_id from parties'
+    parties = db.execute(query).fetchall()
+    return parties
+
+
+def is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and \
+           ref_url.netloc == test_url.netloc
 
 
 def find_richest_peasant(db):
