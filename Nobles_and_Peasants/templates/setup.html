@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div id="welcome_text">
+        <h4>Welcome to your party. This party can only be accessed by people with the party name and password.</h4>
+        <div class="flash_div">
+            {% for message in get_flashed_messages() %}
+                <h4 class="flash_welcome">{{ message }}</h4>
+            {% endfor %}
+        </div>
+    </div>
+    <div id="setup_info">
+        <div class="setup_block" id="set_drinks">
+            <h3>Drinks At Your Party</h3>
+            <p>Water costs -1 coin. Please drink responsibly.</p>
+            <table class="nap_table" id="drinks_table">
+                <thead>
+                    <tr>
+                        <td>Drink Name</td>
+                        <td>Price</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for drink in drinks %}
+                    <tr>
+                        <td>{{drink.name}}</td>
+                        <td>{{drink.coin}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <form action="{{ url_for('add_drink') }}" method="post" class="setup_form" class="add_drink_form">
+                <input class="input_box" type="text" name="drink_name" placeholder="Name" required></input>
+                <input class="num_box" type="number" name="price" placeholder="Price" min=1 required></input>
+                <input class="submit_button" type="submit" value="Add or Update Drink"></input>
+            </form>
+        </div>
+    </div>
+{% endblock %}

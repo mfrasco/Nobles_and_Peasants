@@ -138,7 +138,21 @@ def insert_party(party_id, password):
 
 @app.route('/')
 def show_login():
-    return render_template('login.html')
+    if current_user.is_authenticated:
+        party_id = current_user.id
+    else:
+        party_id = None
+    return render_template('login.html'
+                           , party_id = party_id)
+
+@app.route('/how_to_play')
+def how_to_play():
+    if current_user.is_authenticated:
+        party_id = current_user.id
+    else:
+        party_id = None
+    return render_template('how_to_play.html'
+                           , party_id = party_id)
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -190,7 +204,7 @@ def login():
         flash('Unsuccessful! What is going on?')
         return(redirect(url_for('show_login')))
 
-    return redirect(next or url_for('welcome'))
+    return redirect(next or url_for('set_up'))
 
 @app.route('/logout')
 def logout():
@@ -199,7 +213,7 @@ def logout():
 
 @app.route('/set_up', methods=['GET'])
 @login_required
-def welcome():
+def set_up():
     db = get_db()
 
     party_id = current_user.id
@@ -212,7 +226,28 @@ def welcome():
     
     query = 'select * from wages_%s' % (party_id)
     wages = db.execute(query).fetchall()
-    return render_template('welcome.html', drinks = drinks, starting_coin = starting_coin, wages = wages)
+    return render_template('setup.html'
+                           , drinks = drinks
+                           , starting_coin = starting_coin
+                           , wages = wages
+                           , party_id = party_id)
+
+@app.route('/set_up_advanced', methods=['GET'])
+@login_required
+def set_up_advanced():
+    db = get_db()
+
+    party_id = current_user.id
+    
+    query = 'select * from starting_coin_%s' % (party_id)
+    starting_coin = db.execute(query).fetchall()
+    
+    query = 'select * from wages_%s' % (party_id)
+    wages = db.execute(query).fetchall()
+    return render_template('setup_advanced.html'
+                           , starting_coin = starting_coin
+                           , wages = wages
+                           , party_id = party_id)
 
 @app.route('/rules')
 def show_rules():
@@ -232,12 +267,12 @@ def add_drink():
 
     if drink_name == 'water' and price >= 0:
         flash('Unsuccessful! Water must have a negative price.')
-        return redirect(url_for('welcome'))
+        return redirect(url_for('set_up'))
 
     query = 'replace into drinks_%s (name, coin) values (?, ?)' % (party_id)
     db.execute(query, [drink_name, price])
     db.commit()
-    return redirect(url_for('welcome'))
+    return redirect(url_for('set_up'))
 
 @app.route('/set_coin', methods=['POST'])
 def set_coin():
@@ -249,7 +284,7 @@ def set_coin():
     query = 'update starting_coin_%s set coin = ? where status = ?' % (party_id)
     db.execute(query, [noble_coin, 'noble'])
     db.commit()
-    return redirect(url_for('welcome'))
+    return redirect(url_for('set_up_advanced'))
 
 @app.route('/set_wages', methods=['POST'])
 def set_wages():
@@ -259,11 +294,11 @@ def set_wages():
 
     if medium_wage < easy_wage:
         flash('Medium reward cannot be less than easy reward')
-        return redirect(url_for('welcome'))
+        return redirect(url_for('set_up_advanced'))
 
     if hard_wage < medium_wage:
         flash('Hard reward cannot be less than medium reward')
-        return redirect(url_for('welcome'))
+        return redirect(url_for('set_up_advanced'))
 
     db = get_db()
     party_id = current_user.id
@@ -277,7 +312,7 @@ def set_wages():
 
     db.execute(query, ['easy', easy_wage, 'medium', medium_wage, hard_wage])
     db.commit()
-    return redirect(url_for('welcome'))
+    return redirect(url_for('set_up_advanced'))
 
 ############################################################
 ################# Show main page ########################
@@ -304,7 +339,11 @@ def show_main():
     nobles = db.execute(query, ['noble']).fetchall()
     nobles = [n[0] for n in nobles]
 
-    return render_template('main.html', drinks = drinks, people = people, nobles = nobles)
+    return render_template('main.html'
+                           , drinks = drinks
+                           , people = people
+                           , nobles = nobles
+                           , party_id = party_id)
 
 ############################################################
 ################# Sign In ########################
@@ -525,7 +564,11 @@ def get_quest():
 
     query = 'select quest from quests_%s where level = ? order by random() limit 1' % (party_id)
     quest = fetch_one(db, query, [level])
-    return render_template('quest.html', id = user_id, level = level, quest = quest)
+    return render_template('quest.html'
+                           , id = user_id
+                           , level = level
+                           , quest = quest
+                           , party_id = party_id)
 
 @app.route('/add_money', methods=['POST'])
 def add_money():
@@ -585,7 +628,11 @@ def kill():
     query = 'select challenge from challenges_%s order by random() limit 1' % (party_id)
     challenge = fetch_one(db, query, [])
 
-    return render_template('kill.html', challenge = challenge, user_id = user_id, target_id = target_id)
+    return render_template('kill.html'
+                           , challenge = challenge
+                           , user_id = user_id
+                           , target_id = target_id
+                           , party_id = party_id)
 
 @app.route('/assassinate', methods=['POST'])
 def assassinate():
@@ -636,7 +683,9 @@ def show_kingdom():
     ''' % (party_id)
     
     kingdom = db.execute(query).fetchall()
-    return render_template('show_kingdom.html', kingdom = kingdom)
+    return render_template('show_kingdom.html'
+                           , kingdom = kingdom
+                           , party_id = party_id)
 
 @app.route('/leaderboard')
 @login_required
@@ -657,7 +706,8 @@ def show_leaderboard():
     almighty_ruler = fetch_one(db, query, [])
     return render_template('show_leaderboard.html'
                            , leaderboard = leaderboard
-                           , almighty_ruler = almighty_ruler)
+                           , almighty_ruler = almighty_ruler
+                           , party_id = party_id)
 
 
 if __name__ == '__main__':

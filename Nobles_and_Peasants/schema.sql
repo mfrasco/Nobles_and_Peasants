@@ -44,7 +44,7 @@ create table wages_PARTY_ID (
 );
 
 insert into drinks_PARTY_ID values ('water', -1);
-insert into drinks_PARTY_ID values ('beer', 5);
+insert into drinks_PARTY_ID values ('beer', 3);
 insert into starting_coin_PARTY_ID values ('noble', 50);
 insert into starting_coin_PARTY_ID values ('peasant', 0);
 insert into wages_PARTY_ID values ('easy', 10);

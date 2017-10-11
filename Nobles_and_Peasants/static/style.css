@@ -37,6 +37,10 @@ li {
     float: left;
 }
 
+li:party_id {
+    float: right;
+}
+
 li.nav_bar a {
     display: block;
     color: white;
@@ -47,6 +51,11 @@ li.nav_bar a {
 
 li a:hover {
     background-color: #76323F;
+}
+
+.inactive_link {
+    pointer-events: none;
+    cursor: default;
 }
 
 .titles { margin: 0 auto; color: #76323F; text-align: center; }
@@ -151,7 +160,7 @@ li a:hover {
     width: 190px;
 }
 
-#back_to_welcome {
+#back_to_login {
     margin: 0 auto;
     width: 200px;
 }
