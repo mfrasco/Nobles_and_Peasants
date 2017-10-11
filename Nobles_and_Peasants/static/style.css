@@ -168,23 +168,37 @@ li a:hover {
      height: 200px;
 }
 
-#signup_form {
+#signup_block{
      display: inline-block;
-     max-width: 300px;
+     max-width: 400px;
      max-height: 300px;
      vertical-align: middle;
+     margin: 20px;
+}
+
+#login_block {
+     display: inline-block;
+     max-width: 400px;
+     max-height: 300px;
+     vertical-align: middle;
+     margin: 20px;
+}
+
+#signup_form {
      padding: 0.5em;
      background-color: #C09F80;
 }
 
 #login_form {
-     display: inline-block;
-     max-width: 300px;
-     max-height: 300px;
-     vertical-align: middle;
      padding: 0.5em;
      background-color: #C09F80;
 }
+
+.login_question {
+  color: #76323F;
+  font-size: 1.4em;
+}
+
 
 /*-------------------FAQ Page------------------------*/
 

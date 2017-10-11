@@ -3,18 +3,28 @@
     {% for message in get_flashed_messages() %}
         <h4 class="flash_login">{{ message }}</h4>
     {% endfor %}
-    <div id="signup_login"><div id="signup_form">
-        <form action="{{ url_for('signup') }}" method="post">
-            <input class="input_box" id="set_party" type="text" name="party_id" placeholder="Choose Your Party Name" required></input>
-            <input class="input_box" id="set_party_pass" type="password" name="password" placeholder="Choose Your Password" required></input>
-            <input class="submit_button" type="submit" value="Create Your Party"></input>
-        </form>
+    <div id="signup_login">
+        <div id="signup_block">
+            <p class='login_line'><span class="login_question">Want to play?</span> Click "Register Your Party".</p>
+            <div id="signup_form">
+                <form action="{{ url_for('signup') }}" method="post">
+                    <input class="input_box" id="set_party" type="text" name="party_id" placeholder="Choose Your Party Name" required></input>
+                    <input class="input_box" id="set_party_pass" type="password" name="password" placeholder="Choose Your Password" required></input>
+                    <input class="submit_button" type="submit" value="Register Your Party"></input>
+                </form>
+            </div>
+        </div>
+        <div id="login_block">
+            <p class='login_line'><span class="login_question">Already have a party?</span> Click "Enter Your Party".</p>
+            <div id="login_form">
+                <form action="{{ url_for('login') }}" method="post">
+                    <input class="input_box" id="enter_party" type="text" name="party_id" placeholder="Enter Your Party Name" required></input>
+                    <input class="input_box" id="enter_party_pass" type="password" name="password" placeholder="Enter Your Password" required></input>
+                    <input class="submit_button" type="submit" value="Enter Your Party"></input>
+                </form>
+            </div>
+        </div>
+        <p class='login_line'><span class="login_question">Need more info?</span> Click "How To Play".</p>
     </div>
-    <div id="login_form">
-        <form action="{{ url_for('login') }}" method="post">
-            <input class="input_box" id="enter_party" type="text" name="party_id" placeholder="Enter Your Party Name" required></input>
-            <input class="input_box" id="enter_party_pass" type="password" name="password" placeholder="Enter Your Password" required></input>
-            <input class="submit_button" type="submit" value="Start Your Party"></input>
-        </form>
-    </div></div>
+    
 {% endblock %}
