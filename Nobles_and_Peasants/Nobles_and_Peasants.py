@@ -154,6 +154,15 @@ def how_to_play():
     return render_template('how_to_play.html'
                            , party_id = party_id)
 
+@app.route('/what_is_this')
+def what_is_this():
+    if current_user.is_authenticated:
+        party_id = current_user.id
+    else:
+        party_id = None
+    return render_template('what_is_this.html'
+                           , party_id = party_id)
+
 @app.route('/signup', methods=['POST'])
 def signup():
     party_id = request.form['party_id']
@@ -204,7 +213,7 @@ def login():
         flash('Unsuccessful! What is going on?')
         return(redirect(url_for('show_login')))
 
-    return redirect(next or url_for('set_up'))
+    return redirect(next or url_for('what_is_this'))
 
 @app.route('/logout')
 def logout():
@@ -228,23 +237,6 @@ def set_up():
     wages = db.execute(query).fetchall()
     return render_template('setup.html'
                            , drinks = drinks
-                           , starting_coin = starting_coin
-                           , wages = wages
-                           , party_id = party_id)
-
-@app.route('/set_up_advanced', methods=['GET'])
-@login_required
-def set_up_advanced():
-    db = get_db()
-
-    party_id = current_user.id
-    
-    query = 'select * from starting_coin_%s' % (party_id)
-    starting_coin = db.execute(query).fetchall()
-    
-    query = 'select * from wages_%s' % (party_id)
-    wages = db.execute(query).fetchall()
-    return render_template('setup_advanced.html'
                            , starting_coin = starting_coin
                            , wages = wages
                            , party_id = party_id)
@@ -284,7 +276,7 @@ def set_coin():
     query = 'update starting_coin_%s set coin = ? where status = ?' % (party_id)
     db.execute(query, [noble_coin, 'noble'])
     db.commit()
-    return redirect(url_for('set_up_advanced'))
+    return redirect(url_for('set_up'))
 
 @app.route('/set_wages', methods=['POST'])
 def set_wages():
@@ -294,11 +286,11 @@ def set_wages():
 
     if medium_wage < easy_wage:
         flash('Medium reward cannot be less than easy reward')
-        return redirect(url_for('set_up_advanced'))
+        return redirect(url_for('set_up'))
 
     if hard_wage < medium_wage:
         flash('Hard reward cannot be less than medium reward')
-        return redirect(url_for('set_up_advanced'))
+        return redirect(url_for('set_up'))
 
     db = get_db()
     party_id = current_user.id
@@ -312,7 +304,7 @@ def set_wages():
 
     db.execute(query, ['easy', easy_wage, 'medium', medium_wage, hard_wage])
     db.commit()
-    return redirect(url_for('set_up_advanced'))
+    return redirect(url_for('set_up'))
 
 ############################################################
 ################# Show main page ########################

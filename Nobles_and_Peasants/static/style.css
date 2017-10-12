@@ -208,6 +208,46 @@ li a:hover {
   font-size: 1.4em;
 }
 
+/*-------------------How To Play------------------------*/
+
+#how_to_play {
+  width: 80%;
+  margin: 10px auto;
+  text-align: center;
+}
+
+.how_to_block {
+     position: absolute;
+     margin: auto;
+     top: 200px;
+     right: 0;
+     bottom: 0;
+     left: 0;
+     width: 90%;
+}
+
+.how_to_main {
+     float: left;
+     max-width: 50%;
+     margin: 15px;
+}
+
+.how_to_setup {
+     float: right;
+     max-width: 40%;
+     margin: 15px;
+}
+
+.how_to_main p {
+  margin: 3px;
+  text-align: left;
+}
+
+.how_to_setup p {
+  margin: 5px;
+  text-align: left;
+}
+
 
 /*-------------------FAQ Page------------------------*/
 
@@ -222,39 +262,10 @@ li a:hover {
 
 /*-------------------Welcome Page------------------------*/
 
-#welcome_button {
-    width: 70%;
-    height: 70px;
-    margin: 0 auto;
-}
-
-#faq_button {
-    float: left;
-}
-
-/*.flash_div {
-  position: relative;
-  top: -70px;
-  width: 30%;
-  margin: 0 auto;
-  text-align: center;
-  border: solid 1px blue;
-}*/
-
-/*.flash_welcome { background: #76323F;
-                 padding: 0.5em;
-                 color: white;
-                 border: solid 1px blue;
-}*/
-
-#start_button {
-    float: right;
-}
-
 #setup_info {
     clear: both;
     padding-top: 20px;
-    margin: 0 auto;
+    margin: 50px auto 20px auto;
 }
 
 .setup_block {
@@ -289,8 +300,8 @@ li a:hover {
 
 .main_form {
     background-color: #C09F80;
-    margin: 40px;
-    padding: 15px 2px 5px 2px;
+    margin: 50px 20px 50px 20px;
+    padding: 8px 1px 4px 1px;
     text-align: center;
     height: 180px;
     overflow: auto;

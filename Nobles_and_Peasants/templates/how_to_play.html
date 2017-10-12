@@ -1,38 +1,39 @@
 {% extends "layout.html" %}
 {% block body %}
+    {%if not current_user.is_authenticated%}
     <form id="back_to_login" action="{{ url_for('show_login') }}">
         <input class="submit_button" type="submit" name="Login Button" value="Back To Login Page">
     </form>
-    <div id="rules">
-        <h2>What is Nobles and Peasants?</h2>
-        <p class="rule">Nobles and Peasants provides a middle ground between a theme party and a regular party. For those who just want to drink and hang out with friends, you can do that without much interaction with the rest of the game. For those who want to embrace the inner-workings of this medieval society, you can do that too. Nobles and Peasants establishes the minimal amount of structure so that your night can become as entertaining as your own imagination.
-        </p>
-        <h2>What is a noble? What is a peasant?</h2>
-        <p class="rule">Nobles start the game with some amount of coin. Peasants start with nothing. Coin is used to buy drinks. Since they do not have any coin, peasants must pledge allegiance to a noble, which allows them to get drinks using that noble's coin.
-        </p>
-        <h2>Why would a noble allow a peasant to use their coin?</h2>
-        <p class="rule">When a peasant pledges allegiance to a noble, the peasant becomes a soldier in that noble's army. The noble with the most soldiers is <b>The Almighty Ruler of Heaven and Earth</b>. The person with this title is allowed to do whatever he or she wants. Everyone must obey.
-        </p>
-        <h2>How do I become a noble or a peasant?</h2>
-        <p class="rule">You can choose which status you want to have, or you can let the game decide for you. Peasants can become nobles later in the game.
-        </p>
-        <h2>What happens when a noble runs out of coin?</h2>
-        <p class="rule">When a noble does not have any more coin, that person becomes a peasant. Also, the peasant with the most coin becomes a noble and takes over as the ruler of the previous noble's army.
-        </p>
-        <h2>How does a peasant get coin?</h2>
-        <p class="rule">A peasants earns coin by completing quests. An an example of a quest is, "Dance with an inanimate object for a minute." If you complete the quest, you get some coin. There are three difficulty levels for quests, each with a different reward for completion.
-        </p>
-        <h2>Can a peasant change allegiances?</h2>
-        <p class="rule">Yes. A peasant can change allegiances as they wish.
-        </p>
-        <h2>Can a noble prevent a peasant from being in their army?</h2>
-        <p class="rule">Yes. A noble can ban a peasant, which prevents the peasant from using their coin to drink. However, peasants do not have to get permission from a noble to join the noble's army.
-        </p>
-        <h2>How can a peasant become a noble?</h2>
-        <p class="rule">In addition to being the richest peasant when a noble runs out of coin, there is another way for a peasant to become a noble. A peasant can attempt to assassinate a noble. In order to even be allowed to attempt an assassination, the peasant must have a certain amount of coin compared to the noble. If the peasant has enough coin, they must also complete an assassination quest, which is a quest of the highest difficulty. If they succeed, the peasant takes the status, coin, and soldiers from their target.
-        </p>
-        <h2>Can nobles assassinate nobles?</h2>
-        <p class="rule">Yes.
-        </p>
+    {% endif %}
+    <div id="how_to_play">
+        <h4 class="how_to_intro">There are two pages where you can interact with the game. The first is called <b>Main Page</b> and the second is called <b>Game Setup</b>. On this page, I am going to explain how each page works.</h4>
+        <div class="how_to_block">
+            <div class="how_to_main">
+                <h3>What is the Main Page</h3>
+                <p>This page has six brown boxes where you can enter information.</p>
+                <h3>What is Enter Party?</h3>
+                <p>Every person at the party must have a user id. You choose your id and whether you want to be a peasant or a noble.</p>
+                <h3>What is Pledge Allegiance?</h3>
+                <p>If you are a peasant, you must pledge allegiance to some noble in order to buy a drink. When you do that, the cost of your drinks will be paid for with that noble's coin.</p>
+                <h3>What is Buy Drink?</h3>
+                <p>You use this box to buy drinks.</p>
+                <h3>What is Ban Peasant?</h3>
+                <p>If a peasant is drinking too much and wasting too much of a noble's coin, a noble can ban a peasant from his or her kingdom. That peasant must pledge allegiance to a different noble in order to drink.</p>
+                <h3>What is Get a Quest?</h3>
+                <p>Peasants and Nobles receive coin when they perform quests. Peasants want more coin because they need coin to become a noble. Nobles want more coin because, if they run out of coin, they become a peasant. Quests can be performed on behalf of someone else.</p>
+                <h3>What is Kill a Target?</h3>
+                <p>When you kill someone, you take their money, their status, and their soldiers.</p>
+            </div>
+            <div class="how_to_setup">
+                <h3>What is the Game Setup</h3>
+                <p>This page has three tables and three brown boxes where you can control the information in those tables.</p>
+                <h3>What is Add or Update Drink?</h3>
+                <p>This table shows all of the drinks users can buy at your party. At the start, each party is given water and beer. You can add a drink or update the price of an existing drink. You can have as many drinks as your want.</p>
+                <h3>What is Update Starting Coin?</h3>
+                <p>This table shows how much coin Nobles and Peasants receive when they start the game. You can update this amount, so as to match the price of your drinks or how much you and your friends are drinking.</p>
+                <h3>What is Set Quest Rewards?</h3>
+                <p>This table shows how much coin you will receive for completing different types of quests. You can update this amount, so as to help control how quickly a peasant can become a noble.</p>
+            </div>
+        </div>
     </div>
 {% endblock %}

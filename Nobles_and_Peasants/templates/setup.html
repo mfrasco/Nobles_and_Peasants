@@ -1,13 +1,5 @@
 {% extends "layout.html" %}
 {% block body %}
-    <div id="welcome_text">
-        <h4>Welcome to your party. This party can only be accessed by people with the party name and password.</h4>
-        <div class="flash_div">
-            {% for message in get_flashed_messages() %}
-                <h4 class="flash_welcome">{{ message }}</h4>
-            {% endfor %}
-        </div>
-    </div>
     <div id="setup_info">
         <div class="setup_block" id="set_drinks">
             <h3>Drinks At Your Party</h3>
@@ -32,6 +24,58 @@
                 <input class="input_box" type="text" name="drink_name" placeholder="Name" required></input>
                 <input class="num_box" type="number" name="price" placeholder="Price" min=1 required></input>
                 <input class="submit_button" type="submit" value="Add or Update Drink"></input>
+            </form>
+        </div>
+        <div class="setup_block" id="set_coin">
+            <h3>Starting Coin For Nobles and Peasants</h3>
+            <p>Give nobles just enough money to support an army</p>
+            <table class="nap_table" id="coin_table">
+                <thead>
+                    <tr>
+                        <td>Status</td>
+                        <td>Starting Coin</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for role in starting_coin %}
+                    <tr>
+                        <td>{{role.status}}</td>
+                        <td>{{role.coin}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <form action="{{ url_for('set_coin') }}" method="post" class="setup_form" id="set_coin_form">
+                <input class="num_box" type="number" name="noble_coin" placeholder="Noble Coin" min=1 required></input>
+                <p></p>
+                <input class="submit_button" type="submit" value="Update Starting Coin"></input>
+            </form>
+        </div>
+        <div class="setup_block" id="set_reward">
+            <h3>Rewards For Completing Quests</h3>
+            <p>Control how easily peasants can get coin</p>
+            <table class="nap_table" id="reward_table">
+                <thead>
+                    <tr>
+                        <td>Quest Difficulty</td>
+                        <td>Coin Rewarded</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for wage in wages %}
+                    <tr>
+                        <td>{{wage.level}}</td>
+                        <td>{{wage.coin}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <form action="{{ url_for('set_wages') }}" method="post" class="setup_form" id="set_wage_form">
+                <input class="num_box" type="number" name="easy" placeholder="Easy" min=1 required></input>
+                <input class="num_box" type="number" name="medium" placeholder="Medium" min=1 required></input>
+                <input class="num_box" type="number" name="hard" placeholder="Hard" min=1 required></input>
+                <p></p>
+                <input class="submit_button" type="submit" value="Set Quest Rewards"></input>
             </form>
         </div>
     </div>
