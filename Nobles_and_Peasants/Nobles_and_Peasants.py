@@ -1,12 +1,9 @@
 # all the imports
-import pdb
-import os
 import sqlite3
 import re
 from flask import (
     Flask,
     request,
-    session,
     g,
     redirect,
     url_for,
