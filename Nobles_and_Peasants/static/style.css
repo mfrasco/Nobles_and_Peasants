@@ -346,6 +346,30 @@ li a:hover {
     margin: 0 auto;
 }
 
+/*-------------------Assassinate Page------------------------*/
+
+#kill_prompt {
+  margin: 30px auto;
+}
+
+#kill_challenge {
+  margin: 20px auto;
+}
+
+#prompt_challenge {
+  text-align: center;
+  border: solid 5px #565656;
+  width: 70%;
+  margin: 20px auto;
+}
+
+.assassinate {
+  text-align: center;
+  width: 50%;
+  margin: 0 auto;
+  background-color: #C09F80;
+  padding: 8px 1px 4px 1px;
+}
 
 /*-------------------Leaderboard------------------------*/
 
