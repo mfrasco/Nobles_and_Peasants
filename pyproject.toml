@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "nobles-and-peasants"
+version = "0.1.0"
+description = "Nobles have the coin. Peasants have the power."
+authors = ["mfrasco <mfrasco6@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+Flask = "^3.0.0"
+Flask-Login = "^0.6.3"
+Flask-Bcrypt = "^1.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
