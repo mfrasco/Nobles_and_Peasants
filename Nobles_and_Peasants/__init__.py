@@ -1,1 +1,1 @@
-from .Nobles_and_Peasants import app
+from .main import app

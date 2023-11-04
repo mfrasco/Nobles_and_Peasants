@@ -18,3 +18,6 @@ If you are not interested in this idea, Nobles and Peasants doesn't force you to
 
 ## Developer Guide
 
+Initialize the database: `flask --app Nobles_and_Peasants initdb`
+
+Run the app: `python Nobles_and_Peasants/main.py`
