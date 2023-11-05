@@ -3,7 +3,6 @@
     <div id="setup_info">
         <div class="setup_block" id="set_drinks">
             <h3>Drinks At Your Party</h3>
-            <p>Water costs -1 coin. Please drink responsibly.</p>
             <table class="nap_table" id="drinks_table">
                 <thead>
                     <tr>
@@ -14,8 +13,8 @@
                 <tbody>
                     {% for drink in drinks %}
                     <tr>
-                        <td>{{drink.name}}</td>
-                        <td>{{drink.coin}}</td>
+                        <td>{{drink.drink_name}}</td>
+                        <td>{{drink.drink_cost}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -39,7 +38,7 @@
                 <tbody>
                     {% for role in starting_coin %}
                     <tr>
-                        <td>{{role.status}}</td>
+                        <td>{{role.player_status}}</td>
                         <td>{{role.coin}}</td>
                     </tr>
                     {% endfor %}
@@ -62,10 +61,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for wage in wages %}
+                    {% for reward in quest_rewards %}
                     <tr>
-                        <td>{{wage.level}}</td>
-                        <td>{{wage.coin}}</td>
+                        <td>{{reward.difficulty}}</td>
+                        <td>{{reward.reward}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

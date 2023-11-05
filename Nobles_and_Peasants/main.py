@@ -229,15 +229,15 @@ def set_up():
     party_id = current_user.id
 
     query = """
-        select name, coin
+        select drink_name, drink_cost
         from drinks
         where party_id = ?
-        order by coin
+        order by drink_cost
     """
     drinks = db.execute(query, [party_id]).fetchall()
     
     query = """
-        select status, coin
+        select player_status, coin
         from starting_coin
         where party_id = ?
         order by coin
@@ -245,16 +245,16 @@ def set_up():
     starting_coin = db.execute(query, [party_id]).fetchall()
     
     query = """
-        select level, coin
-        from wages
+        select difficulty, reward
+        from quest_rewards
         where party_id = ?
-        order by coin
+        order by reward
     """
-    wages = db.execute(query, [party_id]).fetchall()
+    quest_rewards = db.execute(query, [party_id]).fetchall()
     return render_template('setup.html'
                            , drinks = drinks
                            , starting_coin = starting_coin
-                           , wages = wages
+                           , quest_rewards = quest_rewards
                            , party_id = party_id)
 
 @app.route('/rules')
@@ -277,7 +277,7 @@ def add_drink():
         flash('Unsuccessful! Water must have a negative price.')
         return redirect(url_for('set_up'))
 
-    query = 'replace into drinks (party_id, name, coin) values (?, ?, ?)'
+    query = 'replace into drinks (party_id, drink_name, drink_cost) values (?, ?, ?)'
     db.execute(query, [party_id, drink_name, price])
     db.commit()
     return redirect(url_for('set_up'))
@@ -293,7 +293,7 @@ def set_coin():
         update starting_coin
         set coin = ?
         where party_id = ?
-            and status = ?
+            and player_status = ?
     """
     db.execute(query, [noble_coin, party_id, 'noble'])
     db.commit()
@@ -317,10 +317,10 @@ def set_wages():
     party_id = current_user.id
 
     query = """
-    update wages
-    set coin = (case when level = ? then ?
-                     when level = ? then ?
-                     else ?
+    update quest_rewards
+    set reward = (case when difficulty = ? then ?
+                       when difficulty = ? then ?
+                       else ?
                 end)
     where party_id = ?
     """
@@ -339,32 +339,29 @@ def show_main():
     db = get_db()
     party_id = current_user.id
 
-    # get drink names
     query = """
-        select name
+        select drink_name
         from drinks
         where party_id = ?
-        order by coin
+        order by drink_cost
     """
     drinks = db.execute(query, [party_id]).fetchall()
     drinks = [d[0] for d in drinks]
 
-    # get people names
     query = """
         select id
-        from kingdom
+        from players
         where party_id = ?
         order by id
     """
     people = db.execute(query, [party_id]).fetchall()
     people = [p[0] for p in people]
 
-    # get noble names
     query = """
         select id
-        from kingdom
+        from players
         where party_id = ?
-            and status = ?
+            and player_status = ?
         order by id
     """
     nobles = db.execute(query, [party_id, 'noble']).fetchall()
@@ -391,7 +388,7 @@ def sign_in():
     # check that the id is not already taken
     query = """
         select id
-        from kingdom
+        from players
         where party_id = ?
     """
     current_ids = db.execute(query, [party_id]).fetchall()
@@ -401,8 +398,8 @@ def sign_in():
 
     if user_status == 'randomly decide':
         query = """
-            select status
-            from kingdom
+            select player_status
+            from players
             where party_id = ?
         """
         statuses = db.execute(query, [party_id]).fetchall()
@@ -423,7 +420,7 @@ def sign_in():
 
     starting_coin, allegiance, soldiers = start_info
     query = """
-    insert into kingdom (id, party_id, status, coin, allegiance, drinks, soldiers)
+    insert into players (id, party_id, player_status, coin, noble_id, drinks, soldiers)
     values (?, ?, ?, ?, ?, ?, ?)
     """
     db.execute(query, [user_id, party_id, user_status, starting_coin, allegiance, 0, soldiers])
@@ -444,8 +441,8 @@ def pledge_allegiance():
 
     # check the request values are valid
     query = """
-        select status
-        from kingdom
+        select player_status
+        from players
         where party_id = ?
             and id = ?
     """
@@ -471,10 +468,10 @@ def pledge_allegiance():
 
     # check if noble has banned peasant
     query = """
-        select outlaw
-        from banned
+        select peasant_id
+        from outlaws
         where party_id = ?
-            and noble = ?
+            and noble_id = ?
     """
 
     outlaws = db.execute(query, [party_id, noble_id]).fetchall()
@@ -485,21 +482,21 @@ def pledge_allegiance():
 
     # update the allegiance in the database
     query = """
-        select allegiance
-        from kingdom
+        select noble_id
+        from players
         where party_id = ?
             and id = ?
     """
     previous_noble = fetch_one(db, query, [party_id, user_id])
     query = """
-        update kingdom
-        set allegiance = ?
+        update players
+        set noble_id = ?
         where party_id = ?
             and id = ?
     """
     db.execute(query, [noble_id, party_id, user_id])
     query = """
-        update kingdom
+        update players
         set soldiers = soldiers + 1
         where party_id = ?
             and id = ?
@@ -508,7 +505,7 @@ def pledge_allegiance():
     
     if previous_noble is not None:
         query = """
-            update kingdom
+            update players
             set soldiers = soldiers - 1
             where party_id = ?
                 and id = ?
@@ -533,8 +530,8 @@ def buy_drink():
 
     # check noble status
     query = """
-        select allegiance
-        from kingdom
+        select noble_id
+        from players
         where party_id = ?
             and id = ?
     """
@@ -544,10 +541,10 @@ def buy_drink():
         return redirect(url_for('show_main'))
 
     query = """
-        select coin
+        select drink_cost
         from drinks
         where party_id = ?
-            and name = ?
+            and drink_name = ?
     """
     price = fetch_one(db, query, [party_id, drink])
     cost = price * quantity
@@ -555,7 +552,7 @@ def buy_drink():
     # cut out for water
     if drink == 'water':
         query = """
-            update kingdom
+            update players
             set coin = coin - ?
             where party_id = ?
                 and id = ?
@@ -567,21 +564,21 @@ def buy_drink():
     # If the noble has enough money, take it. If not, create a new noble.
     query = """
         select coin
-        from kingdom
+        from players
         where party_id = ?
             and id = ?
     """
     noble_coin = fetch_one(db, query, [party_id, noble_id])
 
     query = """
-        update kingdom
+        update players
         set coin = ?
         where party_id = ?
             and id = ?
     """
     db.execute(query, [max(noble_coin - cost, 0), party_id, noble_id])
     query = """
-        update kingdom
+        update players
         set drinks = drinks + ?
         where party_id = ?
             and id = ?
@@ -613,8 +610,8 @@ def ban_peasant():
 
     # check input validity
     query = """
-        select status
-        from kingdom
+        select player_status
+        from players
         where party_id = ?
             and id = ?
     """
@@ -629,8 +626,8 @@ def ban_peasant():
         return redirect(url_for('show_main'))
 
     query = """
-        select allegiance
-        from kingdom
+        select noble_id
+        from players
         where party_id = ?
             and id = ?
     """
@@ -642,14 +639,14 @@ def ban_peasant():
     # remove the peasant's allegiance to the noble that is banning her
     if peasant_allegiance == noble_id:
         query = """
-            update kingdom
-            set allegiance = ?
+            update players
+            set noble_id = ?
             where party_id = ?
                 and id = ?
         """
         db.execute(query, [None, party_id, peasant_id])
         query = """
-            update kingdom
+            update players
             set soldiers = soldiers - 1
             where party_id = ?
                 and id = ?
@@ -657,7 +654,7 @@ def ban_peasant():
         db.execute(query, [party_id, noble_id])
 
     # add the peasant to a banned table
-    query = "insert into banned (party_id, noble, outlaw) values (?, ?, ?)"
+    query = "insert into outlaws (party_id, noble_id, peasant_id) values (?, ?, ?)"
     db.execute(query, [party_id, noble_id, peasant_id])
     db.commit()
     return redirect(url_for('show_main'))
@@ -677,7 +674,7 @@ def get_quest():
 
     query = """
         select id
-        from kingdom
+        from players
         where party_id = ?
             and id = ?
     """
@@ -690,7 +687,7 @@ def get_quest():
         select quest
         from quests
         where party_id = ?
-            and level = ?
+            and difficulty = ?
         order by random()
         limit 1
     """
@@ -712,8 +709,8 @@ def add_money():
         party_id = current_user.id
 
         query = """
-        update kingdom
-        set coin = coin + (select coin from wages where level = ?)
+        update players
+        set coin = coin + (select coin from quest_rewards where difficulty = ?)
         where party_id = ?
             and id = ?
         """
@@ -736,8 +733,8 @@ def kill():
     party_id = current_user.id
 
     query = """
-        select coin, status
-        from kingdom
+        select coin, player_status
+        from players
         where party_id = ?
             and id = ?
     """
@@ -760,7 +757,7 @@ def kill():
             select coin
             from starting_coin
             where party_id = ?
-                and status = ?
+                and player_status = ?
         """
         coin_needed = fetch_one(db, query, [party_id, 'noble'])
         if user_coin < coin_needed:
@@ -797,8 +794,8 @@ def assassinate():
         loser = user_id
 
     query = """
-        select status
-        from kingdom
+        select player_status
+        from players
         where party_id = ?
             and id = ?
     """
@@ -830,10 +827,10 @@ def show_kingdom():
     party_id = current_user.id
 
     query = """
-    select id, status, coin, allegiance, drinks, soldiers
-    from kingdom
+    select id, player_status, coin, noble_id, drinks, soldiers
+    from players
     where party_id = ?
-    order by allegiance, coin desc, drinks desc, id
+    order by noble_id, coin desc, drinks desc, id
     """
     
     kingdom = db.execute(query, [party_id]).fetchall()
@@ -850,16 +847,16 @@ def show_leaderboard():
 
     query = """
         select id, soldiers, coin, drinks
-        from kingdom
+        from players
         where party_id = ?
-            and status = 'noble'
+            and player_status = 'noble'
         order by soldiers desc, coin desc, drinks desc
     """
     
     leaderboard = db.execute(query, [party_id]).fetchall()
     query = """
         select id
-        from kingdom
+        from players
         where party_id = ?
         order by soldiers desc
         limit 1

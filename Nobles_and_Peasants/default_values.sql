@@ -1,17 +1,17 @@
-insert into drinks (party_id, name, coin) values
+insert into drinks (party_id, drink_name, drink_cost) values
     ("~PARTY_ID~", 'water', -1),
     ("~PARTY_ID~", 'beer', 3);
 
-insert into starting_coin (party_id, status, coin) values
+insert into starting_coin (party_id, player_status, coin) values
     ("~PARTY_ID~", 'noble', 50),
     ("~PARTY_ID~", 'peasant', 0);
 
-insert into wages (party_id, level, coin) values
+insert into quest_rewards (party_id, difficulty, reward) values
     ("~PARTY_ID~", 'easy', 10),
     ("~PARTY_ID~", 'medium', 15),
     ("~PARTY_ID~", 'hard', 25);
 
-insert into quests (party_id, quest, level) values
+insert into quests (party_id, quest, difficulty) values
     ("~PARTY_ID~", "Stare into someone's eyes for a whole minute without laughing. You choose the person.", 'easy'),
     ("~PARTY_ID~", "Write a Facebook message to the last person you messaged about how much you love one of the following: Star Wars, the Disney Channel, Spiderman.", 'medium'),
     ("~PARTY_ID~", "Put a blindfold on, find someone at the party, and touch their face. Guess who.", 'medium'),
