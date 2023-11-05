@@ -1,22 +1,14 @@
 # all the imports
 import sqlite3
 import re
-from flask import (
-    Flask,
-    request,
-    g,
-    redirect,
-    url_for,
-    render_template,
-    flash
-)
+from flask import Flask, request, g, redirect, url_for, render_template, flash
 from flask_login import (
     LoginManager,
     UserMixin,
     current_user,
     login_user,
     logout_user,
-    login_required
+    login_required,
 )
 from flask_bcrypt import generate_password_hash, check_password_hash
 from random import uniform
@@ -24,7 +16,7 @@ from Nobles_and_Peasants.nap_helpers import (
     fetch_one,
     get_starting_info,
     get_parties,
-    is_safe_url,
+    # is_safe_url,
     find_richest_peasant,
     decrement_previous_noble,
     switch_allegiances,
@@ -33,12 +25,12 @@ from Nobles_and_Peasants.nap_helpers import (
     take_money,
     n_beats_p,
     p_beats_n,
-    n_beats_n
+    n_beats_n,
 )
 
 # create the application instance and load config
 app = Flask(__name__)
-app.secret_key = 'super secret key'
+app.secret_key = "super secret key"
 
 # app = Flask(__name__, instance_relative_config=True)
 # app.config.from_object('Nobles_and_Peasants.default_settings')
@@ -52,38 +44,38 @@ app.secret_key = 'super secret key'
 def connect_db():
     """Connects to the specific database."""
     # rv = sqlite3.connect(app.config['DATABASE'])
-    rv = sqlite3.connect('Nobles_and_Peasants/flask_test.db')
+    rv = sqlite3.connect("Nobles_and_Peasants/flask_test.db")
     rv.row_factory = sqlite3.Row
     return rv
 
 
 def init_party(db, party_id):
-    with app.open_resource('default_values.sql', mode='r') as f:
+    with app.open_resource("default_values.sql", mode="r") as f:
         schema = f.read()
-        schema = re.sub('~PARTY_ID~', party_id, schema)
+        schema = re.sub("~PARTY_ID~", party_id, schema)
         db.cursor().executescript(schema)
     db.commit()
 
 
 def init_db():
     db = get_db()
-    with app.open_resource('schema.sql', mode='r') as f:
+    with app.open_resource("schema.sql", mode="r") as f:
         db.cursor().executescript(f.read())
     db.commit()
 
 
-@app.cli.command('initdb')
+@app.cli.command("initdb")
 def initdb_command():
     """Initializes the database."""
     init_db()
-    print('Initialized the database.')
+    print("Initialized the database.")
 
 
 def get_db():
     """Opens a new database connection if there is none yet
     for the current application context
     """
-    if not hasattr(g, 'sqlite_db'):
+    if not hasattr(g, "sqlite_db"):
         g.sqlite_db = connect_db()
     return g.sqlite_db
 
@@ -91,13 +83,14 @@ def get_db():
 @app.teardown_appcontext
 def close_db(error):
     """Closes the database at the end of the request."""
-    if hasattr(g, 'sqlite_db'):
+    if hasattr(g, "sqlite_db"):
         g.sqlite_db.close()
 
 
 ############################################################
 ################# User Handling ######################
 ############################################################
+
 
 class User(UserMixin):
     def __init__(self, id):
@@ -118,7 +111,7 @@ login_manager.login_view = "show_login"
 def load_user(party_id):
     # get a list of all of the parties
     db = get_db()
-    parties = get_parties(db = db)
+    parties = get_parties(db=db)
 
     # check if party_id is already taken
     if party_id not in [row[0] for row in parties]:
@@ -127,71 +120,76 @@ def load_user(party_id):
     user = User(party_id)
     return user
 
+
 def insert_party(party_id, password):
     db = get_db()
-    query = 'insert into parties (party_id, password) values (?, ?)'
+    query = "insert into parties (party_id, password) values (?, ?)"
     db.execute(query, [party_id, password])
     db.commit()
+
 
 ############################################################
 ################# Show setup pages ########################
 ############################################################
 
-@app.route('/')
+
+@app.route("/")
 def show_login():
     if current_user.is_authenticated:
         party_id = current_user.id
     else:
         party_id = None
-    return render_template('login.html'
-                           , party_id = party_id)
+    return render_template("login.html", party_id=party_id)
 
-@app.route('/how_to_play')
+
+@app.route("/how_to_play")
 def how_to_play():
     if current_user.is_authenticated:
         party_id = current_user.id
     else:
         party_id = None
-    return render_template('how_to_play.html'
-                           , party_id = party_id)
+    return render_template("how_to_play.html", party_id=party_id)
 
-@app.route('/what_is_this')
+
+@app.route("/what_is_this")
 def what_is_this():
     if current_user.is_authenticated:
         party_id = current_user.id
     else:
         party_id = None
-    return render_template('what_is_this.html'
-                           , party_id = party_id)
+    return render_template("what_is_this.html", party_id=party_id)
 
-@app.route('/signup', methods=['POST'])
+
+@app.route("/signup", methods=["POST"])
 def signup():
-    party_id = request.form['party_id']
-    password = request.form['password']
+    party_id = request.form["party_id"]
+    password = request.form["password"]
 
     # get a list of all of the parties
     db = get_db()
-    parties = get_parties(db = db)
+    parties = get_parties(db=db)
 
     # check if party_id is already taken
     if party_id in [row[0] for row in parties]:
-        flash('Unsuccessful! Please choose a different party name. Someone already selected that one.')
-        return redirect(url_for('show_login'))
+        flash(
+            "Unsuccessful! Please choose a different party name. Someone already selected that one."
+        )
+        return redirect(url_for("show_login"))
 
-    hashed_password = generate_password_hash(password, rounds = 12)
+    hashed_password = generate_password_hash(password, rounds=12)
 
-    query = 'insert into parties (party_id, password) values (?, ?)'
+    query = "insert into parties (party_id, password) values (?, ?)"
     db.execute(query, [party_id, hashed_password])
-    init_party(db = db, party_id = party_id)
+    init_party(db=db, party_id=party_id)
     db.commit()
-    flash('Success! You can now log in to your party!')
-    return redirect(url_for('show_login'))
+    flash("Success! You can now log in to your party!")
+    return redirect(url_for("show_login"))
 
 
-@app.route('/login', methods=['POST'])
+@app.route("/login", methods=["POST"])
 def login():
-    party_id = request.form['party_id']
-    password = request.form['password']
+    party_id = request.form["party_id"]
+    password = request.form["password"]
 
     # check that the user name matches the hashed password
     db = get_db()
@@ -199,29 +197,33 @@ def login():
     result = fetch_one(db, query, [party_id])
 
     if result is None:
-        flash('Unsuccessful! You need to sign up and create a party id before you can log in.')
-        return redirect(url_for('show_login'))
+        flash(
+            "Unsuccessful! You need to sign up and create a party id before you can log in."
+        )
+        return redirect(url_for("show_login"))
 
     if not check_password_hash(result, password):
-        flash('Unsuccessful! That is not the correct password.')
-        return redirect(url_for('show_login'))
+        flash("Unsuccessful! That is not the correct password.")
+        return redirect(url_for("show_login"))
 
     user = User(party_id)
     login_user(user)
 
-    next = request.args.get('next')
-    if not is_safe_url:
-        flash('Unsuccessful! What is going on?')
-        return(redirect(url_for('show_login')))
+    next = request.args.get("next")
+    # if not is_safe_url:
+    #     flash('Unsuccessful! What is going on?')
+    #     return(redirect(url_for('show_login')))
 
-    return redirect(next or url_for('what_is_this'))
+    return redirect(next or url_for("what_is_this"))
 
-@app.route('/logout')
+
+@app.route("/logout")
 def logout():
     logout_user()
-    return redirect(url_for('show_login'))
+    return redirect(url_for("show_login"))
 
-@app.route('/set_up', methods=['GET'])
+
+@app.route("/set_up", methods=["GET"])
 @login_required
 def set_up():
     db = get_db()
@@ -235,7 +237,7 @@ def set_up():
         order by drink_cost
     """
     drinks = db.execute(query, [party_id]).fetchall()
-    
+
     query = """
         select player_status, coin
         from starting_coin
@@ -243,7 +245,7 @@ def set_up():
         order by coin
     """
     starting_coin = db.execute(query, [party_id]).fetchall()
-    
+
     query = """
         select difficulty, reward
         from quest_rewards
@@ -251,43 +253,49 @@ def set_up():
         order by reward
     """
     quest_rewards = db.execute(query, [party_id]).fetchall()
-    return render_template('setup.html'
-                           , drinks = drinks
-                           , starting_coin = starting_coin
-                           , quest_rewards = quest_rewards
-                           , party_id = party_id)
+    return render_template(
+        "setup.html",
+        drinks=drinks,
+        starting_coin=starting_coin,
+        quest_rewards=quest_rewards,
+        party_id=party_id,
+    )
 
-@app.route('/rules')
+
+@app.route("/rules")
 def show_rules():
-    return render_template('rules.html')
+    return render_template("rules.html")
+
 
 ############################################################
 ################# Setup Party ########################
 ############################################################
 
-@app.route('/add_drink', methods=['POST'])
+
+@app.route("/add_drink", methods=["POST"])
 def add_drink():
     db = get_db()
     party_id = current_user.id
 
-    drink_name = request.form['drink_name'].strip().lower()
-    price = int(request.form['price'])
+    drink_name = request.form["drink_name"].strip().lower()
+    price = int(request.form["price"])
 
-    if drink_name == 'water' and price >= 0:
-        flash('Unsuccessful! Water must have a negative price.')
-        return redirect(url_for('set_up'))
+    if drink_name == "water" and price >= 0:
+        flash("Unsuccessful! Water must have a negative price.")
+        return redirect(url_for("set_up"))
 
-    query = 'replace into drinks (party_id, drink_name, drink_cost) values (?, ?, ?)'
+    query = "replace into drinks (party_id, drink_name, drink_cost) values (?, ?, ?)"
     db.execute(query, [party_id, drink_name, price])
     db.commit()
-    return redirect(url_for('set_up'))
+    return redirect(url_for("set_up"))
 
-@app.route('/set_coin', methods=['POST'])
+
+@app.route("/set_coin", methods=["POST"])
 def set_coin():
     db = get_db()
     party_id = current_user.id
 
-    noble_coin = int(request.form['noble_coin'])
+    noble_coin = int(request.form["noble_coin"])
 
     query = """
         update starting_coin
@@ -295,23 +303,24 @@ def set_coin():
         where party_id = ?
             and player_status = ?
     """
-    db.execute(query, [noble_coin, party_id, 'noble'])
+    db.execute(query, [noble_coin, party_id, "noble"])
     db.commit()
-    return redirect(url_for('set_up'))
+    return redirect(url_for("set_up"))
 
-@app.route('/set_wages', methods=['POST'])
+
+@app.route("/set_wages", methods=["POST"])
 def set_wages():
-    easy_wage = int(request.form['easy'])
-    medium_wage = int(request.form['medium'])
-    hard_wage = int(request.form['hard'])
+    easy_wage = int(request.form["easy"])
+    medium_wage = int(request.form["medium"])
+    hard_wage = int(request.form["hard"])
 
     if medium_wage < easy_wage:
-        flash('Medium reward cannot be less than easy reward')
-        return redirect(url_for('set_up'))
+        flash("Medium reward cannot be less than easy reward")
+        return redirect(url_for("set_up"))
 
     if hard_wage < medium_wage:
-        flash('Hard reward cannot be less than medium reward')
-        return redirect(url_for('set_up'))
+        flash("Hard reward cannot be less than medium reward")
+        return redirect(url_for("set_up"))
 
     db = get_db()
     party_id = current_user.id
@@ -325,15 +334,17 @@ def set_wages():
     where party_id = ?
     """
 
-    db.execute(query, ['easy', easy_wage, 'medium', medium_wage, hard_wage, party_id])
+    db.execute(query, ["easy", easy_wage, "medium", medium_wage, hard_wage, party_id])
     db.commit()
-    return redirect(url_for('set_up'))
+    return redirect(url_for("set_up"))
+
 
 ############################################################
 ################# Show main page ########################
 ############################################################
 
-@app.route('/main')
+
+@app.route("/main")
 @login_required
 def show_main():
     db = get_db()
@@ -364,24 +375,24 @@ def show_main():
             and player_status = ?
         order by id
     """
-    nobles = db.execute(query, [party_id, 'noble']).fetchall()
+    nobles = db.execute(query, [party_id, "noble"]).fetchall()
     nobles = [n[0] for n in nobles]
 
-    return render_template('main.html'
-                           , drinks = drinks
-                           , people = people
-                           , nobles = nobles
-                           , party_id = party_id)
+    return render_template(
+        "main.html", drinks=drinks, people=people, nobles=nobles, party_id=party_id
+    )
+
 
 ############################################################
 ################# Sign In ########################
 ############################################################
 
-@app.route('/sign_in', methods=['POST'])
+
+@app.route("/sign_in", methods=["POST"])
 def sign_in():
-    user_id = request.form['user_id'].strip().lower()
-    user_status = request.form['user_status']
-    
+    user_id = request.form["user_id"].strip().lower()
+    user_status = request.form["user_status"]
+
     db = get_db()
     party_id = current_user.id
 
@@ -393,10 +404,12 @@ def sign_in():
     """
     current_ids = db.execute(query, [party_id]).fetchall()
     if user_id in [row[0] for row in current_ids]:
-        flash('Unsuccessful! Please choose a different id. Someone already selected that one.')
-        return redirect(url_for('show_main'))
+        flash(
+            "Unsuccessful! Please choose a different id. Someone already selected that one."
+        )
+        return redirect(url_for("show_main"))
 
-    if user_status == 'randomly decide':
+    if user_status == "randomly decide":
         query = """
             select player_status
             from players
@@ -405,16 +418,16 @@ def sign_in():
         statuses = db.execute(query, [party_id]).fetchall()
         statuses = [s[0] for s in statuses]
         num_people = len(statuses)
-        num_nobles = statuses.count('noble')
+        num_nobles = statuses.count("noble")
         if num_nobles < 2:
-            user_status =  'noble'
+            user_status = "noble"
         elif (float(num_nobles) / num_people) < 0.2:
             if uniform(0, 1) < 0.75:
-                user_status = 'noble'
+                user_status = "noble"
             else:
-                user_status = 'peasant'
+                user_status = "peasant"
         else:
-            user_status = 'peasant'
+            user_status = "peasant"
 
     start_info = get_starting_info(db, user_status, user_id)
 
@@ -423,18 +436,22 @@ def sign_in():
     insert into players (id, party_id, player_status, coin, noble_id, drinks, soldiers)
     values (?, ?, ?, ?, ?, ?, ?)
     """
-    db.execute(query, [user_id, party_id, user_status, starting_coin, allegiance, 0, soldiers])
+    db.execute(
+        query, [user_id, party_id, user_status, starting_coin, allegiance, 0, soldiers]
+    )
     db.commit()
-    return redirect(url_for('show_main'))
+    return redirect(url_for("show_main"))
+
 
 ############################################################
 ################# Pledge Allegiance ########################
 ############################################################
 
-@app.route('/pledge', methods=['POST'])
+
+@app.route("/pledge", methods=["POST"])
 def pledge_allegiance():
-    user_id = request.form['user_id'].strip().lower()
-    noble_id = request.form['noble_id'].strip().lower()
+    user_id = request.form["user_id"].strip().lower()
+    noble_id = request.form["noble_id"].strip().lower()
 
     db = get_db()
     party_id = current_user.id
@@ -451,20 +468,20 @@ def pledge_allegiance():
 
     # error checking
     if user_status is None:
-        flash('Unsuccessful! Please enter a valid id for yourself. Have you signed in?')
-        return redirect(url_for('show_main'))
+        flash("Unsuccessful! Please enter a valid id for yourself. Have you signed in?")
+        return redirect(url_for("show_main"))
 
     if noble_status is None:
-        flash('Unsuccessful! Please enter a valid id for the noble.')
-        return redirect(url_for('show_main'))
+        flash("Unsuccessful! Please enter a valid id for the noble.")
+        return redirect(url_for("show_main"))
 
-    if noble_status != 'noble':
-        flash('Unsuccessful! That person is not a noble')
-        return redirect(url_for('show_main'))
+    if noble_status != "noble":
+        flash("Unsuccessful! That person is not a noble")
+        return redirect(url_for("show_main"))
 
-    if user_status == 'noble':
-        flash('Unsuccessful! You are a noble. You must be allied to yourself.')
-        return redirect(url_for('show_main'))
+    if user_status == "noble":
+        flash("Unsuccessful! You are a noble. You must be allied to yourself.")
+        return redirect(url_for("show_main"))
 
     # check if noble has banned peasant
     query = """
@@ -477,8 +494,8 @@ def pledge_allegiance():
     outlaws = db.execute(query, [party_id, noble_id]).fetchall()
     outlaws = [x[0] for x in outlaws]
     if len(outlaws) > 0 and user_id in outlaws[0]:
-        flash('Unsuccessful! This noble has banned you from their kingdom!')
-        return redirect(url_for('show_main'))
+        flash("Unsuccessful! This noble has banned you from their kingdom!")
+        return redirect(url_for("show_main"))
 
     # update the allegiance in the database
     query = """
@@ -502,7 +519,7 @@ def pledge_allegiance():
             and id = ?
     """
     db.execute(query, [party_id, noble_id])
-    
+
     if previous_noble is not None:
         query = """
             update players
@@ -513,17 +530,19 @@ def pledge_allegiance():
         db.execute(query, [party_id, previous_noble])
 
     db.commit()
-    return redirect(url_for('show_main'))
+    return redirect(url_for("show_main"))
+
 
 ############################################################
 ################# Buy a Drink ########################
 ############################################################
 
-@app.route('/buy_drink', methods=['POST'])
+
+@app.route("/buy_drink", methods=["POST"])
 def buy_drink():
-    user_id = request.form['user_id'].strip().lower()
-    drink = request.form['drink']
-    quantity = int(request.form['quantity'])
+    user_id = request.form["user_id"].strip().lower()
+    drink = request.form["drink"]
+    quantity = int(request.form["quantity"])
 
     db = get_db()
     party_id = current_user.id
@@ -537,8 +556,10 @@ def buy_drink():
     """
     noble_id = fetch_one(db, query, [party_id, user_id])
     if noble_id is None:
-        flash('Unsuccessful! You need to ally yourself to a noble before you can buy a drink.')
-        return redirect(url_for('show_main'))
+        flash(
+            "Unsuccessful! You need to ally yourself to a noble before you can buy a drink."
+        )
+        return redirect(url_for("show_main"))
 
     query = """
         select drink_cost
@@ -550,7 +571,7 @@ def buy_drink():
     cost = price * quantity
 
     # cut out for water
-    if drink == 'water':
+    if drink == "water":
         query = """
             update players
             set coin = coin - ?
@@ -559,7 +580,7 @@ def buy_drink():
         """
         db.execute(query, [cost, party_id, user_id])
         db.commit()
-        return redirect(url_for('show_main'))
+        return redirect(url_for("show_main"))
 
     # If the noble has enough money, take it. If not, create a new noble.
     query = """
@@ -586,24 +607,26 @@ def buy_drink():
     db.execute(query, [quantity, party_id, user_id])
 
     if noble_coin <= cost:
-        new_noble = find_richest_peasant(db = db)
-        decrement_previous_noble(db = db, new_noble = new_noble)
-        switch_allegiances(db = db, new_noble = new_noble, old_noble = noble_id)
-        update_new_noble(db = db, new_noble = new_noble)
-        make_noble_peasant(db = db, old_noble = noble_id)
+        new_noble = find_richest_peasant(db=db)
+        decrement_previous_noble(db=db, new_noble=new_noble)
+        switch_allegiances(db=db, new_noble=new_noble, old_noble=noble_id)
+        update_new_noble(db=db, new_noble=new_noble)
+        make_noble_peasant(db=db, old_noble=noble_id)
 
     db.commit()
 
-    return redirect(url_for('show_main'))
+    return redirect(url_for("show_main"))
+
 
 ############################################################
 ################# Ban a Peasant ########################
 ############################################################
 
-@app.route('/ban', methods=['POST'])
+
+@app.route("/ban", methods=["POST"])
 def ban_peasant():
-    noble_id = request.form['noble_id'].strip().lower()
-    peasant_id = request.form['peasant_id'].strip().lower()
+    noble_id = request.form["noble_id"].strip().lower()
+    peasant_id = request.form["peasant_id"].strip().lower()
 
     db = get_db()
     party_id = current_user.id
@@ -618,12 +641,14 @@ def ban_peasant():
     noble_status = fetch_one(db, query, [party_id, noble_id])
 
     if noble_status is None:
-        flash('Unsuccessful! Unknown id. Did you enter your id correctly?')
-        return redirect(url_for('show_main'))
+        flash("Unsuccessful! Unknown id. Did you enter your id correctly?")
+        return redirect(url_for("show_main"))
 
-    if noble_status != 'noble':
-        flash('Unsuccessful! You are not a noble. You cannot ban people from kingdom you do not have.')
-        return redirect(url_for('show_main'))
+    if noble_status != "noble":
+        flash(
+            "Unsuccessful! You are not a noble. You cannot ban people from kingdom you do not have."
+        )
+        return redirect(url_for("show_main"))
 
     query = """
         select noble_id
@@ -633,8 +658,8 @@ def ban_peasant():
     """
     peasant_allegiance = fetch_one(db, query, [party_id, peasant_id])
     if peasant_allegiance is None:
-        flash('Unsuccessful! The peasant id that you entered does not exist.')
-        return redirect(url_for('show_main'))
+        flash("Unsuccessful! The peasant id that you entered does not exist.")
+        return redirect(url_for("show_main"))
 
     # remove the peasant's allegiance to the noble that is banning her
     if peasant_allegiance == noble_id:
@@ -657,17 +682,19 @@ def ban_peasant():
     query = "insert into outlaws (party_id, noble_id, peasant_id) values (?, ?, ?)"
     db.execute(query, [party_id, noble_id, peasant_id])
     db.commit()
-    return redirect(url_for('show_main'))
+    return redirect(url_for("show_main"))
+
 
 ############################################################
 ################# Get a Quest ########################
 ############################################################
 
-@app.route('/get_quest', methods=['POST'])
+
+@app.route("/get_quest", methods=["POST"])
 @login_required
 def get_quest():
-    user_id = request.form['user_id'].strip().lower()
-    level = request.form['level'].strip().lower()
+    user_id = request.form["user_id"].strip().lower()
+    level = request.form["level"].strip().lower()
 
     db = get_db()
     party_id = current_user.id
@@ -681,7 +708,7 @@ def get_quest():
     user_id = fetch_one(db, query, [party_id, user_id])
 
     if user_id is None:
-        flash('Unsuccessful! You entered a bad id.')
+        flash("Unsuccessful! You entered a bad id.")
 
     query = """
         select quest
@@ -692,19 +719,18 @@ def get_quest():
         limit 1
     """
     quest = fetch_one(db, query, [party_id, level])
-    return render_template('quest.html'
-                           , id = user_id
-                           , level = level
-                           , quest = quest
-                           , party_id = party_id)
+    return render_template(
+        "quest.html", id=user_id, level=level, quest=quest, party_id=party_id
+    )
 
-@app.route('/add_money', methods=['POST'])
+
+@app.route("/add_money", methods=["POST"])
 def add_money():
-    user_id = request.form['user_id'].strip().lower()
-    level = request.form['level']
-    result = request.form['result']
+    user_id = request.form["user_id"].strip().lower()
+    level = request.form["level"]
+    result = request.form["result"]
 
-    if result == 'Yes':
+    if result == "Yes":
         db = get_db()
         party_id = current_user.id
 
@@ -717,18 +743,20 @@ def add_money():
         db.execute(query, [level, party_id, user_id])
         db.commit()
 
-    return redirect(url_for('show_main'))
+    return redirect(url_for("show_main"))
+
 
 ############################################################
 ################# Kill a Peasant ########################
 ############################################################
 
-@app.route('/kill', methods=['POST'])
+
+@app.route("/kill", methods=["POST"])
 @login_required
 def kill():
-    user_id = request.form['user_id'].strip().lower()
-    target_id = request.form['target_id'].strip().lower()
-    
+    user_id = request.form["user_id"].strip().lower()
+    target_id = request.form["target_id"].strip().lower()
+
     db = get_db()
     party_id = current_user.id
 
@@ -742,27 +770,27 @@ def kill():
     target_info = db.execute(query, [party_id, target_id]).fetchone()
 
     if user_info is None:
-        flash('Unsuccessful! You entered a bad id for yourself')
-        return redirect(url_for('show_main'))
+        flash("Unsuccessful! You entered a bad id for yourself")
+        return redirect(url_for("show_main"))
 
     if target_info is None:
-        flash('Unsuccessful! You entered a bad id for your target')
-        return redirect(url_for('show_main'))
+        flash("Unsuccessful! You entered a bad id for your target")
+        return redirect(url_for("show_main"))
 
     user_coin, user_status = user_info
     target_coin, target_status = target_info
 
-    if user_status == 'peasant' and target_status == 'noble':
+    if user_status == "peasant" and target_status == "noble":
         query = """
             select coin
             from starting_coin
             where party_id = ?
                 and player_status = ?
         """
-        coin_needed = fetch_one(db, query, [party_id, 'noble'])
+        coin_needed = fetch_one(db, query, [party_id, "noble"])
         if user_coin < coin_needed:
-            flash('Unsuccessful! You do not have enough coin to assassinate a noble.')
-            return redirect(url_for('show_main'))
+            flash("Unsuccessful! You do not have enough coin to assassinate a noble.")
+            return redirect(url_for("show_main"))
 
     query = """
         select challenge
@@ -773,18 +801,21 @@ def kill():
     """
     challenge = fetch_one(db, query, [party_id])
 
-    return render_template('kill.html'
-                           , challenge = challenge
-                           , user_id = user_id
-                           , target_id = target_id
-                           , party_id = party_id)
+    return render_template(
+        "kill.html",
+        challenge=challenge,
+        user_id=user_id,
+        target_id=target_id,
+        party_id=party_id,
+    )
 
-@app.route('/assassinate', methods=['POST'])
+
+@app.route("/assassinate", methods=["POST"])
 def assassinate():
-    user_id = request.form['user_id']
-    target_id = request.form['target_id']
-    winner = request.form['winner']
-    
+    user_id = request.form["user_id"]
+    target_id = request.form["target_id"]
+    winner = request.form["winner"]
+
     db = get_db()
     party_id = current_user.id
 
@@ -802,27 +833,28 @@ def assassinate():
     winner_status = fetch_one(db, query, [party_id, winner])
     loser_status = fetch_one(db, query, [party_id, loser])
 
-    if winner_status == 'peasant' and loser_status == 'peasant':
+    if winner_status == "peasant" and loser_status == "peasant":
         take_money(db, winner, loser)
-    elif winner_status == 'peasant' and loser_status == 'noble':
+    elif winner_status == "peasant" and loser_status == "noble":
         p_beats_n(db, winner, loser)
-    elif winner_status == 'noble' and loser_status == 'peasant':
+    elif winner_status == "noble" and loser_status == "peasant":
         n_beats_p(db, winner, loser)
     else:
         n_beats_n(db, winner, loser)
 
     db.commit()
 
-    return redirect(url_for('show_main'))
+    return redirect(url_for("show_main"))
+
 
 ############################################################
 ################# View the Database ########################
 ############################################################
 
-@app.route('/kingdom')
+
+@app.route("/kingdom")
 @login_required
 def show_kingdom():
-    
     db = get_db()
     party_id = current_user.id
 
@@ -832,16 +864,14 @@ def show_kingdom():
     where party_id = ?
     order by noble_id, coin desc, drinks desc, id
     """
-    
-    kingdom = db.execute(query, [party_id]).fetchall()
-    return render_template('show_kingdom.html'
-                           , kingdom = kingdom
-                           , party_id = party_id)
 
-@app.route('/leaderboard')
+    kingdom = db.execute(query, [party_id]).fetchall()
+    return render_template("show_kingdom.html", kingdom=kingdom, party_id=party_id)
+
+
+@app.route("/leaderboard")
 @login_required
 def show_leaderboard():
-    
     db = get_db()
     party_id = current_user.id
 
@@ -852,7 +882,7 @@ def show_leaderboard():
             and player_status = 'noble'
         order by soldiers desc, coin desc, drinks desc
     """
-    
+
     leaderboard = db.execute(query, [party_id]).fetchall()
     query = """
         select id
@@ -862,11 +892,13 @@ def show_leaderboard():
         limit 1
     """
     almighty_ruler = fetch_one(db, query, [party_id])
-    return render_template('show_leaderboard.html'
-                           , leaderboard = leaderboard
-                           , almighty_ruler = almighty_ruler
-                           , party_id = party_id)
+    return render_template(
+        "show_leaderboard.html",
+        leaderboard=leaderboard,
+        almighty_ruler=almighty_ruler,
+        party_id=party_id,
+    )
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+if __name__ == "__main__":
+    app.run(host="0.0.0.0")

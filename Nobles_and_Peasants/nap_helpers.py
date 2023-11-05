@@ -1,7 +1,8 @@
 # functions that help exectute the main functions in nobles and peasants
 
-from urllib.parse import urlparse, urljoin
+# from urllib.parse import urlparse, urljoin
 from flask_login import current_user
+
 
 def fetch_one(db, query_string, args):
     rv = db.execute(query_string, args).fetchone()
@@ -12,7 +13,6 @@ def fetch_one(db, query_string, args):
 
 
 def get_starting_info(db, status, user_id):
-
     party_id = current_user.id
 
     query = """
@@ -22,7 +22,7 @@ def get_starting_info(db, status, user_id):
             and player_status = ?
     """
     starting_coin = fetch_one(db, query, [party_id, status])
-    if status == 'peasant':
+    if status == "peasant":
         allegiance = None
         soldiers = 0
     else:
@@ -32,20 +32,19 @@ def get_starting_info(db, status, user_id):
 
 
 def get_parties(db):
-    query = 'select party_id from parties'
+    query = "select party_id from parties"
     parties = db.execute(query).fetchall()
     return parties
 
 
-def is_safe_url(target):
-    ref_url = urlparse(request.host_url)
-    test_url = urlparse(urljoin(request.host_url, target))
-    return test_url.scheme in ('http', 'https') and \
-           ref_url.netloc == test_url.netloc
+# def is_safe_url(target):
+#     ref_url = urlparse(request.host_url)
+#     test_url = urlparse(urljoin(request.host_url, target))
+#     return test_url.scheme in ('http', 'https') and \
+#            ref_url.netloc == test_url.netloc
 
 
 def find_richest_peasant(db):
-
     party_id = current_user.id
 
     query = """
@@ -56,14 +55,13 @@ def find_richest_peasant(db):
         order by coin desc, drinks desc
         limit 1
     """
-    new_noble = fetch_one(db, query, [party_id, 'peasant'])
+    new_noble = fetch_one(db, query, [party_id, "peasant"])
     return new_noble
 
 
 def decrement_previous_noble(db, new_noble):
-
     party_id = current_user.id
-    
+
     query = """
         update players
         set soldiers = soldiers - 1
@@ -75,7 +73,6 @@ def decrement_previous_noble(db, new_noble):
 
 
 def switch_allegiances(db, new_noble, old_noble):
-
     party_id = current_user.id
 
     # switch allegiance from old noble to new noble
@@ -90,7 +87,6 @@ def switch_allegiances(db, new_noble, old_noble):
 
 
 def update_new_noble(db, new_noble):
-
     party_id = current_user.id
 
     # update status, allegiance, coin, soldiers for new noble
@@ -100,7 +96,7 @@ def update_new_noble(db, new_noble):
         where party_id = ?
             and player_status = ?
     """
-    starting_coin = fetch_one(db, query, [party_id, 'noble'])
+    starting_coin = fetch_one(db, query, [party_id, "noble"])
     query = """
     update players
     set player_status = ?
@@ -116,14 +112,25 @@ def update_new_noble(db, new_noble):
     where party_id = ?
         and id = ?
     """
-    db.execute(query, ['noble', new_noble, starting_coin, starting_coin, party_id, new_noble, new_noble, party_id, new_noble])
+    db.execute(
+        query,
+        [
+            "noble",
+            new_noble,
+            starting_coin,
+            starting_coin,
+            party_id,
+            new_noble,
+            new_noble,
+            party_id,
+            new_noble,
+        ],
+    )
     return None
 
 
 def make_noble_peasant(db, old_noble):
-
     party_id = current_user.id
-
 
     # remove titles from old noble
     query = """
@@ -133,7 +140,7 @@ def make_noble_peasant(db, old_noble):
         where party_id = ?
             and id = ?
     """
-    db.execute(query, ['peasant', 0, party_id, old_noble])
+    db.execute(query, ["peasant", 0, party_id, old_noble])
 
     # remove any entries in banned table for old noble
     query = """
@@ -147,9 +154,8 @@ def make_noble_peasant(db, old_noble):
 
 
 def take_money(db, winner, loser):
-
     party_id = current_user.id
-    
+
     query = """
         select coin
         from players
@@ -178,13 +184,12 @@ def take_money(db, winner, loser):
 
 
 def n_beats_p(db, winner, loser):
-
     party_id = current_user.id
 
-    take_money(db = db, winner = winner, loser = loser)
+    take_money(db=db, winner=winner, loser=loser)
 
     # before chaning allegiances of loser, decrement soldiers for previous noble of loser
-    decrement_previous_noble(db = db, new_noble = loser)
+    decrement_previous_noble(db=db, new_noble=loser)
 
     # ally loser to winner and increment soldiers
     query = """
@@ -206,23 +211,22 @@ def n_beats_p(db, winner, loser):
 
 
 def p_beats_n(db, winner, loser):
-    take_money(db = db, winner = winner, loser = loser)
-    decrement_previous_noble(db = db, new_noble = winner)
-    switch_allegiances(db = db, new_noble = winner, old_noble = loser)
-    update_new_noble(db = db, new_noble = winner)
-    make_noble_peasant(db = db, old_noble = loser)
+    take_money(db=db, winner=winner, loser=loser)
+    decrement_previous_noble(db=db, new_noble=winner)
+    switch_allegiances(db=db, new_noble=winner, old_noble=loser)
+    update_new_noble(db=db, new_noble=winner)
+    make_noble_peasant(db=db, old_noble=loser)
     return None
 
 
 def n_beats_n(db, winner, loser):
-
     party_id = current_user.id
 
     # give the money from the loser to the winner
-    take_money(db = db, winner = winner, loser = loser)
+    take_money(db=db, winner=winner, loser=loser)
 
     # give the soldiers from the loser to the winner
-    switch_allegiances(db = db, new_noble = winner, old_noble = loser)
+    switch_allegiances(db=db, new_noble=winner, old_noble=loser)
     query = """
         update players
         set soldiers = (
@@ -237,10 +241,9 @@ def n_beats_n(db, winner, loser):
     db.execute(query, [party_id, winner, party_id, winner])
 
     # find the next noble and make the loser a peasant
-    new_noble = find_richest_peasant(db = db)
-    make_noble_peasant(db = db, old_noble = loser)
+    new_noble = find_richest_peasant(db=db)
+    make_noble_peasant(db=db, old_noble=loser)
 
-    decrement_previous_noble(db = db, new_noble = new_noble)
-    update_new_noble(db = db, new_noble = new_noble)
+    decrement_previous_noble(db=db, new_noble=new_noble)
+    update_new_noble(db=db, new_noble=new_noble)
     return None
-
