@@ -11,6 +11,8 @@ Flask = "^3.0.0"
 Flask-Login = "^0.6.3"
 Flask-Bcrypt = "^1.0.1"
 
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.1.4"
 
 [build-system]
 requires = ["poetry-core"]
