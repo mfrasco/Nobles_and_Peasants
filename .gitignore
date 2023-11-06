@@ -1,9 +1,9 @@
 *nobles_and_peasants.db
-Nobles_and_Peasants/__pycache__/
+nobles_and_peasants/__pycache__/
 *.egg-info
 
 *default_settings.py
 
 dist/**
 
-Nobles_and_Peasants/flask_test.db
+nobles_and_peasants/flask_test.db

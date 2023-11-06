@@ -11,23 +11,23 @@ from flask_login import (
 from flask_bcrypt import check_password_hash
 import sqlite3
 
-from Nobles_and_Peasants.challenges import get_random_challenge
-from Nobles_and_Peasants.constants import NOBLE, PEASANT
-from Nobles_and_Peasants.drinks import (
+from nobles_and_peasants.challenges import get_random_challenge
+from nobles_and_peasants.constants import NOBLE, PEASANT
+from nobles_and_peasants.drinks import (
     add_or_update_drink_name_and_cost,
     get_cost_for_a_drink,
     get_drink_name_and_cost,
 )
-from Nobles_and_Peasants.outlaws import (
+from nobles_and_peasants.outlaws import (
     is_peasant_banned,
     insert_new_outlaw,
 )
-from Nobles_and_Peasants.parties import (
+from nobles_and_peasants.parties import (
     does_party_id_exist,
     get_hashed_password,
     insert_new_party,
 )
-from Nobles_and_Peasants.players import (
+from nobles_and_peasants.players import (
     find_richest_peasant,
     get_all_nobles,
     get_all_player_info,
@@ -43,13 +43,13 @@ from Nobles_and_Peasants.players import (
     upgrade_peasant_and_downgrade_noble,
     set_allegiance_for_user,
 )
-from Nobles_and_Peasants.starting_coin import (
+from nobles_and_peasants.starting_coin import (
     get_status_and_starting_coin,
     get_starting_coin_for_status,
     update_noble_starting_coin,
 )
-from Nobles_and_Peasants.quests import get_random_quest
-from Nobles_and_Peasants.quest_rewards import (
+from nobles_and_peasants.quests import get_random_quest
+from nobles_and_peasants.quest_rewards import (
     get_quest_difficulty_and_reward,
     get_reward_for_difficulty,
     set_quest_rewards,
@@ -61,7 +61,7 @@ app = Flask(__name__)
 app.secret_key = "super secret key"
 
 # app = Flask(__name__, instance_relative_config=True)
-# app.config.from_object('Nobles_and_Peasants.default_settings')
+# app.config.from_object('nobles_and_peasants.default_settings')
 # app.config.from_pyfile('application.cfg', silent=True)
 
 ############################################################
@@ -72,7 +72,7 @@ app.secret_key = "super secret key"
 def connect_db():
     """Connects to the specific database."""
     # rv = sqlite3.connect(app.config['DATABASE'])
-    rv = sqlite3.connect("Nobles_and_Peasants/flask_test.db")
+    rv = sqlite3.connect("nobles_and_peasants/flask_test.db")
     rv.row_factory = sqlite3.Row
     return rv
 

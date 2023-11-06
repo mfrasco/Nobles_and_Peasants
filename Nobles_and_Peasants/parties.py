@@ -3,7 +3,7 @@ import re
 
 from flask_bcrypt import generate_password_hash
 
-from Nobles_and_Peasants.query import fetch_one
+from nobles_and_peasants.query import fetch_one
 
 
 def init_party(app, db, party_id):

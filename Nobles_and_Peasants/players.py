@@ -3,9 +3,9 @@ from random import uniform
 
 from flask_login import current_user
 
-from Nobles_and_Peasants.constants import NOBLE, PEASANT
-from Nobles_and_Peasants.query import fetch_one
-from Nobles_and_Peasants.starting_coin import get_starting_coin_for_status
+from nobles_and_peasants.constants import NOBLE, PEASANT
+from nobles_and_peasants.query import fetch_one
+from nobles_and_peasants.starting_coin import get_starting_coin_for_status
 
 
 def randomly_choose_player_status(players):

@@ -18,9 +18,9 @@ If you are not interested in this idea, Nobles and Peasants doesn't force you to
 
 ## Developer Guide
 
-Initialize the database: `flask --app Nobles_and_Peasants initdb`
+Initialize the database: `flask --app nobles_and_peasants initdb`
 
-Run the app: `python Nobles_and_Peasants/main.py`
+Run the app: `python nobles_and_peasants/main.py`
 
 ### TODO
 
