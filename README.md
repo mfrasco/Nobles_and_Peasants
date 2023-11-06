@@ -24,8 +24,4 @@ Run the app: `python Nobles_and_Peasants/main.py`
 
 ### TODO
 
-2. CI/CD
-
 3. Database credentials
-
-4. Use more constants

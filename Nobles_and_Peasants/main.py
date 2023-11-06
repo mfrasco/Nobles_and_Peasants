@@ -12,6 +12,7 @@ from flask_bcrypt import check_password_hash
 import sqlite3
 
 from Nobles_and_Peasants.challenges import get_random_challenge
+from Nobles_and_Peasants.constants import NOBLE, PEASANT
 from Nobles_and_Peasants.drinks import (
     add_or_update_drink_name_and_cost,
     get_cost_for_a_drink,
@@ -328,7 +329,7 @@ def show_main():
 
     players = get_all_player_info(db=db)
     player_names = [row["id"] for row in players]
-    noble_names = [row["id"] for row in players if row["player_status"] == "noble"]
+    noble_names = [row["id"] for row in players if row["player_status"] == NOBLE]
 
     return render_template(
         "main.html",
@@ -394,12 +395,12 @@ def pledge_allegiance():
         flash(msg)
         return redirect(url_for("show_main"))
 
-    if noble["player_status"] != "noble":
+    if noble["player_status"] != NOBLE:
         msg = f"Unsuccessful! {noble_id} is not a noble."
         flash(msg)
         return redirect(url_for("show_main"))
 
-    if user["player_status"] == "noble":
+    if user["player_status"] == NOBLE:
         msg = f"Unsuccessful! {user_id} is a noble. You must be allied to yourself."
         flash(msg)
         return redirect(url_for("show_main"))
@@ -473,7 +474,7 @@ def ban_peasant():
         )
         return redirect(url_for("show_main"))
 
-    if noble["player_status"] != "noble":
+    if noble["player_status"] != NOBLE:
         msg = f"Unsuccessful! {noble_id} is not a noble. You cannot ban people from kingdom you do not have."
         flash(msg)
         return redirect(url_for("show_main"))
@@ -567,8 +568,8 @@ def kill():
         msg = f"Unsuccessful! {target_id} is not in the party. Did you enter it correctly?"
         return redirect(url_for("show_main"))
 
-    if user["player_status"] == "peasant" and target["player_status"] == "noble":
-        coin_needed = get_starting_coin_for_status(db=db, player_status="noble")
+    if user["player_status"] == "peasant" and target["player_status"] == NOBLE:
+        coin_needed = get_starting_coin_for_status(db=db, player_status=NOBLE)
         if user["coin"] < coin_needed:
             msg = f"Unsuccessful! You need {coin_needed} to assassinate a noble."
             flash(msg)
@@ -602,12 +603,12 @@ def assassinate():
     winner = get_single_player_info(db=db, user_id=winner_id)
     loser = get_single_player_info(db=db, user_id=loser_id)
 
-    if winner["player_status"] == "peasant" and loser["player_status"] == "noble":
+    if winner["player_status"] == PEASANT and loser["player_status"] == NOBLE:
         upgrade_peasant_and_downgrade_noble(
             db=db, peasant_id=winner_id, noble_id=loser_id
         )
         msg = f"{winner_id} assassinated {loser_id}! {winner_id} is now a noble!"
-    elif winner["player_status"] == "noble" and loser["player_status"] == "noble":
+    elif winner["player_status"] == NOBLE and loser["player_status"] == NOBLE:
         new_noble_id = find_richest_peasant(db=db)
         upgrade_peasant_and_downgrade_noble(
             db=db, peasant_id=new_noble_id, noble_id=loser_id
