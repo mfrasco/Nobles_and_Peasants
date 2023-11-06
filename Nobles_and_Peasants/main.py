@@ -479,7 +479,7 @@ def ban_peasant():
         return redirect(url_for("show_main"))
 
     peasant = get_single_player_info(db=db, user_id=peasant_id)
-    if peasant["noble_id"] is None:
+    if peasant["id"] is None:
         msg = f"Unsuccessful! {peasant_id} does not exist. Did you enter it correctly?"
         flash(msg)
         return redirect(url_for("show_main"))
@@ -632,7 +632,7 @@ def show_kingdom():
     db = get_db()
     party_id = current_user.id
 
-    kingdom = get_all_player_info(db, party_id)
+    kingdom = get_all_player_info(db=db)
     return render_template("show_kingdom.html", kingdom=kingdom, party_id=party_id)
 
 

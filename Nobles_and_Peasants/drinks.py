@@ -1,7 +1,7 @@
 """Functions related to the drinks table."""
 from flask_login import current_user
 
-from Nobles_and_peasants.query import fetch_one
+from Nobles_and_Peasants.query import fetch_one
 
 
 def get_drink_name_and_cost(db):
