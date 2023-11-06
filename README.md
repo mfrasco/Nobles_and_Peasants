@@ -21,3 +21,13 @@ If you are not interested in this idea, Nobles and Peasants doesn't force you to
 Initialize the database: `flask --app Nobles_and_Peasants initdb`
 
 Run the app: `python Nobles_and_Peasants/main.py`
+
+### TODO
+
+1. Access column names from row object with column name, instead of column index
+
+2. CI/CD
+
+3. Database credentials
+
+4. Use more constants

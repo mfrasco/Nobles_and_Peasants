@@ -14,6 +14,15 @@ Flask-Bcrypt = "^1.0.1"
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.4"
 
+[tool.ruff.lint]
+extend-select = [
+  "UP",  # pyupgrade
+  "D",   # pydocstyle
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

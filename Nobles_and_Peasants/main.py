@@ -1,6 +1,3 @@
-# all the imports
-import sqlite3
-import re
 from flask import Flask, request, g, redirect, url_for, render_template, flash
 from flask_login import (
     LoginManager,
@@ -10,23 +7,50 @@ from flask_login import (
     logout_user,
     login_required,
 )
-from flask_bcrypt import generate_password_hash, check_password_hash
-from random import uniform
-from Nobles_and_Peasants.nap_helpers import (
-    fetch_one,
-    get_starting_info,
-    get_parties,
-    # is_safe_url,
-    find_richest_peasant,
-    decrement_previous_noble,
-    switch_allegiances,
-    update_new_noble,
-    make_noble_peasant,
-    take_money,
-    n_beats_p,
-    p_beats_n,
-    n_beats_n,
+from flask_bcrypt import check_password_hash
+import sqlite3
+
+from Nobles_and_Peasants.challenges import get_random_challenge
+from Nobles_and_Peasants.drinks import (
+    add_or_update_drink_name_and_cost,
+    get_cost_for_a_drink,
+    get_drink_name_and_cost,
 )
+from Nobles_and_Peasants.outlaws import (
+    is_peasant_banned,
+    insert_new_outlaw,
+)
+from Nobles_and_Peasants.parties import (
+    does_party_id_exist,
+    get_hashed_password,
+    insert_new_party,
+)
+from Nobles_and_Peasants.players import (
+    find_richest_peasant,
+    get_all_nobles,
+    get_all_player_info,
+    get_almighty_ruler,
+    get_single_player_info,
+    increment_coin_for_user,
+    increment_soldiers_for_user,
+    insert_new_player,
+    move_coin_from_user_to_user,
+    update_info_after_pledge_allegiance,
+    upgrade_peasant_and_downgrade_noble,
+    set_allegiance_for_user,
+)
+from Nobles_and_Peasants.starting_coin import (
+    get_status_and_starting_coin,
+    get_starting_coin_for_status,
+    update_noble_starting_coin,
+)
+from Nobles_and_Peasants.quests import get_random_quest
+from Nobles_and_Peasants.quest_rewards import (
+    get_quest_difficulty_and_reward,
+    get_reward_for_difficulty,
+    set_quest_rewards,
+)
+
 
 # create the application instance and load config
 app = Flask(__name__)
@@ -49,12 +73,18 @@ def connect_db():
     return rv
 
 
-def init_party(db, party_id):
-    with app.open_resource("default_values.sql", mode="r") as f:
-        schema = f.read()
-        schema = re.sub("~PARTY_ID~", party_id, schema)
-        db.cursor().executescript(schema)
-    db.commit()
+def get_db():
+    """Opens a new database connection if there is none yet for the current app context."""
+    if not hasattr(g, "sqlite_db"):
+        g.sqlite_db = connect_db()
+    return g.sqlite_db
+
+
+@app.teardown_appcontext
+def close_db(error):
+    """Closes the database at the end of the request."""
+    if hasattr(g, "sqlite_db"):
+        g.sqlite_db.close()
 
 
 def init_db():
@@ -71,32 +101,19 @@ def initdb_command():
     print("Initialized the database.")
 
 
-def get_db():
-    """Opens a new database connection if there is none yet
-    for the current application context
-    """
-    if not hasattr(g, "sqlite_db"):
-        g.sqlite_db = connect_db()
-    return g.sqlite_db
-
-
-@app.teardown_appcontext
-def close_db(error):
-    """Closes the database at the end of the request."""
-    if hasattr(g, "sqlite_db"):
-        g.sqlite_db.close()
-
-
 ############################################################
 ################# User Handling ######################
 ############################################################
 
 
 class User(UserMixin):
+    """User class"""
     def __init__(self, id):
+        """Initialize the user."""
         self.id = id
 
     def get_id(self):
+        """Get the user id."""
         return str(self.id)
 
 
@@ -109,23 +126,14 @@ login_manager.login_view = "show_login"
 
 @login_manager.user_loader
 def load_user(party_id):
-    # get a list of all of the parties
+    """Load user."""
     db = get_db()
-    parties = get_parties(db=db)
-
-    # check if party_id is already taken
-    if party_id not in [row[0] for row in parties]:
+    
+    if not does_party_id_exist(db=db, party_id=party_id):
         return None
 
     user = User(party_id)
     return user
-
-
-def insert_party(party_id, password):
-    db = get_db()
-    query = "insert into parties (party_id, password) values (?, ?)"
-    db.execute(query, [party_id, password])
-    db.commit()
 
 
 ############################################################
@@ -135,6 +143,7 @@ def insert_party(party_id, password):
 
 @app.route("/")
 def show_login():
+    """Show the login page."""
     if current_user.is_authenticated:
         party_id = current_user.id
     else:
@@ -144,6 +153,7 @@ def show_login():
 
 @app.route("/how_to_play")
 def how_to_play():
+    """Show the how to play page."""
     if current_user.is_authenticated:
         party_id = current_user.id
     else:
@@ -153,6 +163,7 @@ def how_to_play():
 
 @app.route("/what_is_this")
 def what_is_this():
+    """Show the what is this page."""
     if current_user.is_authenticated:
         party_id = current_user.id
     else:
@@ -162,48 +173,39 @@ def what_is_this():
 
 @app.route("/signup", methods=["POST"])
 def signup():
+    """Process the party_id and the password when the user registers a new party."""
     party_id = request.form["party_id"]
     password = request.form["password"]
 
-    # get a list of all of the parties
     db = get_db()
-    parties = get_parties(db=db)
 
-    # check if party_id is already taken
-    if party_id in [row[0] for row in parties]:
-        flash(
-            "Unsuccessful! Please choose a different party name. Someone already selected that one."
-        )
+    if does_party_id_exist(db=db, party_id=party_id):
+        msg = f"Unsuccessful! Please choose a different party name. Someone already selected {party_id}."
+        flash(msg)
         return redirect(url_for("show_login"))
 
-    hashed_password = generate_password_hash(password, rounds=12)
-
-    query = "insert into parties (party_id, password) values (?, ?)"
-    db.execute(query, [party_id, hashed_password])
-    init_party(db=db, party_id=party_id)
-    db.commit()
+    insert_new_party(app=app, db=db, party_id=party_id, password=password)
     flash("Success! You can now log in to your party!")
     return redirect(url_for("show_login"))
 
 
 @app.route("/login", methods=["POST"])
 def login():
+    """Process the users request to login to their party."""
     party_id = request.form["party_id"]
     password = request.form["password"]
 
-    # check that the user name matches the hashed password
     db = get_db()
-    query = "select password from parties where party_id = ?"
-    result = fetch_one(db, query, [party_id])
+    hashed_password = get_hashed_password(db=db, party_id=party_id)
 
-    if result is None:
-        flash(
-            "Unsuccessful! You need to sign up and create a party id before you can log in."
-        )
+    if hashed_password is None:
+        msg = f"Unsuccessful! Party ID: {party_id} has not been registered yet. Please sign up to create a party."
+        flash(msg)
         return redirect(url_for("show_login"))
 
-    if not check_password_hash(result, password):
-        flash("Unsuccessful! That is not the correct password.")
+    if not check_password_hash(hashed_password, password):
+        msg = f"Unsuccessful! That is not the correct password for Party ID: {party_id}."
+        flash(msg)
         return redirect(url_for("show_login"))
 
     user = User(party_id)
@@ -219,6 +221,7 @@ def login():
 
 @app.route("/logout")
 def logout():
+    """Logout the user."""
     logout_user()
     return redirect(url_for("show_login"))
 
@@ -226,33 +229,15 @@ def logout():
 @app.route("/set_up", methods=["GET"])
 @login_required
 def set_up():
+    """Show the setup page, where the user can customize the party settings."""
     db = get_db()
 
     party_id = current_user.id
 
-    query = """
-        select drink_name, drink_cost
-        from drinks
-        where party_id = ?
-        order by drink_cost
-    """
-    drinks = db.execute(query, [party_id]).fetchall()
-
-    query = """
-        select player_status, coin
-        from starting_coin
-        where party_id = ?
-        order by coin
-    """
-    starting_coin = db.execute(query, [party_id]).fetchall()
-
-    query = """
-        select difficulty, reward
-        from quest_rewards
-        where party_id = ?
-        order by reward
-    """
-    quest_rewards = db.execute(query, [party_id]).fetchall()
+    drinks = get_drink_name_and_cost(db=db)
+    starting_coin = get_status_and_starting_coin(db=db)
+    quest_rewards = get_quest_difficulty_and_reward(db=db)
+    
     return render_template(
         "setup.html",
         drinks=drinks,
@@ -264,6 +249,7 @@ def set_up():
 
 @app.route("/rules")
 def show_rules():
+    """Show the page that describes the rules."""
     return render_template("rules.html")
 
 
@@ -280,13 +266,9 @@ def add_drink():
     drink_name = request.form["drink_name"].strip().lower()
     price = int(request.form["price"])
 
-    if drink_name == "water" and price >= 0:
-        flash("Unsuccessful! Water must have a negative price.")
-        return redirect(url_for("set_up"))
-
-    query = "replace into drinks (party_id, drink_name, drink_cost) values (?, ?, ?)"
-    db.execute(query, [party_id, drink_name, price])
-    db.commit()
+    add_or_update_drink_name_and_cost(
+        db=db, drink_name=drink_name, drink_cost=price
+    )
     return redirect(url_for("set_up"))
 
 
@@ -296,46 +278,33 @@ def set_coin():
     party_id = current_user.id
 
     noble_coin = int(request.form["noble_coin"])
-
-    query = """
-        update starting_coin
-        set coin = ?
-        where party_id = ?
-            and player_status = ?
-    """
-    db.execute(query, [noble_coin, party_id, "noble"])
-    db.commit()
+    update_noble_starting_coin(db=db, noble_coin=noble_coin)
     return redirect(url_for("set_up"))
 
 
 @app.route("/set_wages", methods=["POST"])
 def set_wages():
-    easy_wage = int(request.form["easy"])
-    medium_wage = int(request.form["medium"])
-    hard_wage = int(request.form["hard"])
+    easy_reward = int(request.form["easy"])
+    medium_reward = int(request.form["medium"])
+    hard_reward = int(request.form["hard"])
 
-    if medium_wage < easy_wage:
+    if medium_reward < easy_reward:
         flash("Medium reward cannot be less than easy reward")
         return redirect(url_for("set_up"))
 
-    if hard_wage < medium_wage:
+    if hard_reward < medium_reward:
         flash("Hard reward cannot be less than medium reward")
         return redirect(url_for("set_up"))
 
     db = get_db()
     party_id = current_user.id
+    set_quest_rewards(
+        db=db,
+        easy_reward=easy_wage,
+        medium_reward=medium_wage,
+        hard_reward=hard_reward
+    )
 
-    query = """
-    update quest_rewards
-    set reward = (case when difficulty = ? then ?
-                       when difficulty = ? then ?
-                       else ?
-                end)
-    where party_id = ?
-    """
-
-    db.execute(query, ["easy", easy_wage, "medium", medium_wage, hard_wage, party_id])
-    db.commit()
     return redirect(url_for("set_up"))
 
 
@@ -350,36 +319,15 @@ def show_main():
     db = get_db()
     party_id = current_user.id
 
-    query = """
-        select drink_name
-        from drinks
-        where party_id = ?
-        order by drink_cost
-    """
-    drinks = db.execute(query, [party_id]).fetchall()
-    drinks = [d[0] for d in drinks]
+    drinks = get_drink_name_and_cost(db=db)
+    drink_names = [row[0] for row in drinks]
 
-    query = """
-        select id
-        from players
-        where party_id = ?
-        order by id
-    """
-    people = db.execute(query, [party_id]).fetchall()
-    people = [p[0] for p in people]
-
-    query = """
-        select id
-        from players
-        where party_id = ?
-            and player_status = ?
-        order by id
-    """
-    nobles = db.execute(query, [party_id, "noble"]).fetchall()
-    nobles = [n[0] for n in nobles]
+    players = get_all_player_info(db=db)
+    player_names = [row[0] for row in players]
+    noble_names = [row[0] for row in players if row[1] == 'noble']
 
     return render_template(
-        "main.html", drinks=drinks, people=people, nobles=nobles, party_id=party_id
+        "main.html", drinks=drinks, people=player_names, nobles=noble_names, party_id=party_id
     )
 
 
@@ -396,50 +344,23 @@ def sign_in():
     db = get_db()
     party_id = current_user.id
 
-    # check that the id is not already taken
-    query = """
-        select id
-        from players
-        where party_id = ?
-    """
-    current_ids = db.execute(query, [party_id]).fetchall()
-    if user_id in [row[0] for row in current_ids]:
-        flash(
-            "Unsuccessful! Please choose a different id. Someone already selected that one."
-        )
+    players = get_all_player_info(db=db)
+    
+    existing_players = [row["id"] for row in players]
+    if user_id in existing_players:
+        msg = f"Unsuccessful! Please choose a different id. Someone already selected {user_id}."
+        flash(msg)
         return redirect(url_for("show_main"))
 
     if user_status == "randomly decide":
-        query = """
-            select player_status
-            from players
-            where party_id = ?
-        """
-        statuses = db.execute(query, [party_id]).fetchall()
-        statuses = [s[0] for s in statuses]
-        num_people = len(statuses)
-        num_nobles = statuses.count("noble")
-        if num_nobles < 2:
-            user_status = "noble"
-        elif (float(num_nobles) / num_people) < 0.2:
-            if uniform(0, 1) < 0.75:
-                user_status = "noble"
-            else:
-                user_status = "peasant"
-        else:
-            user_status = "peasant"
+        player_status = randomly_choose_player_status(players=players)
+    else:
+        player_status = user_status
 
-    start_info = get_starting_info(db, user_status, user_id)
-
-    starting_coin, allegiance, soldiers = start_info
-    query = """
-    insert into players (id, party_id, player_status, coin, noble_id, drinks, soldiers)
-    values (?, ?, ?, ?, ?, ?, ?)
-    """
-    db.execute(
-        query, [user_id, party_id, user_status, starting_coin, allegiance, 0, soldiers]
+    insert_new_player(
+        db=db, user_id=user_id, player_status=player_status
     )
-    db.commit()
+
     return redirect(url_for("show_main"))
 
 
@@ -456,80 +377,37 @@ def pledge_allegiance():
     db = get_db()
     party_id = current_user.id
 
-    # check the request values are valid
-    query = """
-        select player_status
-        from players
-        where party_id = ?
-            and id = ?
-    """
-    user_status = fetch_one(db, query, [party_id, user_id])
-    noble_status = fetch_one(db, query, [party_id, noble_id])
+    user = get_single_player_info(db=db, user_id=user_id)
+    noble = get_single_player_info(db=db, user_id=noble_id)
 
-    # error checking
-    if user_status is None:
-        flash("Unsuccessful! Please enter a valid id for yourself. Have you signed in?")
+    if user["player_status"] is None:
+        msg = f"Unsuccessful! Please enter a valid id for yourself. You entered: {user_id}. Have you signed in?"
+        flash(msg)
         return redirect(url_for("show_main"))
 
-    if noble_status is None:
-        flash("Unsuccessful! Please enter a valid id for the noble.")
+    if noble["player_status"] is None:
+        msg = f"Unsuccessful! Please enter a valid id for the noble. You entered: {noble_id}."
+        flash(msg)
         return redirect(url_for("show_main"))
 
-    if noble_status != "noble":
-        flash("Unsuccessful! That person is not a noble")
+    if noble["player_status"] != "noble":
+        msg = f"Unsuccessful! {noble_id} is not a noble."
+        flash(msg)
         return redirect(url_for("show_main"))
 
-    if user_status == "noble":
-        flash("Unsuccessful! You are a noble. You must be allied to yourself.")
+    if user["player_status"] == "noble":
+        msg = f"Unsuccessful! {user_id} is a noble. You must be allied to yourself."
+        flash(msg)
         return redirect(url_for("show_main"))
 
-    # check if noble has banned peasant
-    query = """
-        select peasant_id
-        from outlaws
-        where party_id = ?
-            and noble_id = ?
-    """
-
-    outlaws = db.execute(query, [party_id, noble_id]).fetchall()
-    outlaws = [x[0] for x in outlaws]
-    if len(outlaws) > 0 and user_id in outlaws[0]:
-        flash("Unsuccessful! This noble has banned you from their kingdom!")
+    if is_peasant_banned(db=db, noble_id=noble_id, peasant_id=user_id):
+        msg = f"Unsuccessful! {noble_id} has banned you from their kingdom!"
+        flash(msg)
         return redirect(url_for("show_main"))
 
-    # update the allegiance in the database
-    query = """
-        select noble_id
-        from players
-        where party_id = ?
-            and id = ?
-    """
-    previous_noble = fetch_one(db, query, [party_id, user_id])
-    query = """
-        update players
-        set noble_id = ?
-        where party_id = ?
-            and id = ?
-    """
-    db.execute(query, [noble_id, party_id, user_id])
-    query = """
-        update players
-        set soldiers = soldiers + 1
-        where party_id = ?
-            and id = ?
-    """
-    db.execute(query, [party_id, noble_id])
-
-    if previous_noble is not None:
-        query = """
-            update players
-            set soldiers = soldiers - 1
-            where party_id = ?
-                and id = ?
-        """
-        db.execute(query, [party_id, previous_noble])
-
-    db.commit()
+    update_info_after_pledge_allegiance(
+        db=db, user_id=user_id, noble_id=noble_id
+    )
     return redirect(url_for("show_main"))
 
 
@@ -541,79 +419,38 @@ def pledge_allegiance():
 @app.route("/buy_drink", methods=["POST"])
 def buy_drink():
     user_id = request.form["user_id"].strip().lower()
-    drink = request.form["drink"]
+    drink_name = request.form["drink"]
     quantity = int(request.form["quantity"])
 
     db = get_db()
     party_id = current_user.id
 
-    # check noble status
-    query = """
-        select noble_id
-        from players
-        where party_id = ?
-            and id = ?
-    """
-    noble_id = fetch_one(db, query, [party_id, user_id])
+    noble_id = get_single_player_info(db=db, user_id=user_id)["noble_id"]
     if noble_id is None:
-        flash(
-            "Unsuccessful! You need to ally yourself to a noble before you can buy a drink."
-        )
+        msg = "Unsuccessful! You need to ally yourself to a noble before you can buy a drink."
+        flash(msg)
         return redirect(url_for("show_main"))
 
-    query = """
-        select drink_cost
-        from drinks
-        where party_id = ?
-            and drink_name = ?
-    """
-    price = fetch_one(db, query, [party_id, drink])
+    price = get_cost_for_a_drink(db=db, drink_name=drink_name)
     cost = price * quantity
 
-    # cut out for water
-    if drink == "water":
-        query = """
-            update players
-            set coin = coin - ?
-            where party_id = ?
-                and id = ?
-        """
-        db.execute(query, [cost, party_id, user_id])
-        db.commit()
-        return redirect(url_for("show_main"))
+    noble_coin = get_single_player_info(db=db, user_id=noble_id)["coin"]
 
-    # If the noble has enough money, take it. If not, create a new noble.
-    query = """
-        select coin
-        from players
-        where party_id = ?
-            and id = ?
-    """
-    noble_coin = fetch_one(db, query, [party_id, noble_id])
+    increment_coin_for_user(
+        db=db, user_id=noble_id, coin=-cost
+    )
+    increment_drinks_for_user(
+        db=db, user_id=user_id, num=quantity
+    )
 
-    query = """
-        update players
-        set coin = ?
-        where party_id = ?
-            and id = ?
-    """
-    db.execute(query, [max(noble_coin - cost, 0), party_id, noble_id])
-    query = """
-        update players
-        set drinks = drinks + ?
-        where party_id = ?
-            and id = ?
-    """
-    db.execute(query, [quantity, party_id, user_id])
-
+    # the noble doesn't have any more money
     if noble_coin <= cost:
-        new_noble = find_richest_peasant(db=db)
-        decrement_previous_noble(db=db, new_noble=new_noble)
-        switch_allegiances(db=db, new_noble=new_noble, old_noble=noble_id)
-        update_new_noble(db=db, new_noble=new_noble)
-        make_noble_peasant(db=db, old_noble=noble_id)
-
-    db.commit()
+        new_noble_id = find_richest_peasant(db=db)
+        upgrade_peasant_and_downgrade_noble(
+            db=db, peasant_id=new_noble_id, noble_id=noble_id
+        )
+        msg = f"{noble_id} ran out of money! {new_noble_id} is now a noble!"
+        flash(msg)
 
     return redirect(url_for("show_main"))
 
@@ -631,57 +468,30 @@ def ban_peasant():
     db = get_db()
     party_id = current_user.id
 
-    # check input validity
-    query = """
-        select player_status
-        from players
-        where party_id = ?
-            and id = ?
-    """
-    noble_status = fetch_one(db, query, [party_id, noble_id])
+    noble = get_single_player_info(db=db, user_id=noble_id)
 
-    if noble_status is None:
-        flash("Unsuccessful! Unknown id. Did you enter your id correctly?")
+    if noble["player_status"] is None:
+        flash(f"Unsuccessful! ID: {noble_id} is not recognized. Did you enter your ID correctly?")
         return redirect(url_for("show_main"))
 
-    if noble_status != "noble":
-        flash(
-            "Unsuccessful! You are not a noble. You cannot ban people from kingdom you do not have."
-        )
+    if noble["player_status"] != "noble":
+        msg = f"Unsuccessful! {noble_id} is not a noble. You cannot ban people from kingdom you do not have."
+        flash(msg)
         return redirect(url_for("show_main"))
 
-    query = """
-        select noble_id
-        from players
-        where party_id = ?
-            and id = ?
-    """
-    peasant_allegiance = fetch_one(db, query, [party_id, peasant_id])
-    if peasant_allegiance is None:
-        flash("Unsuccessful! The peasant id that you entered does not exist.")
+    peasant = get_single_player_info(db=db, user_id=peasant_id)
+    if peasant["noble_id"] is None:
+        msg = f"Unsuccessful! {peasant_id} does not exist. Did you enter it correctly?"
+        flash(msg)
         return redirect(url_for("show_main"))
 
-    # remove the peasant's allegiance to the noble that is banning her
-    if peasant_allegiance == noble_id:
-        query = """
-            update players
-            set noble_id = ?
-            where party_id = ?
-                and id = ?
-        """
-        db.execute(query, [None, party_id, peasant_id])
-        query = """
-            update players
-            set soldiers = soldiers - 1
-            where party_id = ?
-                and id = ?
-        """
-        db.execute(query, [party_id, noble_id])
+    # remove the peasant's allegiance to the noble that is banning them
+    if peasant["noble_id"] == noble_id:
+        set_allegiance_for_user(db=db, user_id=peasant_id, noble_id=None)
+        increment_soldiers_for_user(db=db, user_id=noble_id, num=-1)
 
     # add the peasant to a banned table
-    query = "insert into outlaws (party_id, noble_id, peasant_id) values (?, ?, ?)"
-    db.execute(query, [party_id, noble_id, peasant_id])
-    db.commit()
+    insert_new_outlaw(db=db, noble_id=noble_id, peasant_id=peasant_id)
     return redirect(url_for("show_main"))
 
 
@@ -694,54 +504,35 @@ def ban_peasant():
 @login_required
 def get_quest():
     user_id = request.form["user_id"].strip().lower()
-    level = request.form["level"].strip().lower()
+    difficulty = request.form["level"].strip().lower()
 
     db = get_db()
     party_id = current_user.id
 
-    query = """
-        select id
-        from players
-        where party_id = ?
-            and id = ?
-    """
-    user_id = fetch_one(db, query, [party_id, user_id])
+    user = get_single_player_info(db=db, user_id=user_id)
+    if user["id"] is None:
+        msg = f"Unsuccessful! {user_id} is not in the party. Did you enter it correctly?"
+        flash(msg)
+        redirect(url_for("show_main"))
 
-    if user_id is None:
-        flash("Unsuccessful! You entered a bad id.")
-
-    query = """
-        select quest
-        from quests
-        where party_id = ?
-            and difficulty = ?
-        order by random()
-        limit 1
-    """
-    quest = fetch_one(db, query, [party_id, level])
+    quest = get_random_quest(db=db, difficulty=difficulty)
     return render_template(
-        "quest.html", id=user_id, level=level, quest=quest, party_id=party_id
+        "quest.html", id=user_id, level=difficulty, quest=quest, party_id=party_id
     )
 
 
 @app.route("/add_money", methods=["POST"])
 def add_money():
     user_id = request.form["user_id"].strip().lower()
-    level = request.form["level"]
+    difficulty = request.form["level"]
     result = request.form["result"]
 
     if result == "Yes":
         db = get_db()
         party_id = current_user.id
 
-        query = """
-        update players
-        set coin = coin + (select coin from quest_rewards where difficulty = ?)
-        where party_id = ?
-            and id = ?
-        """
-        db.execute(query, [level, party_id, user_id])
-        db.commit()
+        reward = get_reward_for_difficulty(db=db, difficulty=difficulty)
+        increment_coin_for_user(db=db, user_id=user_id, coin=reward)
 
     return redirect(url_for("show_main"))
 
@@ -760,46 +551,28 @@ def kill():
     db = get_db()
     party_id = current_user.id
 
-    query = """
-        select coin, player_status
-        from players
-        where party_id = ?
-            and id = ?
-    """
-    user_info = db.execute(query, [party_id, user_id]).fetchone()
-    target_info = db.execute(query, [party_id, target_id]).fetchone()
+    user = get_single_player_info(db=db, user_id=user_id)
+    target = get_single_player_info(db=db, user_id=target_id)
 
-    if user_info is None:
-        flash("Unsuccessful! You entered a bad id for yourself")
+    if user["id"] is None:
+        msg = f"Unsuccessful! {user_id} is not in the party. Did you enter it correctly?"
+        flash(msg)
         return redirect(url_for("show_main"))
 
-    if target_info is None:
-        flash("Unsuccessful! You entered a bad id for your target")
+    if target["id"] is None:
+        msg = f"Unsuccessful! {target_id} is not in the party. Did you enter it correctly?"
         return redirect(url_for("show_main"))
 
-    user_coin, user_status = user_info
-    target_coin, target_status = target_info
-
-    if user_status == "peasant" and target_status == "noble":
-        query = """
-            select coin
-            from starting_coin
-            where party_id = ?
-                and player_status = ?
-        """
-        coin_needed = fetch_one(db, query, [party_id, "noble"])
-        if user_coin < coin_needed:
-            flash("Unsuccessful! You do not have enough coin to assassinate a noble.")
+    if user["player_status"] == "peasant" and target["player_status"] == "noble":
+        coin_needed = get_starting_coin_for_status(
+            db=db, player_status="noble"
+        )
+        if user["coin"] < coin_needed:
+            msg = f"Unsuccessful! You need {coin_needed} to assassinate a noble."
+            flash(msg)
             return redirect(url_for("show_main"))
 
-    query = """
-        select challenge
-        from challenges
-        where party_id = ?
-        order by random()
-        limit 1
-    """
-    challenge = fetch_one(db, query, [party_id])
+    challenge = get_random_challenge(db=db)
 
     return render_template(
         "kill.html",
@@ -814,35 +587,33 @@ def kill():
 def assassinate():
     user_id = request.form["user_id"]
     target_id = request.form["target_id"]
-    winner = request.form["winner"]
+    winner_id = request.form["winner"]
 
     db = get_db()
     party_id = current_user.id
 
     if user_id == winner:
-        loser = target_id
+        loser_id = target_id
     else:
-        loser = user_id
+        loser_id = user_id
 
-    query = """
-        select player_status
-        from players
-        where party_id = ?
-            and id = ?
-    """
-    winner_status = fetch_one(db, query, [party_id, winner])
-    loser_status = fetch_one(db, query, [party_id, loser])
+    winner = get_single_player_info(db=db, user_id=winner_id)
+    loser = get_single_player_info(db=db, user_id=loser_id)
 
-    if winner_status == "peasant" and loser_status == "peasant":
-        take_money(db, winner, loser)
-    elif winner_status == "peasant" and loser_status == "noble":
-        p_beats_n(db, winner, loser)
-    elif winner_status == "noble" and loser_status == "peasant":
-        n_beats_p(db, winner, loser)
+    if winner["player_status"] == "peasant" and loser["player_status"] == "noble":
+        upgrade_peasant_and_downgrade_noble(
+            db=db, peasant_id=winner_id, noble_id=loser_id
+        )
+        msg = f"{winner_id} assassinated {loser_id}! {winner_id} is now a noble!"
+    elif winner["player_status"] == "noble" and loser["player_status"] == "noble":
+        new_noble_id = find_richest_peasant(db=db)
+        upgrade_peasant_and_downgrade_noble(
+            db=db, peasant_id=new_noble_id, noble_id=loser_id
+        )
+        msg = f"{winner_id} assassinated {loser_id}! {new_noble_id} is now a noble!"
+        flash(msg)
     else:
-        n_beats_n(db, winner, loser)
-
-    db.commit()
+        move_coin_from_user_to_user(db=db, from_id=loser_id, to_id=winner_id)
 
     return redirect(url_for("show_main"))
 
@@ -858,14 +629,7 @@ def show_kingdom():
     db = get_db()
     party_id = current_user.id
 
-    query = """
-    select id, player_status, coin, noble_id, drinks, soldiers
-    from players
-    where party_id = ?
-    order by noble_id, coin desc, drinks desc, id
-    """
-
-    kingdom = db.execute(query, [party_id]).fetchall()
+    kingdom = get_all_player_info(db, party_id)
     return render_template("show_kingdom.html", kingdom=kingdom, party_id=party_id)
 
 
@@ -875,23 +639,8 @@ def show_leaderboard():
     db = get_db()
     party_id = current_user.id
 
-    query = """
-        select id, soldiers, coin, drinks
-        from players
-        where party_id = ?
-            and player_status = 'noble'
-        order by soldiers desc, coin desc, drinks desc
-    """
-
-    leaderboard = db.execute(query, [party_id]).fetchall()
-    query = """
-        select id
-        from players
-        where party_id = ?
-        order by soldiers desc
-        limit 1
-    """
-    almighty_ruler = fetch_one(db, query, [party_id])
+    leaderboard = get_all_nobles(db=db)
+    almighty_ruler = get_almighty_ruler(db=db)
     return render_template(
         "show_leaderboard.html",
         leaderboard=leaderboard,
