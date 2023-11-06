@@ -1,3 +1,0 @@
-graft nobles_and_peasants/templates
-graft nobles_and_peasants/static
-include nobles_and_peasants/schema.sql
