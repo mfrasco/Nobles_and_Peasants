@@ -1,6 +1,7 @@
 """Functions related to the outlaws table."""
 from flask_login import current_user
 
+
 def is_peasant_banned(db, noble_id, peasant_id):
     """Check if a peasant is banned from a noble's army."""
     party_id = current_user.id

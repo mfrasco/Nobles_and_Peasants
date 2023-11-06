@@ -3,6 +3,7 @@ from flask_login import current_user
 
 from Nobles_and_peasants.query import fetch_one
 
+
 def get_quest_difficulty_and_reward(db):
     """Get the reward for each quest difficulty."""
     party_id = current_user.id

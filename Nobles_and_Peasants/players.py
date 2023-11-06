@@ -9,7 +9,7 @@ from Nobles_and_Peasants.starting_coin import get_starting_coin_for_status
 
 def randomly_choose_player_status(players):
     """Randomly choose a player's status based on the status of other players.
-    
+
     Args:
         players (List[sqlite3.Row]): Information on each player in the party
     """
@@ -30,9 +30,7 @@ def randomly_choose_player_status(players):
 def insert_new_player(db, user_id, player_status):
     """Add a new row to the database for a new player."""
     party_id = current_user.id
-    starting_coin = get_starting_coin_for_status(
-        db=db, player_stats=player_status
-    )
+    starting_coin = get_starting_coin_for_status(db=db, player_stats=player_status)
 
     if player_status == "peasant":
         noble_id = None
@@ -141,21 +139,15 @@ def set_allegiance_for_user(db, user_id, noble_id):
 
 
 def update_info_after_pledge_allegiance(db, user_id, noble_id):
-    """Update database when a user pledges allegiance to a noble.""" 
+    """Update database when a user pledges allegiance to a noble."""
     # decrement the soldier count for the previous noble
     player = get_single_player_info(db=db, user_id=user_id)
-    previous_noble_id = player['noble_id']
+    previous_noble_id = player["noble_id"]
     if previous_noble_id is not None:
-        increment_soldiers_for_noble(
-            db=db, user_id=previous_noble_id, num=-1
-        )
-    
-    set_allegiance_for_user(
-        db=db, user_id=user_id, noble_id=noble_id
-    )
-    increment_soldiers_for_noble(
-        db=db, user_id=noble_id, num=1
-    )
+        increment_soldiers_for_noble(db=db, user_id=previous_noble_id, num=-1)
+
+    set_allegiance_for_user(db=db, user_id=user_id, noble_id=noble_id)
+    increment_soldiers_for_noble(db=db, user_id=noble_id, num=1)
 
 
 def increment_coin_for_user(db, user_id, coin):
@@ -175,12 +167,8 @@ def move_coin_from_user_to_user(db, from_id, to_id):
     """Move coin from one user to another."""
     from_coin = get_single_player_info(db=db, user_id=from_id)["coin"]
     if from_coin > 0:
-        increment_coin_for_user(
-            db=db, user_id=from_id, coin=-from_coin
-        )
-        increment_coin_for_user(
-            db=db, user_id=to_id, coin=from_coin
-        )
+        increment_coin_for_user(db=db, user_id=from_id, coin=-from_coin)
+        increment_coin_for_user(db=db, user_id=to_id, coin=from_coin)
 
 
 def increment_soldiers_for_user(db, user_id, num):
@@ -225,9 +213,7 @@ def change_allegiances_between_nobles(db, old_noble_id, new_noble_id):
 def change_peasant_to_noble(db, user_id):
     """Update info for a user to reflect their new status as a noble."""
     party_id = current_user.id
-    starting_coin = get_starting_coin_for_status(
-        db=db, player_stats="noble"
-    )
+    starting_coin = get_starting_coin_for_status(db=db, player_stats="noble")
     query = """
         update players
         set player_status = "noble"
@@ -243,7 +229,16 @@ def change_peasant_to_noble(db, user_id):
         where party_id = ?
             and id = ?
     """
-    args = [user_id, starting_coin, starting_coin, party_id, user_id, user_id, party_id, user_id]
+    args = [
+        user_id,
+        starting_coin,
+        starting_coin,
+        party_id,
+        user_id,
+        user_id,
+        party_id,
+        user_id,
+    ]
     db.execute(query, args)
     db.commit()
 
@@ -264,19 +259,15 @@ def change_noble_to_peasant(db, user_id):
 
 def upgrade_peasant_and_downgrade_noble(db, peasant_id, noble_id):
     """Turn a peasant into a noble. And turn a noble into a peasant."""
-    move_coin_from_user_to_user(
-        db=db, from_id=noble_id, to_id=peasant_id
-    )
-    
+    move_coin_from_user_to_user(db=db, from_id=noble_id, to_id=peasant_id)
+
     peasant = get_single_player_info(db=db, user_id=peasant_id)
-    
+
     # if the new noble is allied to another noble,
     # remove the new noble from that army
     if peasant["noble_id"] is not None:
-        increment_soldiers_for_user(
-            db=db, user_id=peasant["noble_id"], num=-1
-        )
-    
+        increment_soldiers_for_user(db=db, user_id=peasant["noble_id"], num=-1)
+
     change_allegiances_between_nobles(
         db=db, old_noble_id=noble_id, new_noble_id=peasant_id
     )

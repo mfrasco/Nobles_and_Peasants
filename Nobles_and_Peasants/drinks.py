@@ -52,5 +52,5 @@ def add_or_update_drink_name_and_cost(db, drink_name, drink_cost):
         # insert new drink
         query = "insert into drinks (party_id, drink_name, drink_cost) values (?, ?, ?)"
         db.execute(query, [party_id, drink_name, drink_cost])
-    
+
     db.commit()

@@ -3,6 +3,7 @@ from flask_login import current_user
 
 from Nobles_and_peasants.query import fetch_one
 
+
 def get_status_and_starting_coin(db):
     """Get the starting coin for each player status."""
     party_id = current_user.id

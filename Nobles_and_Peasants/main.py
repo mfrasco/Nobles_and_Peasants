@@ -112,6 +112,7 @@ def initdb_command():
 
 class User(UserMixin):
     """User class."""
+
     def __init__(self, id):
         """Initialize the user."""
         self.id = id
@@ -132,7 +133,7 @@ login_manager.login_view = "show_login"
 def load_user(party_id):
     """Load user."""
     db = get_db()
-    
+
     if not does_party_id_exist(db=db, party_id=party_id):
         return None
 
@@ -208,7 +209,9 @@ def login():
         return redirect(url_for("show_login"))
 
     if not check_password_hash(hashed_password, password):
-        msg = f"Unsuccessful! That is not the correct password for Party ID: {party_id}."
+        msg = (
+            f"Unsuccessful! That is not the correct password for Party ID: {party_id}."
+        )
         flash(msg)
         return redirect(url_for("show_login"))
 
@@ -241,7 +244,7 @@ def set_up():
     drinks = get_drink_name_and_cost(db=db)
     starting_coin = get_status_and_starting_coin(db=db)
     quest_rewards = get_quest_difficulty_and_reward(db=db)
-    
+
     return render_template(
         "setup.html",
         drinks=drinks,
@@ -269,9 +272,7 @@ def add_drink():
     drink_name = request.form["drink_name"].strip().lower()
     price = int(request.form["price"])
 
-    add_or_update_drink_name_and_cost(
-        db=db, drink_name=drink_name, drink_cost=price
-    )
+    add_or_update_drink_name_and_cost(db=db, drink_name=drink_name, drink_cost=price)
     return redirect(url_for("set_up"))
 
 
@@ -304,7 +305,7 @@ def set_wages():
         db=db,
         easy_reward=easy_reward,
         medium_reward=medium_reward,
-        hard_reward=hard_reward
+        hard_reward=hard_reward,
     )
 
     return redirect(url_for("set_up"))
@@ -327,10 +328,14 @@ def show_main():
 
     players = get_all_player_info(db=db)
     player_names = [row[0] for row in players]
-    noble_names = [row[0] for row in players if row[1] == 'noble']
+    noble_names = [row[0] for row in players if row[1] == "noble"]
 
     return render_template(
-        "main.html", drinks=drink_names, people=player_names, nobles=noble_names, party_id=party_id
+        "main.html",
+        drinks=drink_names,
+        people=player_names,
+        nobles=noble_names,
+        party_id=party_id,
     )
 
 
@@ -347,7 +352,7 @@ def sign_in():
 
     db = get_db()
     players = get_all_player_info(db=db)
-    
+
     existing_players = [row["id"] for row in players]
     if user_id in existing_players:
         msg = f"Unsuccessful! Please choose a different id. Someone already selected {user_id}."
@@ -359,9 +364,7 @@ def sign_in():
     else:
         player_status = user_status
 
-    insert_new_player(
-        db=db, user_id=user_id, player_status=player_status
-    )
+    insert_new_player(db=db, user_id=user_id, player_status=player_status)
 
     return redirect(url_for("show_main"))
 
@@ -406,9 +409,7 @@ def pledge_allegiance():
         flash(msg)
         return redirect(url_for("show_main"))
 
-    update_info_after_pledge_allegiance(
-        db=db, user_id=user_id, noble_id=noble_id
-    )
+    update_info_after_pledge_allegiance(db=db, user_id=user_id, noble_id=noble_id)
     return redirect(url_for("show_main"))
 
 
@@ -437,12 +438,8 @@ def buy_drink():
 
     noble_coin = get_single_player_info(db=db, user_id=noble_id)["coin"]
 
-    increment_coin_for_user(
-        db=db, user_id=noble_id, coin=-cost
-    )
-    increment_drinks_for_user(
-        db=db, user_id=user_id, num=quantity
-    )
+    increment_coin_for_user(db=db, user_id=noble_id, coin=-cost)
+    increment_drinks_for_user(db=db, user_id=user_id, num=quantity)
 
     # the noble doesn't have any more money
     if noble_coin <= cost:
@@ -471,7 +468,9 @@ def ban_peasant():
     noble = get_single_player_info(db=db, user_id=noble_id)
 
     if noble["player_status"] is None:
-        flash(f"Unsuccessful! ID: {noble_id} is not recognized. Did you enter your ID correctly?")
+        flash(
+            f"Unsuccessful! ID: {noble_id} is not recognized. Did you enter your ID correctly?"
+        )
         return redirect(url_for("show_main"))
 
     if noble["player_status"] != "noble":
@@ -512,7 +511,9 @@ def get_quest():
 
     user = get_single_player_info(db=db, user_id=user_id)
     if user["id"] is None:
-        msg = f"Unsuccessful! {user_id} is not in the party. Did you enter it correctly?"
+        msg = (
+            f"Unsuccessful! {user_id} is not in the party. Did you enter it correctly?"
+        )
         flash(msg)
         redirect(url_for("show_main"))
 
@@ -556,7 +557,9 @@ def kill():
     target = get_single_player_info(db=db, user_id=target_id)
 
     if user["id"] is None:
-        msg = f"Unsuccessful! {user_id} is not in the party. Did you enter it correctly?"
+        msg = (
+            f"Unsuccessful! {user_id} is not in the party. Did you enter it correctly?"
+        )
         flash(msg)
         return redirect(url_for("show_main"))
 
@@ -565,9 +568,7 @@ def kill():
         return redirect(url_for("show_main"))
 
     if user["player_status"] == "peasant" and target["player_status"] == "noble":
-        coin_needed = get_starting_coin_for_status(
-            db=db, player_status="noble"
-        )
+        coin_needed = get_starting_coin_for_status(db=db, player_status="noble")
         if user["coin"] < coin_needed:
             msg = f"Unsuccessful! You need {coin_needed} to assassinate a noble."
             flash(msg)
