@@ -1,3 +1,4 @@
+"""Flask app for running Nobles and Peasants."""
 from flask import Flask, request, g, redirect, url_for, render_template, flash
 from flask_login import (
     LoginManager,
@@ -32,9 +33,11 @@ from Nobles_and_Peasants.players import (
     get_almighty_ruler,
     get_single_player_info,
     increment_coin_for_user,
+    increment_drinks_for_user,
     increment_soldiers_for_user,
     insert_new_player,
     move_coin_from_user_to_user,
+    randomly_choose_player_status,
     update_info_after_pledge_allegiance,
     upgrade_peasant_and_downgrade_noble,
     set_allegiance_for_user,
@@ -88,6 +91,7 @@ def close_db(error):
 
 
 def init_db():
+    """Initialize database by executing SQL script."""
     db = get_db()
     with app.open_resource("schema.sql", mode="r") as f:
         db.cursor().executescript(f.read())
@@ -107,7 +111,7 @@ def initdb_command():
 
 
 class User(UserMixin):
-    """User class"""
+    """User class."""
     def __init__(self, id):
         """Initialize the user."""
         self.id = id
@@ -260,9 +264,8 @@ def show_rules():
 
 @app.route("/add_drink", methods=["POST"])
 def add_drink():
+    """Process request to add a drink to the party."""
     db = get_db()
-    party_id = current_user.id
-
     drink_name = request.form["drink_name"].strip().lower()
     price = int(request.form["price"])
 
@@ -274,9 +277,8 @@ def add_drink():
 
 @app.route("/set_coin", methods=["POST"])
 def set_coin():
+    """Respond to request to set starting coin for each role."""
     db = get_db()
-    party_id = current_user.id
-
     noble_coin = int(request.form["noble_coin"])
     update_noble_starting_coin(db=db, noble_coin=noble_coin)
     return redirect(url_for("set_up"))
@@ -284,6 +286,7 @@ def set_coin():
 
 @app.route("/set_wages", methods=["POST"])
 def set_wages():
+    """Respond to a request to set rewards for quests."""
     easy_reward = int(request.form["easy"])
     medium_reward = int(request.form["medium"])
     hard_reward = int(request.form["hard"])
@@ -297,11 +300,10 @@ def set_wages():
         return redirect(url_for("set_up"))
 
     db = get_db()
-    party_id = current_user.id
     set_quest_rewards(
         db=db,
-        easy_reward=easy_wage,
-        medium_reward=medium_wage,
+        easy_reward=easy_reward,
+        medium_reward=medium_reward,
         hard_reward=hard_reward
     )
 
@@ -316,6 +318,7 @@ def set_wages():
 @app.route("/main")
 @login_required
 def show_main():
+    """Display the main page."""
     db = get_db()
     party_id = current_user.id
 
@@ -327,7 +330,7 @@ def show_main():
     noble_names = [row[0] for row in players if row[1] == 'noble']
 
     return render_template(
-        "main.html", drinks=drinks, people=player_names, nobles=noble_names, party_id=party_id
+        "main.html", drinks=drink_names, people=player_names, nobles=noble_names, party_id=party_id
     )
 
 
@@ -338,12 +341,11 @@ def show_main():
 
 @app.route("/sign_in", methods=["POST"])
 def sign_in():
+    """Process a users request to sign in to the game."""
     user_id = request.form["user_id"].strip().lower()
     user_status = request.form["user_status"]
 
     db = get_db()
-    party_id = current_user.id
-
     players = get_all_player_info(db=db)
     
     existing_players = [row["id"] for row in players]
@@ -371,12 +373,11 @@ def sign_in():
 
 @app.route("/pledge", methods=["POST"])
 def pledge_allegiance():
+    """Process the request to pledge allegiance to a noble."""
     user_id = request.form["user_id"].strip().lower()
     noble_id = request.form["noble_id"].strip().lower()
 
     db = get_db()
-    party_id = current_user.id
-
     user = get_single_player_info(db=db, user_id=user_id)
     noble = get_single_player_info(db=db, user_id=noble_id)
 
@@ -418,12 +419,12 @@ def pledge_allegiance():
 
 @app.route("/buy_drink", methods=["POST"])
 def buy_drink():
+    """Process the request to buy a drink."""
     user_id = request.form["user_id"].strip().lower()
     drink_name = request.form["drink"]
     quantity = int(request.form["quantity"])
 
     db = get_db()
-    party_id = current_user.id
 
     noble_id = get_single_player_info(db=db, user_id=user_id)["noble_id"]
     if noble_id is None:
@@ -462,12 +463,11 @@ def buy_drink():
 
 @app.route("/ban", methods=["POST"])
 def ban_peasant():
+    """Respond to a request to ban a peasant from a noble's army."""
     noble_id = request.form["noble_id"].strip().lower()
     peasant_id = request.form["peasant_id"].strip().lower()
 
     db = get_db()
-    party_id = current_user.id
-
     noble = get_single_player_info(db=db, user_id=noble_id)
 
     if noble["player_status"] is None:
@@ -503,6 +503,7 @@ def ban_peasant():
 @app.route("/get_quest", methods=["POST"])
 @login_required
 def get_quest():
+    """Respond to a users request to get a quest."""
     user_id = request.form["user_id"].strip().lower()
     difficulty = request.form["level"].strip().lower()
 
@@ -523,14 +524,13 @@ def get_quest():
 
 @app.route("/add_money", methods=["POST"])
 def add_money():
+    """Respond to a request after a user completes a quest."""
     user_id = request.form["user_id"].strip().lower()
     difficulty = request.form["level"]
     result = request.form["result"]
 
     if result == "Yes":
         db = get_db()
-        party_id = current_user.id
-
         reward = get_reward_for_difficulty(db=db, difficulty=difficulty)
         increment_coin_for_user(db=db, user_id=user_id, coin=reward)
 
@@ -545,6 +545,7 @@ def add_money():
 @app.route("/kill", methods=["POST"])
 @login_required
 def kill():
+    """Respond to a request for a user to kill another user."""
     user_id = request.form["user_id"].strip().lower()
     target_id = request.form["target_id"].strip().lower()
 
@@ -585,14 +586,14 @@ def kill():
 
 @app.route("/assassinate", methods=["POST"])
 def assassinate():
+    """Respond to request on if a user was assassinated."""
     user_id = request.form["user_id"]
     target_id = request.form["target_id"]
     winner_id = request.form["winner"]
 
     db = get_db()
-    party_id = current_user.id
 
-    if user_id == winner:
+    if user_id == winner_id:
         loser_id = target_id
     else:
         loser_id = user_id
@@ -626,6 +627,7 @@ def assassinate():
 @app.route("/kingdom")
 @login_required
 def show_kingdom():
+    """Show the page that lists all players."""
     db = get_db()
     party_id = current_user.id
 
@@ -636,6 +638,7 @@ def show_kingdom():
 @app.route("/leaderboard")
 @login_required
 def show_leaderboard():
+    """Show the page for the leaderboard."""
     db = get_db()
     party_id = current_user.id
 

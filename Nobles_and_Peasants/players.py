@@ -1,3 +1,4 @@
+"""Functions related to the players table."""
 from random import uniform
 
 from flask_login import current_user
@@ -17,7 +18,7 @@ def randomly_choose_player_status(players):
     num_nobles = statuses.count("noble")
     if num_nobles < 2:
         return "noble"
-    elif (float(num_nobles) / num_people) < 0.2:
+    elif (float(num_nobles) / num_players) < 0.2:
         if uniform(0, 1) < 0.75:
             return "noble"
         else:
@@ -30,13 +31,13 @@ def insert_new_player(db, user_id, player_status):
     """Add a new row to the database for a new player."""
     party_id = current_user.id
     starting_coin = get_starting_coin_for_status(
-        db=db, player_stats=user_status
+        db=db, player_stats=player_status
     )
 
     if player_status == "peasant":
         noble_id = None
         soldiers = 0
-    elif player_status = "noble":
+    elif player_status == "noble":
         noble_id = user_id
         soldiers = 1
 
@@ -141,10 +142,10 @@ def set_allegiance_for_user(db, user_id, noble_id):
 
 def update_info_after_pledge_allegiance(db, user_id, noble_id):
     """Update database when a user pledges allegiance to a noble.""" 
-     # decrement the soldier count for the previous noble
-     player = get_single_player_info(db=db, user_id=user_id)
-     previous_noble_id = player['noble_id']
-     if previous_noble_id is not None:
+    # decrement the soldier count for the previous noble
+    player = get_single_player_info(db=db, user_id=user_id)
+    previous_noble_id = player['noble_id']
+    if previous_noble_id is not None:
         increment_soldiers_for_noble(
             db=db, user_id=previous_noble_id, num=-1
         )
@@ -257,7 +258,7 @@ def change_noble_to_peasant(db, user_id):
         where party_id = ?
             and id = ?
     """
-    db.execute(query, [party_id, old_noble])
+    db.execute(query, [party_id, user_id])
     db.commit()
 
 
@@ -273,7 +274,7 @@ def upgrade_peasant_and_downgrade_noble(db, peasant_id, noble_id):
     # remove the new noble from that army
     if peasant["noble_id"] is not None:
         increment_soldiers_for_user(
-            db=df, user_id=peasant["noble_id"], num=-1
+            db=db, user_id=peasant["noble_id"], num=-1
         )
     
     change_allegiances_between_nobles(

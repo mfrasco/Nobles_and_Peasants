@@ -1,3 +1,4 @@
+"""Functions related to the parties table."""
 import re
 
 from flask_bcrypt import generate_password_hash

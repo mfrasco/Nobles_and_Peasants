@@ -1,3 +1,4 @@
+"""Functions related to the starting_coin table."""
 from flask_login import current_user
 
 from Nobles_and_peasants.query import fetch_one

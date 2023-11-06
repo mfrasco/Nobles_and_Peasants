@@ -1,3 +1,4 @@
+"""Functions related to the drinks table."""
 from flask_login import current_user
 
 from Nobles_and_peasants.query import fetch_one
@@ -24,7 +25,7 @@ def get_cost_for_a_drink(db, drink_name):
         where party_id = ?
             and drink_name = ?
     """
-    return fetch_one(db, query, [party_id, drink])
+    return fetch_one(db, query, [party_id, drink_name])
 
 
 def add_or_update_drink_name_and_cost(db, drink_name, drink_cost):
