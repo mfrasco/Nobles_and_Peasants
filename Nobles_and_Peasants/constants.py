@@ -1,0 +1,2 @@
+NOBLE = "noble"
+PEASANT = "peasant"

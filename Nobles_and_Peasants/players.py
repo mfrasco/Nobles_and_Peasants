@@ -3,6 +3,7 @@ from random import uniform
 
 from flask_login import current_user
 
+from Nobles_and_Peasants.constants import NOBLE, PEASANT
 from Nobles_and_Peasants.query import fetch_one
 from Nobles_and_Peasants.starting_coin import get_starting_coin_for_status
 
@@ -15,16 +16,16 @@ def randomly_choose_player_status(players):
     """
     statuses = [row["player_status"] for row in players]
     num_players = len(statuses)
-    num_nobles = statuses.count("noble")
+    num_nobles = statuses.count(NOBLE)
     if num_nobles < 2:
-        return "noble"
+        return NOBLE
     elif (float(num_nobles) / num_players) < 0.2:
         if uniform(0, 1) < 0.75:
-            return "noble"
+            return NOBLE
         else:
-            return "peasant"
+            return PEASANT
     else:
-        return "peasant"
+        return PEASANT
 
 
 def insert_new_player(db, user_id, player_status):
@@ -32,10 +33,10 @@ def insert_new_player(db, user_id, player_status):
     party_id = current_user.id
     starting_coin = get_starting_coin_for_status(db=db, player_status=player_status)
 
-    if player_status == "peasant":
+    if player_status == PEASANT:
         noble_id = None
         soldiers = 0
-    elif player_status == "noble":
+    elif player_status == NOBLE:
         noble_id = user_id
         soldiers = 1
 
@@ -213,10 +214,10 @@ def change_allegiances_between_nobles(db, old_noble_id, new_noble_id):
 def change_peasant_to_noble(db, user_id):
     """Update info for a user to reflect their new status as a noble."""
     party_id = current_user.id
-    starting_coin = get_starting_coin_for_status(db=db, player_status="noble")
+    starting_coin = get_starting_coin_for_status(db=db, player_status=NOBLE)
     query = """
         update players
-        set player_status = "noble"
+        set player_status = 'noble'
             , noble_id = ?
             , coin = max(?, coin + ?)
             , soldiers = 1 + (
