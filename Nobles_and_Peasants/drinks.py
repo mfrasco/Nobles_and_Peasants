@@ -39,7 +39,7 @@ def add_or_update_drink_name_and_cost(db, drink_name, drink_cost):
     """
     drinks = db.execute(query, [party_id, drink_name]).fetchall()
 
-    if drink_name in [row[0] for row in drinks]:
+    if drink_name in [row["drink_name"] for row in drinks]:
         # update existing drink with new price
         query = """
             update drinks

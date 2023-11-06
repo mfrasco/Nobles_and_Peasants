@@ -19,7 +19,7 @@ def does_party_id_exist(db, party_id):
     """Check if a party_id already exists in the database."""
     query = "select party_id from parties"
     parties = db.execute(query).fetchall()
-    return party_id in [row[0] for row in parties]
+    return party_id in [row["party_id"] for row in parties]
 
 
 def insert_new_party(app, db, party_id, password):

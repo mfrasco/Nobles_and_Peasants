@@ -324,11 +324,11 @@ def show_main():
     party_id = current_user.id
 
     drinks = get_drink_name_and_cost(db=db)
-    drink_names = [row[0] for row in drinks]
+    drink_names = [row["drink_name"] for row in drinks]
 
     players = get_all_player_info(db=db)
-    player_names = [row[0] for row in players]
-    noble_names = [row[0] for row in players if row[1] == "noble"]
+    player_names = [row["id"] for row in players]
+    noble_names = [row["id"] for row in players if row["player_status"] == "noble"]
 
     return render_template(
         "main.html",

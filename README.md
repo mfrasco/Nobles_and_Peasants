@@ -24,8 +24,6 @@ Run the app: `python Nobles_and_Peasants/main.py`
 
 ### TODO
 
-1. Access column names from row object with column name, instead of column index
-
 2. CI/CD
 
 3. Database credentials
