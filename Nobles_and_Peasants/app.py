@@ -72,7 +72,7 @@ app.secret_key = "super secret key"
 def connect_db():
     """Connects to the specific database."""
     # rv = sqlite3.connect(app.config['DATABASE'])
-    rv = sqlite3.connect("nobles_and_peasants/flask_test.db")
+    rv = sqlite3.connect("flask_test.db")
     rv.row_factory = sqlite3.Row
     return rv
 
