@@ -6,4 +6,4 @@ nobles_and_peasants/__pycache__/
 
 dist/**
 
-nobles_and_peasants/nap.db
+instance/nobles_and_peasants.sqlite

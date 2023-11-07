@@ -1,13 +1,6 @@
 """Flask app for running Nobles and Peasants."""
 from flask import Flask, request, g, redirect, url_for, render_template, flash
-from flask_login import (
-    LoginManager,
-    UserMixin,
-    current_user,
-    login_user,
-    logout_user,
-    login_required,
-)
+from flask_login import current_user
 from flask_bcrypt import check_password_hash
 import sqlite3
 
@@ -55,91 +48,9 @@ from nobles_and_peasants.quest_rewards import (
     set_quest_rewards,
 )
 
-
-# create the application instance and load config
-app = Flask(__name__)
-app.secret_key = "super secret key"
-
 # app = Flask(__name__, instance_relative_config=True)
 # app.config.from_object('nobles_and_peasants.default_settings')
 # app.config.from_pyfile('application.cfg', silent=True)
-
-############################################################
-################# Setup Database ########################
-############################################################
-
-
-def connect_db():
-    """Connects to the specific database."""
-    # rv = sqlite3.connect(app.config['DATABASE'])
-    rv = sqlite3.connect("nap.db")
-    rv.row_factory = sqlite3.Row
-    return rv
-
-
-def get_db():
-    """Opens a new database connection if there is none yet for the current app context."""
-    if not hasattr(g, "sqlite_db"):
-        g.sqlite_db = connect_db()
-    return g.sqlite_db
-
-
-@app.teardown_appcontext
-def close_db(error):
-    """Closes the database at the end of the request."""
-    if hasattr(g, "sqlite_db"):
-        g.sqlite_db.close()
-
-
-def init_db():
-    """Initialize database by executing SQL script."""
-    db = get_db()
-    with app.open_resource("schema.sql", mode="r") as f:
-        db.cursor().executescript(f.read())
-    db.commit()
-
-
-@app.cli.command("initdb")
-def initdb_command():
-    """Initializes the database."""
-    init_db()
-    print("Initialized the database.")
-
-
-############################################################
-################# User Handling ######################
-############################################################
-
-
-class User(UserMixin):
-    """User class."""
-
-    def __init__(self, id):
-        """Initialize the user."""
-        self.id = id
-
-    def get_id(self):
-        """Get the user id."""
-        return str(self.id)
-
-
-# handle the login manager
-login_manager = LoginManager()
-login_manager.init_app(app)
-
-login_manager.login_view = "show_login"
-
-
-@login_manager.user_loader
-def load_user(party_id):
-    """Load user."""
-    db = get_db()
-
-    if not does_party_id_exist(db=db, party_id=party_id):
-        return None
-
-    user = User(party_id)
-    return user
 
 
 ############################################################
@@ -652,7 +563,3 @@ def show_leaderboard():
         almighty_ruler=almighty_ruler,
         party_id=party_id,
     )
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0")
