@@ -206,7 +206,7 @@ def signup():
 
 @app.route("/login", methods=["POST"])
 def login():
-    """Process the users request to login to their party."""
+    """Process the player's request to login to their party."""
     party_name = request.form["party_name"]
     password = request.form["password"]
 
@@ -245,7 +245,7 @@ def logout():
 @app.route("/set_up", methods=["GET"])
 @login_required
 def set_up():
-    """Show the setup page, where the user can customize the party settings."""
+    """Show the setup page, where the player can customize the party settings."""
     db = get_db()
 
     drinks = get_drink_name_and_cost(db=db)
@@ -354,7 +354,7 @@ def show_main():
 
 @app.route("/sign_in", methods=["POST"])
 def sign_in():
-    """Process a users request to sign in to the game."""
+    """Process a player's request to sign in to the game."""
     player_name = request.form["player_name"].strip().lower()
     player_status = request.form["player_status"]
 
@@ -513,7 +513,7 @@ def ban_peasant():
 @app.route("/get_quest", methods=["POST"])
 @login_required
 def get_quest():
-    """Respond to a users request to get a quest."""
+    """Respond to a player's request to get a quest."""
     player_name = request.form["player_name"].strip().lower()
     difficulty = request.form["difficulty"].strip().lower()
 
@@ -537,7 +537,7 @@ def get_quest():
 
 @app.route("/add_money", methods=["POST"])
 def add_money():
-    """Respond to a request after a user completes a quest."""
+    """Respond to a request after a player completes a quest."""
     player_name = request.form["player_name"].strip().lower()
     difficulty = request.form["difficulty"]
     result = request.form["result"]
@@ -558,7 +558,7 @@ def add_money():
 @app.route("/kill", methods=["POST"])
 @login_required
 def kill():
-    """Respond to a request for a user to kill another user."""
+    """Respond to a request for a player to kill another player."""
     player_name = request.form["player_name"].strip().lower()
     target_name = request.form["target_name"].strip().lower()
 
@@ -597,7 +597,7 @@ def kill():
 
 @app.route("/assassinate", methods=["POST"])
 def assassinate():
-    """Respond to request on if a user was assassinated."""
+    """Respond to request on if a player was assassinated."""
     player_name = request.form["player_name"]
     target_name = request.form["target_name"]
     winner_name = request.form["winner_name"]

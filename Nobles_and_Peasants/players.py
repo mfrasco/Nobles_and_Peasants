@@ -138,7 +138,7 @@ def find_richest_peasant(db):
 
 
 def set_allegiance(db, player_name, noble_name):
-    """Update database with noble id for a given user."""
+    """Update database with noble id for a given player."""
     party_id = current_user.id
     query = """
         update players
@@ -151,7 +151,7 @@ def set_allegiance(db, player_name, noble_name):
 
 
 def update_after_pledge_allegiance(db, player_name, noble_name):
-    """Update database when a user pledges allegiance to a noble."""
+    """Update database when a player pledges allegiance to a noble."""
     # decrement the soldier count for the previous noble
     player = get_single_player(db=db, player_name=player_name)
     previous_noble_name = player["noble_name"]
