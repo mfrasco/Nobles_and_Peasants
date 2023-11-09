@@ -7,7 +7,7 @@
     <div class="leaderboard">
         <table class="nap_table" id="leaderboard_table">
             <thead><tr>
-                <td>ID</td>
+                <td>Name</td>
                 <td>Soldiers</td>
                 <td>Coin</td>
                 <td>Drinks</td>
@@ -15,7 +15,7 @@
             <tbody>
             {% for noble in leaderboard %}
             <tr>
-                <td>{{noble.id}}</td>
+                <td>{{noble.player_name}}</td>
                 <td>{{noble.soldiers}}</td>
                 <td>{{noble.coin}}</td>
                 <td>{{noble.drinks}}</td>
