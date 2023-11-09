@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
-    {%if not current_user.is_authenticated%}
+    <!-- {%if not current_user.is_authenticated%} -->
     <form id="back_to_login" action="{{ url_for('show_login') }}">
         <input class="submit_button" type="submit" name="Login Button" value="Back To Login Page">
     </form>
-    {% endif %}
+    <!-- {% endif %} -->
     <div id="rules">
         <h2>What is Nobles and Peasants?</h2>
         <p class="rule">

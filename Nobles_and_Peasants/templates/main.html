@@ -7,9 +7,9 @@
 		<div class="main_col" id="left_col">
 			<div class="main_form" id="sign_in_form">
 				<form action="{{ url_for('sign_in') }}" method="post">
-					<input class="input_box" type="text" name="user_id" placeholder="Choose a Name" required></input>
+					<input class="input_box" type="text" name="player_name" placeholder="Choose a Name" required></input>
 					<p></p>
-					<select class="select_box" name="user_status" required>
+					<select class="select_box" name="player_status" required>
 						<option value="randomly decide" selected>Randomly Decide</option>
 						<option value="noble">Noble</option>
 						<option value="peasant">Peasant</option>
@@ -20,17 +20,17 @@
 			</div>
 			<div class="main_form" id="ban_form">
 				<form action="{{ url_for('ban_peasant') }}" method="post">
-					<input class="data_list" list="nobles" name="noble_id" placeholder="Your Name" required>
-						<datalist id="nobles">
-							{% for n in nobles %}
+					<input class="data_list" list="nobles" name="noble_name" placeholder="Your Name" required>
+						<datalist id="noble_names">
+							{% for n in noble_names %}
 								<option value="{{ n }}"></option>
 							{% endfor %}
 						</datalist>
 					</input>
 					<p></p>
-					<input class="data_list" list="people" name="peasant_id" placeholder="Peasant Name" required>
-						<datalist id="people">
-							{% for p in people %}
+					<input class="data_list" list="people" name="peasant_name" placeholder="Peasant Name" required>
+						<datalist id="player_names">
+							{% for p in player_names %}
 								<option value="{{ p }}"></option>
 							{% endfor %}
 						</datalist>
@@ -43,17 +43,17 @@
 		<div class="main_col" id="center_col">
 			<div class="main_form" id="pledge_form">
 				<form action="{{ url_for('pledge_allegiance') }}" method="post">
-					<input class="data_list" list="people" name="user_id" placeholder="Your Name" required>
-						<datalist id="people">
-							{% for p in people %}
+					<input class="data_list" list="player_names" name="player_name" placeholder="Your Name" required>
+						<datalist id="player_names">
+							{% for p in player_names %}
 								<option value="{{ p }}"></option>
 							{% endfor %}
 						</datalist>
 					</input>
 					<p></p>
-					<input class="data_list" list="nobles" name="noble_id" placeholder="Noble's Name" required>
-						<datalist id="nobles">
-							{% for n in nobles %}
+					<input class="data_list" list="noble_names" name="noble_name" placeholder="Noble's Name" required>
+						<datalist id="noble_names">
+							{% for n in noble_names %}
 								<option value="{{ n }}"></option>
 							{% endfor %}
 						</datalist>
@@ -64,15 +64,15 @@
 			</div>
 			<div class="main_form" id="quest_form">
 				<form action="{{ url_for('get_quest') }}" method="post">
-					<input class="data_list" id="receive_reward" list="people" name="user_id" placeholder="Name To Receive Reward" required>
-						<datalist id="people">
-							{% for p in people %}
+					<input class="data_list" id="receive_reward" list="player_names" name="player_name" placeholder="Name To Receive Reward" required>
+						<datalist id="player_names">
+							{% for p in player_names %}
 								<option value="{{ p }}"></option>
 							{% endfor %}
 						</datalist>
 					</input>
 					<p></p>
-					<select class="select_box" name="level" required>
+					<select class="select_box" name="difficulty" required>
 						<option value="easy" selected>Easy</option>
 						<option value="medium">Medium</option>
 						<option value="hard">Hard</option>
@@ -85,17 +85,17 @@
 		<div class="main_col" id="right_col">
 			<div class="main_form" id="buy_drink_form">
 				<form action="{{ url_for('buy_drink') }}" method="post">
-					<input class="data_list" list="people" name="user_id" placeholder="Your Name" required>
-						<datalist id="people">
-							{% for p in people %}
+					<input class="data_list" list="player_names" name="player_name" placeholder="Your Name" required>
+						<datalist id="player_names">
+							{% for p in player_names %}
 								<option value="{{ p }}"></option>
 							{% endfor %}
 						</datalist>
 					</input>
 					<p></p>
-					<select class="select_box" name="drink" required>
+					<select class="select_box" name="drink_name" required>
 							<option value="" disabled selected>Choose a Drink</option>
-						{% for d in drinks %}
+						{% for d in drink_names %}
 							<option value="{{ d }}">{{ d }}</option>
 						{% endfor %}
 					</select>
@@ -106,17 +106,17 @@
 			</div>
 			<div class="main_form" id="kill_form">
 				<form action="{{ url_for('kill') }}" method="post">
-					<input class="data_list" list="people" name="user_id" placeholder="Your Name" required>
-						<datalist id="people">
-							{% for p in people %}
+					<input class="data_list" list="player_names" name="player_name" placeholder="Your Name" required>
+						<datalist id="player_names">
+							{% for p in player_names %}
 								<option value="{{ p }}"></option>
 							{% endfor %}
 						</datalist>
 					</input>
 					<p></p>
-					<input class="data_list" list="people" name="target_id" placeholder="Target Name" required>
-						<datalist id="people">
-							{% for p in people %}
+					<input class="data_list" list="player_names" name="target_name" placeholder="Target Name" required>
+						<datalist id="player_names">
+							{% for p in player_names %}
 								<option value="{{ p }}"></option>
 							{% endfor %}
 						</datalist>
