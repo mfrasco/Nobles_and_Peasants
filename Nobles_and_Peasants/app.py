@@ -171,7 +171,7 @@ def how_to_play():
         db = get_db()
         party_name = get_party_name(db=db, party_id=current_user.id)
     else:
-        party_id = None
+        party_name = None
     return render_template("how_to_play.html", party_name=party_name)
 
 
@@ -182,7 +182,7 @@ def what_is_this():
         db = get_db()
         party_name = get_party_name(db=db, party_id=current_user.id)
     else:
-        party_id = None
+        party_name = None
     return render_template("what_is_this.html", party_name=party_name)
 
 
@@ -457,9 +457,7 @@ def buy_drink():
         upgrade_peasant_and_downgrade_noble(
             db=db, peasant_name=new_noble_name, noble_name=noble_name
         )
-        msg = (
-            f"{noble_name} ran out of money! {new_noble_name} is now a noble!"
-        )
+        msg = f"{noble_name} ran out of money! {new_noble_name} is now a noble!"
         flash(msg)
 
     return redirect(url_for("show_main"))
@@ -645,7 +643,9 @@ def show_kingdom():
     """Show the page that lists all players."""
     db = get_db()
     players = get_all_players(db=db)
-    return render_template("show_kingdom.html", players=players, party_name=current_user.party_name)
+    return render_template(
+        "show_kingdom.html", players=players, party_name=current_user.party_name
+    )
 
 
 @app.route("/leaderboard")
