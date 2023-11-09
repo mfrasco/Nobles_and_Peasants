@@ -7,11 +7,11 @@
         </div>
         <div class="assassinate">
             <form action="{{ url_for('assassinate') }}" method="post">
-                <input class="input_box" type="text" name="user_id" value="{{ user_id }}" readonly></input>
-                <input class="input_box" type="text" name="target_id" value="{{ target_id }}" readonly></input>
+                <input class="input_box" type="text" name="player_name" value="{{ player_name }}" readonly></input>
+                <input class="input_box" type="text" name="target_name" value="{{ target_name }}" readonly></input>
                 <h4>Who won the challenge?</h4>
-                <input class="submit_button" type="submit" value="{{ user_id }}" name="winner"></input>
-                <input class="submit_button" type="submit" value="{{ target_id }}" name="winner"></input>
+                <input class="submit_button" type="submit" value="{{ player_name }}" name="winner_name"></input>
+                <input class="submit_button" type="submit" value="{{ target_name }}" name="winner_name"></input>
             </form>
         </div>
     </div>

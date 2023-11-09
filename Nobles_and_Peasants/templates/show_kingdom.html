@@ -3,7 +3,7 @@
     <div class="kingdom">
         <table class="nap_table" id="kingdom_table">
             <thead><tr>
-                <td>ID</td>
+                <td>Name</td>
                 <td>Status</td>
                 <td>Allegiance</td>
                 <td>Coin</td>
@@ -11,14 +11,14 @@
                 <td>Soldiers</td>
             </tr></thead>
             <tbody>
-            {% for person in kingdom %}
+            {% for player in players %}
             <tr>
-                <td>{{person.id}}</td>
-                <td>{{person.player_status}}</td>
-                <td>{{person.noble_id}}</td>
-                <td>{{person.coin}}</td>
-                <td>{{person.drinks}}</td>
-                <td>{{person.soldiers}}</td>
+                <td>{{player.player_name}}</td>
+                <td>{{player.player_status}}</td>
+                <td>{{player.noble_name}}</td>
+                <td>{{player.coin}}</td>
+                <td>{{player.drinks}}</td>
+                <td>{{player.soldiers}}</td>
             </tr>
             {% endfor %}
         </tbody>
