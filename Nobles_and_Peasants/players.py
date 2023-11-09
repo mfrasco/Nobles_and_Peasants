@@ -107,7 +107,7 @@ def get_single_player(db, player_name, col=None):
     party_id = current_user.id
     if col is None:
         query = """
-            select id, player_status, coin, noble_id, drinks, soldiers
+            select id, player_status, coin, noble_name, drinks, soldiers
             from players
             where party_id = ?
                 and player_name = ?

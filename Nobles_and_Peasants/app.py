@@ -24,7 +24,10 @@ from nobles_and_peasants.outlaws import (
 )
 from nobles_and_peasants.parties import (
     does_party_id_exist,
+    does_party_name_exist,
     get_hashed_password,
+    get_party_id,
+    get_party_name,
     insert_new_party,
 )
 from nobles_and_peasants.players import (
@@ -114,9 +117,10 @@ def initdb_command():
 class User(UserMixin):
     """User class."""
 
-    def __init__(self, id):
+    def __init__(self, id, party_name):
         """Initialize the user."""
         self.id = id
+        self.party_name = party_name
 
     def get_id(self):
         """Get the user id."""
@@ -138,7 +142,8 @@ def load_user(party_id):
     if not does_party_id_exist(db=db, party_id=party_id):
         return None
 
-    user = User(party_id)
+    party_name = get_party_name(db=db, party_id=party_id)
+    user = User(id=party_id, party_name=party_name)
     return user
 
 
@@ -151,46 +156,50 @@ def load_user(party_id):
 def show_login():
     """Show the login page."""
     if current_user.is_authenticated:
-        party_id = current_user.id
+        db = get_db()
+        party_name = get_party_name(db=db, party_id=current_user.id)
     else:
-        party_id = None
-    return render_template("login.html", party_id=party_id)
+        party_name = None
+
+    return render_template("login.html", party_name=party_name)
 
 
 @app.route("/how_to_play")
 def how_to_play():
     """Show the how to play page."""
     if current_user.is_authenticated:
-        party_id = current_user.id
+        db = get_db()
+        party_name = get_party_name(db=db, party_id=current_user.id)
     else:
         party_id = None
-    return render_template("how_to_play.html", party_id=party_id)
+    return render_template("how_to_play.html", party_name=party_name)
 
 
 @app.route("/what_is_this")
 def what_is_this():
     """Show the what is this page."""
     if current_user.is_authenticated:
-        party_id = current_user.id
+        db = get_db()
+        party_name = get_party_name(db=db, party_id=current_user.id)
     else:
         party_id = None
-    return render_template("what_is_this.html", party_id=party_id)
+    return render_template("what_is_this.html", party_name=party_name)
 
 
 @app.route("/signup", methods=["POST"])
 def signup():
-    """Process the party_id and the password when the user registers a new party."""
-    party_id = request.form["party_id"]
+    """Process the party_name and the password when the player registers a new party."""
+    party_name = request.form["party_name"]
     password = request.form["password"]
 
     db = get_db()
 
-    if does_party_id_exist(db=db, party_id=party_id):
-        msg = f"Unsuccessful! Please choose a different party name. Someone already selected {party_id}."
+    if does_party_name_exist(db=db, party_name=party_name):
+        msg = f"Unsuccessful! Please choose a different party name. Someone already selected {party_name}."
         flash(msg)
         return redirect(url_for("show_login"))
 
-    insert_new_party(app=app, db=db, party_id=party_id, password=password)
+    insert_new_party(app=app, db=db, party_name=party_name, password=password)
     flash("Success! You can now log in to your party!")
     return redirect(url_for("show_login"))
 
@@ -198,25 +207,24 @@ def signup():
 @app.route("/login", methods=["POST"])
 def login():
     """Process the users request to login to their party."""
-    party_id = request.form["party_id"]
+    party_name = request.form["party_name"]
     password = request.form["password"]
 
     db = get_db()
-    hashed_password = get_hashed_password(db=db, party_id=party_id)
+    hashed_password = get_hashed_password(db=db, party_name=party_name)
 
     if hashed_password is None:
-        msg = f"Unsuccessful! Party ID: {party_id} has not been registered yet. Please sign up to create a party."
+        msg = f"Unsuccessful! {party_name} has not been registered yet. Please sign up to create a party."
         flash(msg)
         return redirect(url_for("show_login"))
 
     if not check_password_hash(hashed_password, password):
-        msg = (
-            f"Unsuccessful! That is not the correct password for Party ID: {party_id}."
-        )
+        msg = f"Unsuccessful! That is not the correct password for {party_name}."
         flash(msg)
         return redirect(url_for("show_login"))
 
-    user = User(party_id)
+    party_id = get_party_id(db, party_name)
+    user = User(id=party_id, party_name=party_name)
     login_user(user)
 
     next = request.args.get("next")
@@ -240,8 +248,6 @@ def set_up():
     """Show the setup page, where the user can customize the party settings."""
     db = get_db()
 
-    party_id = current_user.id
-
     drinks = get_drink_name_and_cost(db=db)
     starting_coin = get_status_and_starting_coin(db=db)
     quest_rewards = get_quest_difficulty_and_reward(db=db)
@@ -251,7 +257,7 @@ def set_up():
         drinks=drinks,
         starting_coin=starting_coin,
         quest_rewards=quest_rewards,
-        party_id=party_id,
+        party_name=current_user.party_name,
     )
 
 
@@ -322,7 +328,6 @@ def set_wages():
 def show_main():
     """Display the main page."""
     db = get_db()
-    party_id = current_user.id
 
     drinks = get_drink_name_and_cost(db=db)
     drink_names = [row["drink_name"] for row in drinks]
@@ -338,7 +343,7 @@ def show_main():
         drink_names=drink_names,
         player_names=player_names,
         noble_names=noble_names,
-        party_id=party_id,
+        party_name=current_user.party_name,
     )
 
 
@@ -432,8 +437,8 @@ def buy_drink():
 
     db = get_db()
 
-    noble_id = get_single_player(db=db, player_name=player_name, col="noble_id")
-    if noble_id is None:
+    noble_name = get_single_player(db=db, player_name=player_name, col="noble_name")
+    if noble_name is None:
         msg = "Unsuccessful! You need to ally yourself to a noble before you can buy a drink."
         flash(msg)
         return redirect(url_for("show_main"))
@@ -441,19 +446,19 @@ def buy_drink():
     price = get_cost_for_a_drink(db=db, drink_name=drink_name)
     cost = price * quantity
 
-    noble = get_single_player(db=db, player_id=noble_id)
+    noble = get_single_player(db=db, player_name=noble_name)
 
-    increment_coin(db=db, player_name=noble["player_name"], coin=-cost)
+    increment_coin(db=db, player_name=noble_name, coin=-cost)
     increment_drinks(db=db, player_name=player_name, num=quantity)
 
     # the noble doesn't have any more money
     if noble["coin"] <= cost:
         new_noble_name = find_richest_peasant(db=db)
         upgrade_peasant_and_downgrade_noble(
-            db=db, peasant_name=new_noble_name, noble_name=noble["player_name"]
+            db=db, peasant_name=new_noble_name, noble_name=noble_name
         )
         msg = (
-            f"{noble['player_name']} ran out of money! {new_noble_name} is now a noble!"
+            f"{noble_name} ran out of money! {new_noble_name} is now a noble!"
         )
         flash(msg)
 
@@ -491,8 +496,8 @@ def ban_peasant():
         return redirect(url_for("show_main"))
 
     # remove the peasant's allegiance to the noble that is banning them
-    if peasant["noble_id"] == noble["id"]:
-        set_allegiance(db=db, player_name=peasant_name, noble_id=None)
+    if peasant["noble_name"] == noble_name:
+        set_allegiance(db=db, player_name=peasant_name, noble_name=None)
         increment_soldiers(db=db, player_name=noble_name, num=-1)
 
     # add the peasant to a banned table
@@ -513,7 +518,6 @@ def get_quest():
     difficulty = request.form["difficulty"].strip().lower()
 
     db = get_db()
-    party_id = current_user.id
 
     player = get_single_player(db=db, player_name=player_name)
     if player["id"] is None:
@@ -527,7 +531,7 @@ def get_quest():
         player_name=player_name,
         difficulty=difficulty,
         quest=quest,
-        party_id=party_id,
+        party_name=current_user.party_id,
     )
 
 
@@ -559,7 +563,6 @@ def kill():
     target_name = request.form["target_name"].strip().lower()
 
     db = get_db()
-    party_id = current_user.id
 
     player = get_single_player(db=db, player_name=player_name)
     target = get_single_player(db=db, player_name=target_name)
@@ -588,7 +591,7 @@ def kill():
         challenge=challenge,
         player_name=player_name,
         target_name=target_name,
-        party_id=party_id,
+        party_name=current_user.party_name,
     )
 
 
@@ -609,7 +612,7 @@ def assassinate():
     winner_status = get_single_player(
         db=db, player_name=winner_name, col="player_status"
     )
-    loser_status = get_single_player(db=db, player_id=loser_name, col="player_status")
+    loser_status = get_single_player(db=db, player_name=loser_name, col="player_status")
 
     if winner_status == PEASANT and loser_status == NOBLE:
         upgrade_peasant_and_downgrade_noble(
@@ -641,10 +644,8 @@ def assassinate():
 def show_kingdom():
     """Show the page that lists all players."""
     db = get_db()
-    party_id = current_user.id
-
     players = get_all_players(db=db)
-    return render_template("show_kingdom.html", players=players, party_id=party_id)
+    return render_template("show_kingdom.html", players=players, party_name=current_user.party_name)
 
 
 @app.route("/leaderboard")
@@ -652,15 +653,13 @@ def show_kingdom():
 def show_leaderboard():
     """Show the page for the leaderboard."""
     db = get_db()
-    party_id = current_user.id
-
     leaderboard = get_all_nobles(db=db)
     almighty_ruler = get_almighty_ruler(db=db)
     return render_template(
         "show_leaderboard.html",
         leaderboard=leaderboard,
         almighty_ruler=almighty_ruler,
-        party_id=party_id,
+        party_name=current_user.party_name,
     )
 
 
