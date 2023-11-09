@@ -44,7 +44,15 @@ def insert_new_player(db, player_name, player_status):
         insert into players (party_id, player_name, player_status, coin, noble_name, drinks, soldiers)
         values (?, ?, ?, ?, ?, ?, ?)
     """
-    args = [party_id, player_name, player_status, starting_coin, noble_name, 0, soldiers]
+    args = [
+        party_id,
+        player_name,
+        player_status,
+        starting_coin,
+        noble_name,
+        0,
+        soldiers,
+    ]
     db.execute(query, args)
     db.commit()
 

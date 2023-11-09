@@ -329,7 +329,9 @@ def show_main():
 
     players = get_all_players(db=db)
     player_names = [row["player_name"] for row in players]
-    noble_names = [row["player_name"] for row in players if row["player_status"] == NOBLE]
+    noble_names = [
+        row["player_name"] for row in players if row["player_status"] == NOBLE
+    ]
 
     return render_template(
         "main.html",
@@ -410,7 +412,9 @@ def pledge_allegiance():
         flash(msg)
         return redirect(url_for("show_main"))
 
-    update_after_pledge_allegiance(db=db, player_name=player_name, noble_name=noble_name)
+    update_after_pledge_allegiance(
+        db=db, player_name=player_name, noble_name=noble_name
+    )
     return redirect(url_for("show_main"))
 
 
@@ -448,7 +452,9 @@ def buy_drink():
         upgrade_peasant_and_downgrade_noble(
             db=db, peasant_name=new_noble_name, noble_name=noble["player_name"]
         )
-        msg = f"{noble['player_name']} ran out of money! {new_noble_name} is now a noble!"
+        msg = (
+            f"{noble['player_name']} ran out of money! {new_noble_name} is now a noble!"
+        )
         flash(msg)
 
     return redirect(url_for("show_main"))
@@ -511,15 +517,17 @@ def get_quest():
 
     player = get_single_player(db=db, player_name=player_name)
     if player["id"] is None:
-        msg = (
-            f"Unsuccessful! {player_name} is not in the party. Did you enter your name correctly?"
-        )
+        msg = f"Unsuccessful! {player_name} is not in the party. Did you enter your name correctly?"
         flash(msg)
         redirect(url_for("show_main"))
 
     quest = get_random_quest(db=db, difficulty=difficulty)
     return render_template(
-        "quest.html", player_name=player_name, difficulty=difficulty, quest=quest, party_id=party_id
+        "quest.html",
+        player_name=player_name,
+        difficulty=difficulty,
+        quest=quest,
+        party_id=party_id,
     )
 
 
@@ -598,8 +606,10 @@ def assassinate():
     else:
         loser_name = player_name
 
-    winner_status = get_single_players(db=db, player_name=winner_name, col="player_status")
-    loser_status = get_single_players(db=db, player_id=loser_name, col="player_status")
+    winner_status = get_single_player(
+        db=db, player_name=winner_name, col="player_status"
+    )
+    loser_status = get_single_player(db=db, player_id=loser_name, col="player_status")
 
     if winner_status == PEASANT and loser_status == NOBLE:
         upgrade_peasant_and_downgrade_noble(
@@ -611,7 +621,9 @@ def assassinate():
         upgrade_peasant_and_downgrade_noble(
             db=db, peasant_name=new_noble_name, noble_name=loser_name
         )
-        msg = f"{winner_name} assassinated {loser_name}! {new_noble_name} is now a noble!"
+        msg = (
+            f"{winner_name} assassinated {loser_name}! {new_noble_name} is now a noble!"
+        )
         flash(msg)
     else:
         move_coin_between_players(db=db, from_name=loser_name, to_name=winner_name)
