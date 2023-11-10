@@ -18,14 +18,6 @@ If you are not interested in this idea, Nobles and Peasants doesn't force you to
 
 ## Developer Guide
 
-Navigate to the directory of the app: `cd nobles_and_peasants`.
+Initialize the database: `flask --app nobles_and_peasants init-db  `
 
-Initialize the database: `flask initdb`
-
-Run the app: `flask run`
-
-Run the app in debug mode: `flask run --debug`
-
-### TODO
-
-3. Database credentials
+Run the app in debug mode: `flask --app nobles_and_peasants run --debug `
