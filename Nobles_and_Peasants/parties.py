@@ -10,7 +10,7 @@ from nobles_and_peasants.query import fetch_one
 def init_party(db, party_id):
     """Add rows to tables in the schema with default content for this party."""
     with current_app.open_resource("default_values.sql") as f:
-        default_values = f.read().decode('utf8')
+        default_values = f.read().decode("utf8")
         default_values = re.sub("~PARTY_ID~", str(party_id), default_values)
         db.executescript(default_values)
     db.commit()

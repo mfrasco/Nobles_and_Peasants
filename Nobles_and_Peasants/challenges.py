@@ -6,7 +6,7 @@ from nobles_and_peasants.query import fetch_one
 
 def get_random_challenge(db):
     """Get a random challenge."""
-    party_id = session.get('party_id')
+    party_id = session.get("party_id")
     query = """
         select challenge
         from challenges

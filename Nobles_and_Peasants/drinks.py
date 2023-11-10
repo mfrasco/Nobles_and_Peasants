@@ -6,7 +6,7 @@ from nobles_and_peasants.query import fetch_one
 
 def get_drink_name_and_cost(db):
     """Get all drink names and costs."""
-    party_id = session.get('party_id')
+    party_id = session.get("party_id")
     query = """
         select drink_name, drink_cost
         from drinks
@@ -18,7 +18,7 @@ def get_drink_name_and_cost(db):
 
 def get_cost_for_a_drink(db, drink_name):
     """Get the cost for a single drink."""
-    party_id = session.get('party_id')
+    party_id = session.get("party_id")
     query = """
         select drink_cost
         from drinks
@@ -30,7 +30,7 @@ def get_cost_for_a_drink(db, drink_name):
 
 def add_or_update_drink_name_and_cost(db, drink_name, drink_cost):
     """Add a drink to a party, or update the cost if it already exists."""
-    party_id = session.get('party_id')
+    party_id = session.get("party_id")
     query = """
         select drink_name
         from drinks

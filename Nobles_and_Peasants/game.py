@@ -1,7 +1,5 @@
-from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
-)
-from werkzeug.exceptions import abort
+"""Module for the game."""
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
 from nobles_and_peasants.auth import login_required
 from nobles_and_peasants.challenges import get_random_challenge
@@ -15,13 +13,6 @@ from nobles_and_peasants.drinks import (
 from nobles_and_peasants.outlaws import (
     is_peasant_banned,
     insert_new_outlaw,
-)
-from nobles_and_peasants.parties import (
-    does_party_id_exist,
-    does_party_name_exist,
-    get_party_id,
-    get_party_name,
-    insert_new_party,
 )
 from nobles_and_peasants.players import (
     find_richest_peasant,
@@ -51,7 +42,8 @@ from nobles_and_peasants.quest_rewards import (
     set_quest_rewards,
 )
 
-bp = Blueprint('game', __name__)
+bp = Blueprint("game", __name__)
+
 
 @bp.route("/set_up", methods=["GET"])
 @login_required
@@ -131,9 +123,11 @@ def set_wages():
 
     return redirect(url_for("game.set_up"))
 
+
 # ############################################################
 # ################### Show main page #########################
 # ############################################################
+
 
 @bp.route("/main")
 @login_required
@@ -157,6 +151,7 @@ def show_main():
         noble_names=noble_names,
         party_name=session.get("party_name"),
     )
+
 
 ############################################################
 ################# Sign In ########################
@@ -392,7 +387,7 @@ def kill():
         return redirect(url_for("game.show_main"))
 
     if player_name == target_name:
-        msg = f"Unsuccessful! You cannot try to assassinate yourself!"
+        msg = "Unsuccessful! You cannot try to assassinate yourself!"
         flash(msg)
         return redirect(url_for("game.show_main"))
 
@@ -452,6 +447,7 @@ def assassinate():
         move_coin_between_players(db=db, from_name=loser_name, to_name=winner_name)
 
     return redirect(url_for("game.show_main"))
+
 
 # ############################################################
 # ################# View the Database ########################

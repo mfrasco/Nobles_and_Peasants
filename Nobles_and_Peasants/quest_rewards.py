@@ -6,7 +6,7 @@ from nobles_and_peasants.query import fetch_one
 
 def get_quest_difficulty_and_reward(db):
     """Get the reward for each quest difficulty."""
-    party_id = session.get('party_id')
+    party_id = session.get("party_id")
     query = """
         select difficulty, reward
         from quest_rewards
@@ -18,7 +18,7 @@ def get_quest_difficulty_and_reward(db):
 
 def get_reward_for_difficulty(db, difficulty):
     """Get the quest reward for a given difficulty."""
-    party_id = session.get('party_id')
+    party_id = session.get("party_id")
     query = """
         select reward
         from quest_rewards
@@ -30,7 +30,7 @@ def get_reward_for_difficulty(db, difficulty):
 
 def set_quest_rewards(db, easy_reward, medium_reward, hard_reward):
     """Set the quest rewards for each difficulty."""
-    party_id = session.get('party_id')
+    party_id = session.get("party_id")
     query = """
         update quest_rewards
         set reward = (case when difficulty = 'easy' then ?

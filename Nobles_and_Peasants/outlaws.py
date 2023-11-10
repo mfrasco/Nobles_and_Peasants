@@ -4,7 +4,7 @@ from flask import session
 
 def is_peasant_banned(db, noble_id, peasant_id):
     """Check if a peasant is banned from a noble's army."""
-    party_id = session.get('party_id')
+    party_id = session.get("party_id")
     query = """
         select peasant_id
         from outlaws
@@ -18,7 +18,7 @@ def is_peasant_banned(db, noble_id, peasant_id):
 
 def insert_new_outlaw(db, noble_id, peasant_id):
     """Add a new row to the database for a noble to ban a peasant."""
-    party_id = session.get('party_id')
+    party_id = session.get("party_id")
     query = """
         insert into outlaws (party_id, noble_id, peasant_id) values (?, ?, ?)
     """
