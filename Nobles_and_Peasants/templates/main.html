@@ -6,7 +6,7 @@
 	<div id="main_page">
 		<div class="main_col" id="left_col">
 			<div class="main_form" id="sign_in_form">
-				<form action="{{ url_for('sign_in') }}" method="post">
+				<form action="{{ url_for('game.sign_in') }}" method="post">
 					<input class="input_box" type="text" name="player_name" placeholder="Choose a Name" required></input>
 					<p></p>
 					<select class="select_box" name="player_status" required>
@@ -19,7 +19,7 @@
 				</form>
 			</div>
 			<div class="main_form" id="ban_form">
-				<form action="{{ url_for('ban_peasant') }}" method="post">
+				<form action="{{ url_for('game.ban_peasant') }}" method="post">
 					<input class="data_list" list="nobles" name="noble_name" placeholder="Your Name" required>
 						<datalist id="noble_names">
 							{% for n in noble_names %}
@@ -42,7 +42,7 @@
 		</div>
 		<div class="main_col" id="center_col">
 			<div class="main_form" id="pledge_form">
-				<form action="{{ url_for('pledge_allegiance') }}" method="post">
+				<form action="{{ url_for('game.pledge_allegiance') }}" method="post">
 					<input class="data_list" list="player_names" name="player_name" placeholder="Your Name" required>
 						<datalist id="player_names">
 							{% for p in player_names %}
@@ -63,7 +63,7 @@
 				</form>
 			</div>
 			<div class="main_form" id="quest_form">
-				<form action="{{ url_for('get_quest') }}" method="post">
+				<form action="{{ url_for('game.get_quest') }}" method="post">
 					<input class="data_list" id="receive_reward" list="player_names" name="player_name" placeholder="Name To Receive Reward" required>
 						<datalist id="player_names">
 							{% for p in player_names %}
@@ -84,7 +84,7 @@
 		</div>
 		<div class="main_col" id="right_col">
 			<div class="main_form" id="buy_drink_form">
-				<form action="{{ url_for('buy_drink') }}" method="post">
+				<form action="{{ url_for('game.buy_drink') }}" method="post">
 					<input class="data_list" list="player_names" name="player_name" placeholder="Your Name" required>
 						<datalist id="player_names">
 							{% for p in player_names %}
@@ -105,7 +105,7 @@
 				</form>
 			</div>
 			<div class="main_form" id="kill_form">
-				<form action="{{ url_for('kill') }}" method="post">
+				<form action="{{ url_for('game.kill') }}" method="post">
 					<input class="data_list" list="player_names" name="player_name" placeholder="Your Name" required>
 						<datalist id="player_names">
 							{% for p in player_names %}

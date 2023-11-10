@@ -7,7 +7,7 @@
         <div id="signup_block">
             <p class='login_line'><span class="login_question">Want to play?</span> Click "Register Your Party".</p>
             <div id="signup_form">
-                <form action="{{ url_for('signup') }}" method="post">
+                <form action="{{ url_for('auth.signup') }}" method="post">
                     <input class="input_box" id="set_party" type="text" name="party_name" placeholder="Choose Your Party Name" onkeyup="this.value = this.value.replace(/[^a-zA-Z0-9_]+/, '')" required></input>
                     <input class="input_box" id="set_party_pass" type="password" name="password" placeholder="Choose Your Password" required></input>
                     <input class="submit_button" type="submit" value="Register Your Party"></input>
@@ -17,7 +17,7 @@
         <div id="login_block">
             <p class='login_line'><span class="login_question">Already have a party?</span> Click "Enter Your Party".</p>
             <div id="login_form">
-                <form action="{{ url_for('login') }}" method="post">
+                <form action="{{ url_for('auth.login') }}" method="post">
                     <input class="input_box" id="enter_party" type="text" name="party_name" placeholder="Enter Your Party Name" onkeyup="this.value = this.value.replace(/[^a-zA-Z0-9_]+/, '')" required></input>
                     <input class="input_box" id="enter_party_pass" type="password" name="password" placeholder="Enter Your Password" required></input>
                     <input class="submit_button" type="submit" value="Enter Your Party"></input>

@@ -10,14 +10,14 @@
             <ul class="nav_bar">
                 <li class="nav_bar"><a href="{{ url_for('what_is_this') }}">What Is This Game?</a></li>
                 <li class="nav_bar"><a href="{{ url_for('how_to_play') }}">How To Play</a></li>
-                <!-- {% if current_user.is_authenticated %} -->
-                <li class="nav_bar"><a href="{{ url_for('show_main') }}">Main Page</a></li>
-                <li class="nav_bar"><a href="{{ url_for('set_up') }}">Game Setup</a></li>
-                <li class="nav_bar"><a href="{{ url_for('show_kingdom') }}">Kingdom</a></li>
-                <li class="nav_bar"><a href="{{ url_for('show_leaderboard') }}">Leaderboard</a></li>
-                <li class="nav_bar"><a href="{{ url_for('logout') }}">Logout</a></li>
-                <li class="nav_bar" id="party_name"><a href="page.html" class="inactive_link">Your Party Name: {{party_name}}</a></li>
-                <!-- {% endif %} -->
+                {% if g.user %}
+                    <li class="nav_bar"><a href="{{ url_for('game.set_up') }}">Game Setup</a></li>
+                    <li class="nav_bar"><a href="{{ url_for('game.show_main') }}">Main Page</a></li>
+                    <li class="nav_bar"><a href="{{ url_for('game.show_kingdom') }}">Kingdom</a></li>
+                    <li class="nav_bar"><a href="{{ url_for('game.show_leaderboard') }}">Leaderboard</a></li>
+                    <li class="nav_bar"><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                    <li class="nav_bar" id="party_name"><a href="page.html" class="inactive_link">Your Party Name: {{party_name}}</a></li>
+                {% endif %}
             </ul>
             <h1 class="titles" id="title">Nobles and Peasants</h1>
             <h2 class="titles" id="subtitle">Nobles have the coin. Peasants have the power.</h2>

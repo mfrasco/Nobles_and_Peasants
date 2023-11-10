@@ -1,12 +1,12 @@
 """Functions related to the starting_coin table."""
-from flask_login import current_user
+from flask import session
 
 from nobles_and_peasants.query import fetch_one
 
 
 def get_status_and_starting_coin(db):
     """Get the starting coin for each player status."""
-    party_id = current_user.id
+    party_id = session.get('party_id')
     query = """
         select player_status, coin
         from starting_coin
@@ -18,7 +18,7 @@ def get_status_and_starting_coin(db):
 
 def get_starting_coin_for_status(db, player_status):
     """Get the starting coin for a single player status."""
-    party_id = current_user.id
+    party_id = session.get('party_id')
     query = """
         select coin
         from starting_coin
@@ -30,7 +30,7 @@ def get_starting_coin_for_status(db, player_status):
 
 def update_noble_starting_coin(db, noble_coin):
     """Update the starting coin that a noble receives."""
-    party_id = current_user.id
+    party_id = session.get('party_id')
     query = """
         update starting_coin
         set coin = ?

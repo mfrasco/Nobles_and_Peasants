@@ -6,7 +6,7 @@
             <h4 id="kill_challenge">{{challenge}}</h4>
         </div>
         <div class="assassinate">
-            <form action="{{ url_for('assassinate') }}" method="post">
+            <form action="{{ url_for('game.assassinate') }}" method="post">
                 <input class="input_box" type="text" name="player_name" value="{{ player_name }}" readonly></input>
                 <input class="input_box" type="text" name="target_name" value="{{ target_name }}" readonly></input>
                 <h4>Who won the challenge?</h4>

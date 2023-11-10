@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, render_template, session
 
 
 def create_app(test_config=None):
@@ -24,15 +24,37 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return 'How did you get here?'
+
+    @app.route("/")
+    def show_login():
+        """Show the login page."""
+        party_name = session.get("party_name")
+        return render_template("login.html", party_name=party_name)
+
+
+    @app.route("/how_to_play")
+    def how_to_play():
+        """Show the how to play page."""
+        party_name = session.get("party_name")
+        return render_template("how_to_play.html", party_name=party_name)
+
+
+    @app.route("/what_is_this")
+    def what_is_this():
+        """Show the what is this page."""
+        party_name = session.get("party_name")
+        return render_template("what_is_this.html", party_name=party_name)
+
 
     from . import db
     db.init_app(app)
 
     from . import auth
     app.register_blueprint(auth.bp)
+
+    from . import game
+    app.register_blueprint(game.bp)
+    # app.add_url_rule('/', endpoint='game')
+
 
     return app

@@ -1,7 +1,7 @@
 """Functions related to the players table."""
 from random import uniform
 
-from flask_login import current_user
+from flask import session
 
 from nobles_and_peasants.constants import NOBLE, PEASANT
 from nobles_and_peasants.query import fetch_one
@@ -30,7 +30,7 @@ def randomly_choose_player_status(players):
 
 def insert_new_player(db, player_name, player_status):
     """Add a new row to the database for a new player."""
-    party_id = current_user.id
+    party_id = session.get('party_id')
     starting_coin = get_starting_coin_for_status(db=db, player_status=player_status)
 
     if player_status == PEASANT:
@@ -59,7 +59,7 @@ def insert_new_player(db, player_name, player_status):
 
 def get_all_players(db):
     """Get information for all players in a party."""
-    party_id = current_user.id
+    party_id = session.get('party_id')
     query = """
         select
             id
@@ -78,7 +78,7 @@ def get_all_players(db):
 
 def get_all_nobles(db):
     """Get information for all nobles in a party."""
-    party_id = current_user.id
+    party_id = session.get('party_id')
     query = """
         select id, player_name, soldiers, coin, drinks
         from players
@@ -91,7 +91,7 @@ def get_all_nobles(db):
 
 def get_almighty_ruler(db):
     """Find the noble with the most soldiers in their army."""
-    party_id = current_user.id
+    party_id = session.get('party_id')
     query = """
         select player_name
         from players
@@ -104,7 +104,7 @@ def get_almighty_ruler(db):
 
 def get_single_player(db, player_name, col=None):
     """Get information for all players in a party."""
-    party_id = current_user.id
+    party_id = session.get('party_id')
     if col is None:
         query = """
             select id, player_status, coin, noble_name, drinks, soldiers
@@ -125,7 +125,7 @@ def get_single_player(db, player_name, col=None):
 
 def find_richest_peasant(db):
     """Find the peasant name with the most coin."""
-    party_id = current_user.id
+    party_id = session.get('party_id')
     query = """
         select player_name
         from players
@@ -139,7 +139,7 @@ def find_richest_peasant(db):
 
 def set_allegiance(db, player_name, noble_name):
     """Update database with noble id for a given player."""
-    party_id = current_user.id
+    party_id = session.get('party_id')
     query = """
         update players
         set noble_name = ?
@@ -164,7 +164,7 @@ def update_after_pledge_allegiance(db, player_name, noble_name):
 
 def increment_coin(db, player_name, coin):
     """Increase the amount of coin for a player."""
-    party_id = current_user.id
+    party_id = session.get('party_id')
     query = """
         update players
         set coin = coin + ?
@@ -185,7 +185,7 @@ def move_coin_between_players(db, from_name, to_name):
 
 def increment_soldiers(db, player_name, num):
     """Increase the number of soliders for a single player."""
-    party_id = current_user.id
+    party_id = session.get('party_id')
     query = """
         update players
         set soldiers = soldiers + ?
@@ -198,7 +198,7 @@ def increment_soldiers(db, player_name, num):
 
 def increment_drinks(db, player_name, num):
     """Increase the number of drinks for a player."""
-    party_id = current_user.id
+    party_id = session.get('party_id')
     query = """
         update players
         set drinks = drinks + ?
@@ -211,7 +211,7 @@ def increment_drinks(db, player_name, num):
 
 def change_allegiances_between_nobles(db, old_noble_name, new_noble_name):
     """For every player, if they are allied to old_noble_name, make them allied to new_noble_name."""
-    party_id = current_user.id
+    party_id = session.get('party_id')
     query = """
         update players
         set noble_name = ?
@@ -224,7 +224,7 @@ def change_allegiances_between_nobles(db, old_noble_name, new_noble_name):
 
 def change_peasant_to_noble(db, player_name):
     """Update info for a player to reflect their new status as a noble."""
-    party_id = current_user.id
+    party_id = session.get('party_id')
     starting_coin = get_starting_coin_for_status(db=db, player_status=NOBLE)
     query = """
         update players
@@ -257,7 +257,7 @@ def change_peasant_to_noble(db, player_name):
 
 def change_noble_to_peasant(db, player_name):
     """Update info for a player to reflect their new status as a peasant."""
-    party_id = current_user.id
+    party_id = session.get('party_id')
     query = """
         update players
         set player_status = 'peasant'

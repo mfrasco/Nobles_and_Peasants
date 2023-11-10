@@ -4,6 +4,13 @@ import click
 from flask import current_app, g
 
 
+def connect_db():
+    """Connects to the specific database."""
+    rv = sqlite3.connect("instance/nobles_and_peasants.sqlite")
+    rv.row_factory = sqlite3.Row
+    return rv
+
+
 def get_db():
     if 'db' not in g:
         g.db = sqlite3.connect(
@@ -17,14 +24,12 @@ def get_db():
 
 def close_db(e=None):
     db = g.pop('db', None)
-
     if db is not None:
         db.close()
 
 
 def init_db():
     db = get_db()
-
     with current_app.open_resource('schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
 
