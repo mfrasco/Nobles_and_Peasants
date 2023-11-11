@@ -34,7 +34,7 @@ def test_signup_validate_input(client, party_name, password, message):
     response = client.post(
         "/auth/signup",
         data={"party_name": party_name, "password": password},
-        follow_redirects=True
+        follow_redirects=True,
     )
     assert message in response.data
 

@@ -57,7 +57,6 @@ class AuthActions:
             "/auth/login",
             data={"party_name": party_name, "password": password},
             follow_redirects=True,
-
         )
 
     def logout(self):
