@@ -6,10 +6,10 @@ from nobles_and_peasants.db import get_db
 
 def test_signup(client, app):
     """Test that signing up a new party creates a row in the database."""
-    assert client.get("/auth/signup").status_code == 200
+    assert client.get("/auth/signup", follow_redirects=True).status_code == 200
 
     data = {"party_name": "test_signup_name", "password": "test_signup_pw"}
-    client.post("/auth/signup", data=data)
+    client.post("/auth/signup", data=data, follow_redirects=True)
 
     with app.app_context():
         db = get_db()
@@ -32,14 +32,16 @@ def test_signup(client, app):
 def test_signup_validate_input(client, party_name, password, message):
     """Test that signup handles errors correctly."""
     response = client.post(
-        "/auth/signup", data={"party_name": party_name, "password": password}
+        "/auth/signup",
+        data={"party_name": party_name, "password": password},
+        follow_redirects=True
     )
     assert message in response.data
 
 
 def test_login(client, auth):
     """Test that logging in to a party sets session variables correctly."""
-    assert client.get("/auth/login").status_code == 200
+    assert client.get("/auth/login", follow_redirects=True).status_code == 200
     response = auth.login(party_name="party_name_1", password="maya")
     assert "What is Nobles and Peasants?" in response.text
 

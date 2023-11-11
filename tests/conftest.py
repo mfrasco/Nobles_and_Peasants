@@ -54,12 +54,15 @@ class AuthActions:
     def login(self, party_name, password):
         """Log in to a party."""
         return self._client.post(
-            "/auth/login", data={"party_name": party_name, "password": password}
+            "/auth/login",
+            data={"party_name": party_name, "password": password},
+            follow_redirects=True,
+
         )
 
     def logout(self):
         """Log out of a party."""
-        return self._client.get("/auth/logout")
+        return self._client.get("/auth/logout", follow_redirects=True)
 
 
 @pytest.fixture
