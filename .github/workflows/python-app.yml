@@ -26,7 +26,8 @@ jobs:
         poetry install
 
         poetry check
-        poetry build
+        
+        pip install -e .
 
         poetry run ruff check .
         poetry run ruff format .
