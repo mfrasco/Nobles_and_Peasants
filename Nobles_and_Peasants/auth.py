@@ -33,12 +33,12 @@ def signup():
         db = get_db()
 
         if (party_name is None) or (party_name == ''):
-            msg = f"Unsuccessful! You must choose a name for your party."
+            msg = "Unsuccessful! You must choose a name for your party."
             flash(msg)
             return render_template("login.html", party_name=None)
 
         if (password is None) or (password == ''):
-            msg = f"Unsuccessful! You must choose a password for your party."
+            msg = "Unsuccessful! You must choose a password for your party."
             flash(msg)
             return render_template("login.html", party_name=None)
 

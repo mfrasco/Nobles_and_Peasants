@@ -1,3 +1,4 @@
+"""Tests for database connection."""
 import sqlite3
 
 import pytest
@@ -5,6 +6,7 @@ from nobles_and_peasants.db import get_db
 
 
 def test_get_close_db(app):
+    """Test that database connection closes outside of app context."""
     with app.app_context():
         db = get_db()
         assert db is get_db()
@@ -19,7 +21,8 @@ def test_get_close_db(app):
 
 
 def test_init_db_command(runner, monkeypatch):
-    class Recorder(object):
+    """Test that initialize database command works."""
+    class Recorder:
         called = False
 
     def fake_init_db():

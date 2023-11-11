@@ -7,3 +7,5 @@ nobles_and_peasants/__pycache__/
 dist/**
 
 instance/nobles_and_peasants.sqlite
+
+tests/__pycache__/*
