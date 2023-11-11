@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "nobles-and-peasants"
+name = "nobles_and_peasants"
 version = "0.1.0"
 description = "Nobles have the coin. Peasants have the power."
 authors = ["mfrasco <mfrasco6@gmail.com>"]
