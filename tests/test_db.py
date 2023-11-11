@@ -11,24 +11,26 @@ def test_get_close_db(app):
         db = get_db()
         assert db is get_db()
 
-        num_parties = db.execute('select count(*) as num from parties').fetchone()['num']
+        query = "select count(*) as num from parties"
+        num_parties = db.execute(query).fetchone()["num"]
         assert num_parties == 2
 
     with pytest.raises(sqlite3.ProgrammingError) as e:
-        db.execute('SELECT 1')
+        db.execute("SELECT 1")
 
-    assert 'Cannot operate on a closed database' in str(e.value)
+    assert "Cannot operate on a closed database" in str(e.value)
 
 
 def test_init_db_command(runner, monkeypatch):
     """Test that initialize database command works."""
+
     class Recorder:
         called = False
 
     def fake_init_db():
         Recorder.called = True
 
-    monkeypatch.setattr('nobles_and_peasants.db.init_db', fake_init_db)
-    result = runner.invoke(args=['init-db'])
-    assert 'Initialized' in result.output
+    monkeypatch.setattr("nobles_and_peasants.db.init_db", fake_init_db)
+    result = runner.invoke(args=["init-db"])
+    assert "Initialized" in result.output
     assert Recorder.called

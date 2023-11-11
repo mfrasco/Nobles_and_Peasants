@@ -6,8 +6,8 @@ import pytest
 from nobles_and_peasants import create_app
 from nobles_and_peasants.db import get_db, init_db
 
-with open(os.path.join(os.path.dirname(__file__), 'test_data.sql'), 'rb') as f:
-    _data_sql = f.read().decode('utf8')
+with open(os.path.join(os.path.dirname(__file__), "test_data.sql"), "rb") as f:
+    _data_sql = f.read().decode("utf8")
 
 
 @pytest.fixture
@@ -15,10 +15,12 @@ def app():
     """Create an app object that can be used to test functionality."""
     db_fd, db_path = tempfile.mkstemp()
 
-    app = create_app({
-        'TESTING': True,
-        'DATABASE': db_path,
-    })
+    app = create_app(
+        {
+            "TESTING": True,
+            "DATABASE": db_path,
+        }
+    )
 
     with app.app_context():
         init_db()
@@ -44,6 +46,7 @@ def runner(app):
 
 class AuthActions:
     """Simplify authentication actions."""
+
     def __init__(self, client):
         """Initialize authentication client."""
         self._client = client
@@ -51,13 +54,12 @@ class AuthActions:
     def login(self, party_name, password):
         """Log in to a party."""
         return self._client.post(
-            '/auth/login',
-            data={'party_name': party_name, 'password': password}
+            "/auth/login", data={"party_name": party_name, "password": password}
         )
 
     def logout(self):
         """Log out of a party."""
-        return self._client.get('/auth/logout')
+        return self._client.get("/auth/logout")
 
 
 @pytest.fixture
