@@ -25,9 +25,11 @@ jobs:
         pip install poetry==1.6.1
         poetry install
 
+        pwd
+        ls
+
         poetry check
-        
-        pip install -e .
+        poetry build
 
         poetry run ruff check .
         poetry run ruff format .
