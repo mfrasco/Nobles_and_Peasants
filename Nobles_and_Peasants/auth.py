@@ -32,6 +32,16 @@ def signup():
         password = request.form["password"]
         db = get_db()
 
+        if (party_name is None) or (party_name == ''):
+            msg = f"Unsuccessful! You must choose a name for your party."
+            flash(msg)
+            return render_template("login.html", party_name=None)
+
+        if (password is None) or (password == ''):
+            msg = f"Unsuccessful! You must choose a password for your party."
+            flash(msg)
+            return render_template("login.html", party_name=None)
+
         if does_party_name_exist(db=db, party_name=party_name):
             msg = f"Unsuccessful! Please choose a different party name. Someone already selected {party_name}."
             flash(msg)
@@ -39,7 +49,8 @@ def signup():
 
         insert_new_party(db=db, party_name=party_name, password=password)
         flash("Success! You can now log in to your party!")
-        return render_template("login.html", party_name=party_name)
+        return render_template("login.html", party_name=None)
+    return render_template("login.html", party_name=None)
 
 
 @bp.route("/login", methods=("GET", "POST"))
@@ -65,7 +76,7 @@ def login():
         session.clear()
         session["party_id"] = party["id"]
         session["party_name"] = party_name
-        return redirect(url_for("what_is_this"))
+        return render_template("what_is_this.html", party_name=party_name)
 
     return render_template("login.html", party_name=None)
 

@@ -13,6 +13,8 @@ Flask-Bcrypt = "^1.0.1"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.4"
+pytest = "^7.4.3"
+coverage = "^7.3.2"
 
 [tool.ruff.lint]
 extend-select = [
@@ -22,6 +24,13 @@ extend-select = [
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["flaskr"]
 
 [build-system]
 requires = ["poetry-core"]

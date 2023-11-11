@@ -1,0 +1,3 @@
+insert into parties (id, party_name, password) values
+    (1, 'party_name_1', 'scrypt:32768:8:1$MHUKGUjbXuGSqbVk$92a3da4c4d8a7707de9269a28fcd58aba0b468e8d03e02e231c0273479c512eaee0573c93d2bbe50842363e6869d94cfb155b145eab56475cc2b689076dcca46'),
+    (2, 'party_name_2', 'scrypt:32768:8:1$02CU6IrYW5K5Nljj$527d30a998ecacabbbe639c04c24c624c5f605112ea3469ee192640ee62225c795cd0e86fdbe67ab0333afb73e529754ac76df3842e7c79f254bf1647c26fbce');
