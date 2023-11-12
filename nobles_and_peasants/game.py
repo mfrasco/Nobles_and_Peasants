@@ -4,7 +4,6 @@ from flask import Blueprint, flash, redirect, render_template, request, session,
 from nobles_and_peasants.auth import login_required
 from nobles_and_peasants.challenges import get_random_challenge
 from nobles_and_peasants.constants import NOBLE, PEASANT
-from nobles_and_peasants.db import get_db
 from nobles_and_peasants.drinks import (
     add_or_update_drink_name_and_cost,
     get_cost_for_a_drink,
@@ -49,11 +48,9 @@ bp = Blueprint("game", __name__)
 @login_required
 def set_up():
     """Show the setup page, where the player can customize the party settings."""
-    db = get_db()
-
-    drinks = get_drink_name_and_cost(db=db)
-    starting_coin = get_status_and_starting_coin(db=db)
-    quest_rewards = get_quest_difficulty_and_reward(db=db)
+    drinks = get_drink_name_and_cost()
+    starting_coin = get_status_and_starting_coin()
+    quest_rewards = get_quest_difficulty_and_reward()
 
     return render_template(
         "setup.html",
@@ -79,11 +76,10 @@ def show_rules():
 @login_required
 def add_drink():
     """Process request to add a drink to the party."""
-    db = get_db()
     drink_name = request.form["drink_name"].strip().lower()
     price = int(request.form["price"])
 
-    add_or_update_drink_name_and_cost(db=db, drink_name=drink_name, drink_cost=price)
+    add_or_update_drink_name_and_cost(drink_name=drink_name, drink_cost=price)
     return redirect(url_for("game.set_up"))
 
 
@@ -91,9 +87,8 @@ def add_drink():
 @login_required
 def set_coin():
     """Respond to request to set starting coin for each role."""
-    db = get_db()
     noble_coin = int(request.form["noble_coin"])
-    update_noble_starting_coin(db=db, noble_coin=noble_coin)
+    update_noble_starting_coin(noble_coin=noble_coin)
     return redirect(url_for("game.set_up"))
 
 
@@ -113,12 +108,11 @@ def set_wages():
         flash("Hard reward cannot be less than medium reward")
         return redirect(url_for("game.set_up"))
 
-    db = get_db()
     set_quest_rewards(
-        db=db,
         easy_reward=easy_reward,
         medium_reward=medium_reward,
         hard_reward=hard_reward,
+        commit=True
     )
 
     return redirect(url_for("game.set_up"))
@@ -133,12 +127,10 @@ def set_wages():
 @login_required
 def show_main():
     """Display the main page."""
-    db = get_db()
-
-    drinks = get_drink_name_and_cost(db=db)
+    drinks = get_drink_name_and_cost()
     drink_names = [row["drink_name"] for row in drinks]
 
-    players = get_all_players(db=db)
+    players = get_all_players()
     player_names = [row["player_name"] for row in players]
     noble_names = [
         row["player_name"] for row in players if row["player_status"] == NOBLE
@@ -165,8 +157,7 @@ def sign_in():
     player_name = request.form["player_name"].strip().lower()
     player_status = request.form["player_status"]
 
-    db = get_db()
-    players = get_all_players(db=db)
+    players = get_all_players()
 
     existing_players = [row["player_name"] for row in players]
     if player_name in existing_players:
@@ -179,7 +170,7 @@ def sign_in():
     else:
         status = player_status
 
-    insert_new_player(db=db, player_name=player_name, player_status=status)
+    insert_new_player(player_name=player_name, player_status=status)
 
     return redirect(url_for("game.show_main"))
 
@@ -196,9 +187,8 @@ def pledge_allegiance():
     player_name = request.form["player_name"].strip().lower()
     noble_name = request.form["noble_name"].strip().lower()
 
-    db = get_db()
-    player = get_single_player(db=db, player_name=player_name)
-    noble = get_single_player(db=db, player_name=noble_name)
+    player = get_single_player(player_name=player_name)
+    noble = get_single_player(player_name=noble_name)
 
     if player["player_status"] is None:
         msg = f"Unsuccessful! Please enter a valid name for yourself. You entered: {player_name}. Have you signed in?"
@@ -220,13 +210,13 @@ def pledge_allegiance():
         flash(msg)
         return redirect(url_for("game.show_main"))
 
-    if is_peasant_banned(db=db, noble_id=noble["id"], peasant_id=player["id"]):
+    if is_peasant_banned(noble_id=noble["id"], peasant_id=player["id"]):
         msg = f"Unsuccessful! {noble_name} has banned you from their kingdom!"
         flash(msg)
         return redirect(url_for("game.show_main"))
 
     update_after_pledge_allegiance(
-        db=db, player_name=player_name, noble_name=noble_name
+        player_name=player_name, noble_name=noble_name
     )
     return redirect(url_for("game.show_main"))
 
@@ -244,27 +234,25 @@ def buy_drink():
     drink_name = request.form["drink_name"]
     quantity = int(request.form["quantity"])
 
-    db = get_db()
-
-    noble_name = get_single_player(db=db, player_name=player_name, col="noble_name")
+    noble_name = get_single_player(player_name=player_name, col="noble_name")
     if noble_name is None:
         msg = "Unsuccessful! You need to ally yourself to a noble before you can buy a drink."
         flash(msg)
         return redirect(url_for("game.show_main"))
 
-    price = get_cost_for_a_drink(db=db, drink_name=drink_name)
+    price = get_cost_for_a_drink(drink_name=drink_name)
     cost = price * quantity
 
-    noble = get_single_player(db=db, player_name=noble_name)
+    noble = get_single_player(player_name=noble_name)
 
-    increment_coin(db=db, player_name=noble_name, coin=-cost)
-    increment_drinks(db=db, player_name=player_name, num=quantity)
+    increment_coin(player_name=noble_name, coin=-cost)
+    increment_drinks(player_name=player_name, num=quantity)
 
     # the noble doesn't have any more money
     if noble["coin"] <= cost:
-        new_noble_name = find_richest_peasant(db=db)
+        new_noble_name = find_richest_peasant()
         upgrade_peasant_and_downgrade_noble(
-            db=db, peasant_name=new_noble_name, noble_name=noble_name
+            peasant_name=new_noble_name, noble_name=noble_name
         )
         msg = f"{noble_name} ran out of money! {new_noble_name} is now a noble!"
         flash(msg)
@@ -284,8 +272,7 @@ def ban_peasant():
     noble_name = request.form["noble_name"].strip().lower()
     peasant_name = request.form["peasant_name"].strip().lower()
 
-    db = get_db()
-    noble = get_single_player(db=db, player_name=noble_name)
+    noble = get_single_player(player_name=noble_name)
 
     if noble["player_status"] is None:
         msg = f"Unsuccessful! {noble_name} is not recognized. Did you enter your name correctly?"
@@ -297,7 +284,7 @@ def ban_peasant():
         flash(msg)
         return redirect(url_for("game.show_main"))
 
-    peasant = get_single_player(db=db, player_name=peasant_name)
+    peasant = get_single_player(player_name=peasant_name)
     if peasant["id"] is None:
         msg = f"Unsuccessful! {peasant_name} is not recognized. Did you enter your name correctly?"
         flash(msg)
@@ -305,11 +292,11 @@ def ban_peasant():
 
     # remove the peasant's allegiance to the noble that is banning them
     if peasant["noble_name"] == noble_name:
-        set_allegiance(db=db, player_name=peasant_name, noble_name=None)
-        increment_soldiers(db=db, player_name=noble_name, num=-1)
+        set_allegiance(player_name=peasant_name, noble_name=None)
+        increment_soldiers(player_name=noble_name, num=-1)
 
     # add the peasant to a banned table
-    insert_new_outlaw(db=db, noble_id=noble["id"], peasant_id=peasant["id"])
+    insert_new_outlaw(noble_id=noble["id"], peasant_id=peasant["id"])
     return redirect(url_for("game.show_main"))
 
 
@@ -325,15 +312,13 @@ def get_quest():
     player_name = request.form["player_name"].strip().lower()
     difficulty = request.form["difficulty"].strip().lower()
 
-    db = get_db()
-
-    player = get_single_player(db=db, player_name=player_name)
+    player = get_single_player(player_name=player_name)
     if player["id"] is None:
         msg = f"Unsuccessful! {player_name} is not in the party. Did you enter your name correctly?"
         flash(msg)
         redirect(url_for("game.show_main"))
 
-    quest = get_random_quest(db=db, difficulty=difficulty)
+    quest = get_random_quest(difficulty=difficulty)
     return render_template(
         "quest.html",
         player_name=player_name,
@@ -352,9 +337,8 @@ def add_money():
     result = request.form["result"]
 
     if result == "Yes":
-        db = get_db()
-        reward = get_reward_for_difficulty(db=db, difficulty=difficulty)
-        increment_coin(db=db, player_name=player_name, coin=reward)
+        reward = get_reward_for_difficulty(difficulty=difficulty)
+        increment_coin(player_name=player_name, coin=reward)
 
     return redirect(url_for("game.show_main"))
 
@@ -371,10 +355,8 @@ def kill():
     player_name = request.form["player_name"].strip().lower()
     target_name = request.form["target_name"].strip().lower()
 
-    db = get_db()
-
-    player = get_single_player(db=db, player_name=player_name)
-    target = get_single_player(db=db, player_name=target_name)
+    player = get_single_player(player_name=player_name)
+    target = get_single_player(player_name=target_name)
 
     if player["id"] is None:
         msg = f"Unsuccessful! {player_name} is not in the party."
@@ -392,13 +374,13 @@ def kill():
         return redirect(url_for("game.show_main"))
 
     if player["player_status"] == PEASANT and target["player_status"] == NOBLE:
-        coin_needed = get_starting_coin_for_status(db=db, player_status=NOBLE)
+        coin_needed = get_starting_coin_for_status(player_status=NOBLE)
         if player["coin"] < coin_needed:
             msg = f"Unsuccessful! You need {coin_needed} to assassinate a noble."
             flash(msg)
             return redirect(url_for("game.show_main"))
 
-    challenge = get_random_challenge(db=db)
+    challenge = get_random_challenge()
 
     return render_template(
         "kill.html",
@@ -417,34 +399,32 @@ def assassinate():
     target_name = request.form["target_name"]
     winner_name = request.form["winner_name"]
 
-    db = get_db()
-
     if player_name == winner_name:
         loser_name = target_name
     else:
         loser_name = player_name
 
     winner_status = get_single_player(
-        db=db, player_name=winner_name, col="player_status"
+        player_name=winner_name, col="player_status"
     )
-    loser_status = get_single_player(db=db, player_name=loser_name, col="player_status")
+    loser_status = get_single_player(player_name=loser_name, col="player_status")
 
     if winner_status == PEASANT and loser_status == NOBLE:
         upgrade_peasant_and_downgrade_noble(
-            db=db, peasant_name=winner_name, noble_name=loser_name
+            peasant_name=winner_name, noble_name=loser_name
         )
         msg = f"{winner_name} assassinated {loser_name}! {winner_name} is now a noble!"
     elif winner_status == NOBLE and loser_status == NOBLE:
-        new_noble_name = find_richest_peasant(db=db)
+        new_noble_name = find_richest_peasant()
         upgrade_peasant_and_downgrade_noble(
-            db=db, peasant_name=new_noble_name, noble_name=loser_name
+            peasant_name=new_noble_name, noble_name=loser_name
         )
         msg = (
             f"{winner_name} assassinated {loser_name}! {new_noble_name} is now a noble!"
         )
         flash(msg)
     else:
-        move_coin_between_players(db=db, from_name=loser_name, to_name=winner_name)
+        move_coin_between_players(from_name=loser_name, to_name=winner_name)
 
     return redirect(url_for("game.show_main"))
 
@@ -458,8 +438,7 @@ def assassinate():
 @login_required
 def show_kingdom():
     """Show the page that lists all players."""
-    db = get_db()
-    players = get_all_players(db=db)
+    players = get_all_players()
     return render_template(
         "show_kingdom.html", players=players, party_name=session.get("party_name")
     )
@@ -469,9 +448,8 @@ def show_kingdom():
 @login_required
 def show_leaderboard():
     """Show the page for the leaderboard."""
-    db = get_db()
-    leaderboard = get_all_nobles(db=db)
-    almighty_ruler = get_almighty_ruler(db=db)
+    leaderboard = get_all_nobles()
+    almighty_ruler = get_almighty_ruler()
     return render_template(
         "show_leaderboard.html",
         leaderboard=leaderboard,

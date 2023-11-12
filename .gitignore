@@ -9,3 +9,5 @@ dist/**
 instance/nobles_and_peasants.sqlite
 
 tests/__pycache__/*
+
+nobles_and_peasants/config.py

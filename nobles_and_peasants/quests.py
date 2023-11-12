@@ -4,7 +4,7 @@ from flask import session
 from nobles_and_peasants.query import fetch_one
 
 
-def get_random_quest(db, difficulty):
+def get_random_quest(difficulty):
     """Get a random quest of a certain difficulty."""
     party_id = session.get("party_id")
     query = """
@@ -15,4 +15,4 @@ def get_random_quest(db, difficulty):
         order by random()
         limit 1
     """
-    return fetch_one(db, query, [party_id, difficulty])
+    return fetch_one(query=query, args=[party_id, difficulty])

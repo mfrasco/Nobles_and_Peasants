@@ -26,3 +26,8 @@ Run the tests: `pytest`
 
 Measure code coverage: `coverage run -m pytest`
 
+### TODO
+
+- Add error handling
+    - Better error pages when the player fails to do something
+- Add logging

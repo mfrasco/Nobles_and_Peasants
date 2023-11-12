@@ -29,7 +29,6 @@ def signup():
     if request.method == "POST":
         party_name = request.form["party_name"]
         password = request.form["password"]
-        db = get_db()
 
         if (party_name is None) or (party_name == ""):
             msg = "Unsuccessful! You must choose a name for your party."
@@ -41,12 +40,12 @@ def signup():
             flash(msg)
             return redirect(url_for("show_login"))
 
-        if does_party_name_exist(db=db, party_name=party_name):
+        if does_party_name_exist(party_name=party_name):
             msg = f"Unsuccessful! Please choose a different party name. Someone already selected {party_name}."
             flash(msg)
             return redirect(url_for("show_login"))
 
-        insert_new_party(db=db, party_name=party_name, password=password)
+        insert_new_party(party_name=party_name, password=password)
         flash("Success! You can now log in to your party!")
         return redirect(url_for("show_login"))
     return redirect(url_for("show_login"))
@@ -58,9 +57,8 @@ def login():
     if request.method == "POST":
         party_name = request.form["party_name"]
         password = request.form["password"]
-        db = get_db()
 
-        party = get_party(db=db, party_name=party_name)
+        party = get_party(party_name=party_name)
 
         if party is None:
             msg = f"Unsuccessful! {party_name} has not been registered yet. Please sign up to create a party."

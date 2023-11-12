@@ -1,10 +1,10 @@
 """Functions related to the starting_coin table."""
 from flask import session
 
-from nobles_and_peasants.query import fetch_one
+from nobles_and_peasants.query import execute, fetch_one, fetch_all
 
 
-def get_status_and_starting_coin(db):
+def get_status_and_starting_coin():
     """Get the starting coin for each player status."""
     party_id = session.get("party_id")
     query = """
@@ -13,10 +13,10 @@ def get_status_and_starting_coin(db):
         where party_id = ?
         order by coin
     """
-    return db.execute(query, [party_id]).fetchall()
+    return fetch_all(query=query, args=[party_id])
 
 
-def get_starting_coin_for_status(db, player_status):
+def get_starting_coin_for_status(player_status):
     """Get the starting coin for a single player status."""
     party_id = session.get("party_id")
     query = """
@@ -25,10 +25,10 @@ def get_starting_coin_for_status(db, player_status):
         where party_id = ?
             and player_status = ?
     """
-    return fetch_one(db, query, [party_id, player_status])
+    return fetch_one(query=query, args=[party_id, player_status])
 
 
-def update_noble_starting_coin(db, noble_coin):
+def update_noble_starting_coin(noble_coin):
     """Update the starting coin that a noble receives."""
     party_id = session.get("party_id")
     query = """
@@ -37,5 +37,4 @@ def update_noble_starting_coin(db, noble_coin):
         where party_id = ?
             and player_status = 'noble'
     """
-    db.execute(query, [noble_coin, party_id])
-    db.commit()
+    execute(query=query, args=[noble_coin, party_id], commit=True)

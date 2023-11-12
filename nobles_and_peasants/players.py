@@ -4,7 +4,7 @@ from random import uniform
 from flask import session
 
 from nobles_and_peasants.constants import NOBLE, PEASANT
-from nobles_and_peasants.query import fetch_one
+from nobles_and_peasants.query import fetch_one, fetch_all, execute
 from nobles_and_peasants.starting_coin import get_starting_coin_for_status
 
 
@@ -28,10 +28,10 @@ def randomly_choose_player_status(players):
         return PEASANT
 
 
-def insert_new_player(db, player_name, player_status):
+def insert_new_player(player_name, player_status):
     """Add a new row to the database for a new player."""
     party_id = session.get("party_id")
-    starting_coin = get_starting_coin_for_status(db=db, player_status=player_status)
+    starting_coin = get_starting_coin_for_status(player_status=player_status)
 
     if player_status == PEASANT:
         noble_name = None
@@ -53,11 +53,10 @@ def insert_new_player(db, player_name, player_status):
         0,
         soldiers,
     ]
-    db.execute(query, args)
-    db.commit()
+    execute(query=query, args=args, commit=True)
 
 
-def get_all_players(db):
+def get_all_players():
     """Get information for all players in a party."""
     party_id = session.get("party_id")
     query = """
@@ -73,10 +72,10 @@ def get_all_players(db):
         where party_id = ?
         order by player_name
     """
-    return db.execute(query, [party_id]).fetchall()
+    return fetch_all(query=query, args=[party_id])
 
 
-def get_all_nobles(db):
+def get_all_nobles():
     """Get information for all nobles in a party."""
     party_id = session.get("party_id")
     query = """
@@ -86,10 +85,10 @@ def get_all_nobles(db):
             and player_status = 'noble'
         order by soldiers desc, coin desc, drinks desc
     """
-    return db.execute(query, [party_id]).fetchall()
+    return fetch_all(query=query, args=[party_id])
 
 
-def get_almighty_ruler(db):
+def get_almighty_ruler():
     """Find the noble with the most soldiers in their army."""
     party_id = session.get("party_id")
     query = """
@@ -99,10 +98,10 @@ def get_almighty_ruler(db):
         order by soldiers desc
         limit 1
     """
-    return fetch_one(db, query, [party_id])
+    return fetch_one(query=query, args=[party_id])
 
 
-def get_single_player(db, player_name, col=None):
+def get_single_player(player_name, col=None):
     """Get information for all players in a party."""
     party_id = session.get("party_id")
     if col is None:
@@ -112,7 +111,7 @@ def get_single_player(db, player_name, col=None):
             where party_id = ?
                 and player_name = ?
         """
-        return db.execute(query, [party_id, player_name]).fetchall()[0]
+        return fetch_all(query=query, args=[party_id, player_name])[0]
     else:
         query = f"""
             select {col}
@@ -120,10 +119,10 @@ def get_single_player(db, player_name, col=None):
             where party_id = ?
                 and player_name = ?
         """
-        return fetch_one(db, query, [party_id, player_name])
+        return fetch_one(query=query, args=[party_id, player_name])
 
 
-def find_richest_peasant(db):
+def find_richest_peasant():
     """Find the peasant name with the most coin."""
     party_id = session.get("party_id")
     query = """
@@ -134,10 +133,10 @@ def find_richest_peasant(db):
         order by coin desc, drinks desc
         limit 1
     """
-    return fetch_one(db, query, [party_id])
+    return fetch_one(query=query, args=[party_id])
 
 
-def set_allegiance(db, player_name, noble_name):
+def set_allegiance(player_name, noble_name):
     """Update database with noble id for a given player."""
     party_id = session.get("party_id")
     query = """
@@ -146,23 +145,22 @@ def set_allegiance(db, player_name, noble_name):
         where party_id = ?
             and player_name = ?
     """
-    db.execute(query, [noble_name, party_id, player_name])
-    db.commit()
+    execute(query=query, args=[noble_name, party_id, player_name], commit=True)
 
 
-def update_after_pledge_allegiance(db, player_name, noble_name):
+def update_after_pledge_allegiance(player_name, noble_name):
     """Update database when a player pledges allegiance to a noble."""
     # decrement the soldier count for the previous noble
-    player = get_single_player(db=db, player_name=player_name)
+    player = get_single_player(player_name=player_name)
     previous_noble_name = player["noble_name"]
     if previous_noble_name is not None:
-        increment_soldiers(db=db, player_name=previous_noble_name, num=-1)
+        increment_soldiers(player_name=previous_noble_name, num=-1)
 
-    set_allegiance(db=db, player_name=player_name, noble_name=noble_name)
-    increment_soldiers(db=db, player_name=noble_name, num=1)
+    set_allegiance(player_name=player_name, noble_name=noble_name)
+    increment_soldiers(player_name=noble_name, num=1)
 
 
-def increment_coin(db, player_name, coin):
+def increment_coin(player_name, coin, commit):
     """Increase the amount of coin for a player."""
     party_id = session.get("party_id")
     query = """
@@ -171,19 +169,18 @@ def increment_coin(db, player_name, coin):
         where party_id = ?
             and player_name = ?
     """
-    db.execute(query, [coin, party_id, player_name])
-    db.commit()
+    execute(query=query, args=[coin, party_id, player_name], commit=commit)
 
 
-def move_coin_between_players(db, from_name, to_name):
+def move_coin_between_players(from_name, to_name):
     """Move coin from one player to another."""
-    from_coin = get_single_player(db=db, player_name=from_name, col="coin")
+    from_coin = get_single_player(player_name=from_name, col="coin")
     if from_coin > 0:
-        increment_coin(db=db, player_name=from_name, coin=-from_coin)
-        increment_coin(db=db, player_name=to_name, coin=from_coin)
+        increment_coin(player_name=from_name, coin=-from_coin, commit=False)
+        increment_coin(player_name=to_name, coin=from_coin, commit=True)
 
 
-def increment_soldiers(db, player_name, num):
+def increment_soldiers(player_name, num, commit=True):
     """Increase the number of soliders for a single player."""
     party_id = session.get("party_id")
     query = """
@@ -192,11 +189,10 @@ def increment_soldiers(db, player_name, num):
         where party_id = ?
             and player_name = ?
     """
-    db.execute(query, [num, party_id, player_name])
-    db.commit()
+    execute(query=query, args=[num, party_id, player_name], commit=commit)
 
 
-def increment_drinks(db, player_name, num):
+def increment_drinks(player_name, num, commit=True):
     """Increase the number of drinks for a player."""
     party_id = session.get("party_id")
     query = """
@@ -205,11 +201,10 @@ def increment_drinks(db, player_name, num):
         where party_id = ?
             and player_name = ?
     """
-    db.execute(query, [num, party_id, player_name])
-    db.commit()
+    execute(query=query, args=[num, party_id, player_name], commit=commit)
 
 
-def change_allegiances_between_nobles(db, old_noble_name, new_noble_name):
+def change_allegiances_between_nobles(old_noble_name, new_noble_name, commit=True):
     """For every player, if they are allied to old_noble_name, make them allied to new_noble_name."""
     party_id = session.get("party_id")
     query = """
@@ -218,14 +213,13 @@ def change_allegiances_between_nobles(db, old_noble_name, new_noble_name):
         where party_id = ?
             and noble_name = ?
     """
-    db.execute(query, [new_noble_name, party_id, old_noble_name])
-    db.commit()
+    execute(query=query, args=[new_noble_name, party_id, old_noble_name], commit=commit)
 
 
-def change_peasant_to_noble(db, player_name):
+def change_peasant_to_noble(player_name, commit=True):
     """Update info for a player to reflect their new status as a noble."""
     party_id = session.get("party_id")
-    starting_coin = get_starting_coin_for_status(db=db, player_status=NOBLE)
+    starting_coin = get_starting_coin_for_status(player_status=NOBLE)
     query = """
         update players
         set player_status = 'noble'
@@ -251,11 +245,10 @@ def change_peasant_to_noble(db, player_name):
         party_id,
         player_name,
     ]
-    db.execute(query, args)
-    db.commit()
+    execute(query=query, args=args, commit=commit)
 
 
-def change_noble_to_peasant(db, player_name):
+def change_noble_to_peasant(player_name, commit=True):
     """Update info for a player to reflect their new status as a peasant."""
     party_id = session.get("party_id")
     query = """
@@ -265,23 +258,22 @@ def change_noble_to_peasant(db, player_name):
         where party_id = ?
             and player_name = ?
     """
-    db.execute(query, [party_id, player_name])
-    db.commit()
+    execute(query=query, args=[party_id, player_name], commit=commit)
 
 
-def upgrade_peasant_and_downgrade_noble(db, peasant_name, noble_name):
+def upgrade_peasant_and_downgrade_noble(peasant_name, noble_name):
     """Turn a peasant into a noble. And turn a noble into a peasant."""
-    move_coin_between_players(db=db, from_name=noble_name, to_name=peasant_name)
+    move_coin_between_players(from_name=noble_name, to_name=peasant_name)
 
-    peasant = get_single_player(db=db, player_name=peasant_name)
+    peasant = get_single_player(player_name=peasant_name)
 
     # if the new noble is allied to another noble,
     # remove the new noble from that army
     if peasant["noble_name"] is not None:
-        increment_soldiers(db=db, player_name=peasant["noble_name"], num=-1)
+        increment_soldiers(player_name=peasant["noble_name"], num=-1, commit=False)
 
     change_allegiances_between_nobles(
-        db=db, old_noble_name=noble_name, new_noble_name=peasant_name
+        old_noble_name=noble_name, new_noble_name=peasant_name, commit=False
     )
-    change_peasant_to_noble(db=db, player_name=peasant_name)
-    change_noble_to_peasant(db=db, player_name=noble_name)
+    change_peasant_to_noble(player_name=peasant_name, commit=False)
+    change_noble_to_peasant(player_name=noble_name, commit=True)

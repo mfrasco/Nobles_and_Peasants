@@ -1,10 +1,10 @@
 """Functions related to the quest_rewards table."""
 from flask import session
 
-from nobles_and_peasants.query import fetch_one
+from nobles_and_peasants.query import fetch_one, fetch_all
 
 
-def get_quest_difficulty_and_reward(db):
+def get_quest_difficulty_and_reward():
     """Get the reward for each quest difficulty."""
     party_id = session.get("party_id")
     query = """
@@ -13,10 +13,10 @@ def get_quest_difficulty_and_reward(db):
         where party_id = ?
         order by reward
     """
-    return db.execute(query, [party_id]).fetchall()
+    return fetch_all(query=query, args=[party_id])
 
 
-def get_reward_for_difficulty(db, difficulty):
+def get_reward_for_difficulty(difficulty):
     """Get the quest reward for a given difficulty."""
     party_id = session.get("party_id")
     query = """
@@ -25,10 +25,10 @@ def get_reward_for_difficulty(db, difficulty):
         where party_id = ?
             and difficulty = ?
     """
-    return fetch_one(db, query, [party_id, difficulty])
+    return fetch_one(query=query, args=[party_id, difficulty])
 
 
-def set_quest_rewards(db, easy_reward, medium_reward, hard_reward):
+def set_quest_rewards(easy_reward, medium_reward, hard_reward):
     """Set the quest rewards for each difficulty."""
     party_id = session.get("party_id")
     query = """
@@ -40,5 +40,4 @@ def set_quest_rewards(db, easy_reward, medium_reward, hard_reward):
         where party_id = ?
     """
     args = [easy_reward, medium_reward, hard_reward, party_id]
-    db.execute(query, args)
-    db.commit()
+    execute(query=query, args=args, commit=True)

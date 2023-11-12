@@ -14,4 +14,4 @@ def get_random_challenge(db):
         order by random()
         limit 1
     """
-    return fetch_one(db, query, [party_id])
+    return fetch_one(query=query, args=[party_id])
