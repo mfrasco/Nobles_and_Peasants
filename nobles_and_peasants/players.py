@@ -28,7 +28,7 @@ def randomly_choose_player_status(players):
         return PEASANT
 
 
-def insert_new_player(player_name, player_status):
+def insert_new_player(player_name, player_status, commit=True):
     """Add a new row to the database for a new player."""
     party_id = session.get("party_id")
     starting_coin = get_starting_coin_for_status(player_status=player_status)
@@ -53,7 +53,7 @@ def insert_new_player(player_name, player_status):
         0,
         soldiers,
     ]
-    execute(query=query, args=args, commit=True)
+    execute(query=query, args=args, commit=commit)
 
 
 def get_all_players():
@@ -95,7 +95,7 @@ def get_almighty_ruler():
         select player_name
         from players
         where party_id = ?
-        order by soldiers desc
+        order by soldiers desc, coin desc, drinks desc
         limit 1
     """
     return fetch_one(query=query, args=[party_id])
@@ -136,7 +136,7 @@ def find_richest_peasant():
     return fetch_one(query=query, args=[party_id])
 
 
-def set_allegiance(player_name, noble_name):
+def set_allegiance(player_name, noble_name, commit=True):
     """Update database with noble id for a given player."""
     party_id = session.get("party_id")
     query = """
@@ -145,7 +145,7 @@ def set_allegiance(player_name, noble_name):
         where party_id = ?
             and player_name = ?
     """
-    execute(query=query, args=[noble_name, party_id, player_name], commit=True)
+    execute(query=query, args=[noble_name, party_id, player_name], commit=commit)
 
 
 def update_after_pledge_allegiance(player_name, noble_name):
@@ -160,7 +160,7 @@ def update_after_pledge_allegiance(player_name, noble_name):
     increment_soldiers(player_name=noble_name, num=1)
 
 
-def increment_coin(player_name, coin, commit):
+def increment_coin(player_name, coin, commit=True):
     """Increase the amount of coin for a player."""
     party_id = session.get("party_id")
     query = """

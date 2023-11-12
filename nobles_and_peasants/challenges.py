@@ -4,7 +4,7 @@ from flask import session
 from nobles_and_peasants.query import fetch_one
 
 
-def get_random_challenge(db):
+def get_random_challenge():
     """Get a random challenge."""
     party_id = session.get("party_id")
     query = """

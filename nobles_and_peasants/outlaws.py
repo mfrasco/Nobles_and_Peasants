@@ -18,7 +18,7 @@ def is_peasant_banned(noble_id, peasant_id):
     return peasant_id in banned_peasants
 
 
-def insert_new_outlaw(noble_id, peasant_id, commit):
+def insert_new_outlaw(noble_id, peasant_id, commit=True):
     """Add a new row to the database for a noble to ban a peasant."""
     party_id = session.get("party_id")
     query = """

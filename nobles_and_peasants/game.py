@@ -101,11 +101,13 @@ def set_wages():
     hard_reward = int(request.form["hard"])
 
     if medium_reward < easy_reward:
-        flash("Medium reward cannot be less than easy reward")
+        msg = "Unsuccessful! Medium reward cannot be less than easy reward"
+        flash(msg)
         return redirect(url_for("game.set_up"))
 
     if hard_reward < medium_reward:
-        flash("Hard reward cannot be less than medium reward")
+        msg = "Unsuccessful! Hard reward cannot be less than medium reward"
+        flash(msg)
         return redirect(url_for("game.set_up"))
 
     set_quest_rewards(
@@ -374,7 +376,7 @@ def kill():
     if player["player_status"] == PEASANT and target["player_status"] == NOBLE:
         coin_needed = get_starting_coin_for_status(player_status=NOBLE)
         if player["coin"] < coin_needed:
-            msg = f"Unsuccessful! You need {coin_needed} to assassinate a noble."
+            msg = f"Unsuccessful! You need {coin_needed} coin to assassinate a noble."
             flash(msg)
             return redirect(url_for("game.show_main"))
 

@@ -18,9 +18,9 @@ If you are not interested in this idea, Nobles and Peasants doesn't force you to
 
 ## Developer Guide
 
-Initialize the database: `flask --app nobles_and_peasants init-db  `
+Initialize the database: `flask --app nobles_and_peasants init-db`
 
-Run the app in debug mode: `flask --app nobles_and_peasants run --debug `
+Run the app in debug mode: `flask --app nobles_and_peasants run --debug`
 
 Run the tests: `pytest`
 

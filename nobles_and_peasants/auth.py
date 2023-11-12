@@ -26,8 +26,8 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 def signup():
     """Process the signup request for a player."""
     if request.method == "POST":
-        party_name = request.form["party_name"]
-        password = request.form["password"]
+        party_name = request.form["party_name"].strip().lower()
+        password = request.form["password"].strip().lower()
 
         if (party_name is None) or (party_name == ""):
             msg = "Unsuccessful! You must choose a name for your party."
@@ -54,8 +54,8 @@ def signup():
 def login():
     """Process login request for a player."""
     if request.method == "POST":
-        party_name = request.form["party_name"]
-        password = request.form["password"]
+        party_name = request.form["party_name"].strip().lower()
+        password = request.form["password"].strip().lower()
 
         party = get_party(party_name=party_name)
 

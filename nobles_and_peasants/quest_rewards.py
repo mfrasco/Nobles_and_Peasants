@@ -28,7 +28,7 @@ def get_reward_for_difficulty(difficulty):
     return fetch_one(query=query, args=[party_id, difficulty])
 
 
-def set_quest_rewards(easy_reward, medium_reward, hard_reward):
+def set_quest_rewards(easy_reward, medium_reward, hard_reward, commit=True):
     """Set the quest rewards for each difficulty."""
     party_id = session.get("party_id")
     query = """
@@ -40,4 +40,4 @@ def set_quest_rewards(easy_reward, medium_reward, hard_reward):
         where party_id = ?
     """
     args = [easy_reward, medium_reward, hard_reward, party_id]
-    execute(query=query, args=args, commit=True)
+    execute(query=query, args=args, commit=commit)

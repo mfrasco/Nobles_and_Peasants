@@ -28,7 +28,7 @@ def get_cost_for_a_drink(drink_name):
     return fetch_one(query=query, args=[party_id, drink_name])
 
 
-def add_or_update_drink_name_and_cost(drink_name, drink_cost, commit):
+def add_or_update_drink_name_and_cost(drink_name, drink_cost, commit=True):
     """Add a drink to a party, or update the cost if it already exists."""
     party_id = session.get("party_id")
     query = """
