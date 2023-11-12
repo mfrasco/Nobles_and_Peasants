@@ -72,7 +72,7 @@ def login():
         session.clear()
         session["party_id"] = party["id"]
         session["party_name"] = party_name
-        return redirect(url_for("what_is_this"))
+        return redirect(url_for("game.show_main"))
 
     return redirect(url_for("show_login"))
 

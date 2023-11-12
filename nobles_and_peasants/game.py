@@ -297,6 +297,9 @@ def ban_peasant():
 
     # add the peasant to a banned table
     insert_new_outlaw(noble_id=noble["id"], peasant_id=peasant["id"])
+    msg = f"{noble_name} has banned {peasant_name}!"
+    flash(msg)
+
     return redirect(url_for("game.show_main"))
 
 
@@ -339,6 +342,8 @@ def add_money():
     if result == "Yes":
         reward = get_reward_for_difficulty(difficulty=difficulty)
         increment_coin(player_name=player_name, coin=reward)
+        msg = f"{player_name} has earned {reward} coin for completing a {difficulty} quest!"
+        flash(msg)
 
     return redirect(url_for("game.show_main"))
 
@@ -420,10 +425,11 @@ def assassinate():
         msg = (
             f"{winner_name} assassinated {loser_name}! {new_noble_name} is now a noble!"
         )
-        flash(msg)
     else:
         move_coin_between_players(from_name=loser_name, to_name=winner_name)
+        msg = f"{winner_name} has taken all of the coin of {loser_name}"
 
+    flash(msg)
     return redirect(url_for("game.show_main"))
 
 
