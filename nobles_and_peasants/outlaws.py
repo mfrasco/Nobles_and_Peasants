@@ -1,7 +1,7 @@
 """Functions related to the outlaws table."""
 from flask import session
 
-from nobles_and_peasants.db import execute, fetch_all
+from nobles_and_peasants.query import execute, fetch_all
 
 
 def is_peasant_banned(noble_id, peasant_id):

@@ -54,12 +54,12 @@ def get_party_name(db, party_id):
 def does_party_id_exist(party_id):
     """Check if a party_id already exists in the database."""
     query = "select id from parties"
-    parties = fetch_all(query=query)
+    parties = fetch_all(query=query, args=[])
     return int(party_id) in [row["id"] for row in parties]
 
 
 def does_party_name_exist(party_name):
     """Check if a party_name already exists in the database."""
     query = "select party_name from parties"
-    parties = fetch_all(query=query)
+    parties = fetch_all(query=query, args=[])
     return party_name in [row["party_name"] for row in parties]

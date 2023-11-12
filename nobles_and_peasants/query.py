@@ -3,7 +3,7 @@
 from nobles_and_peasants.db import get_db
 
 
-def fetch_one(query, args=None):
+def fetch_one(query, args):
     """Execute a query where we are intending to get a single value."""
     cur = get_db().execute(query, args)
     result = cur.fetchone()
@@ -14,7 +14,7 @@ def fetch_one(query, args=None):
         return result[0]
 
 
-def fetch_all(query, args=None):
+def fetch_all(query, args):
     """Execute a query where we are intending to get multiple values."""
     cur = get_db().execute(query, args)
     result = cur.fetchall()
