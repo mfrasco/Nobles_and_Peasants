@@ -192,12 +192,12 @@ def pledge_allegiance():
     player = get_single_player(player_name=player_name)
     noble = get_single_player(player_name=noble_name)
 
-    if player["player_status"] is None:
+    if player is None:
         msg = f"Unsuccessful! Please enter a valid name for yourself. You entered: {player_name}. Have you signed in?"
         flash(msg)
         return redirect(url_for("game.show_main"))
 
-    if noble["player_status"] is None:
+    if noble is None:
         msg = f"Unsuccessful! Please enter a valid name for the noble. You entered: {noble_name}."
         flash(msg)
         return redirect(url_for("game.show_main"))
@@ -273,20 +273,20 @@ def ban_peasant():
     peasant_name = request.form["peasant_name"].strip().lower()
 
     noble = get_single_player(player_name=noble_name)
+    peasant = get_single_player(player_name=peasant_name)
 
-    if noble["player_status"] is None:
+    if noble is None:
         msg = f"Unsuccessful! {noble_name} is not recognized. Did you enter your name correctly?"
+        flash(msg)
+        return redirect(url_for("game.show_main"))
+
+    if peasant is None:
+        msg = f"Unsuccessful! {peasant_name} is not recognized. Did you enter their name correctly?"
         flash(msg)
         return redirect(url_for("game.show_main"))
 
     if noble["player_status"] != NOBLE:
         msg = f"Unsuccessful! {noble_name} is not a noble. You cannot ban people from kingdom you do not have."
-        flash(msg)
-        return redirect(url_for("game.show_main"))
-
-    peasant = get_single_player(player_name=peasant_name)
-    if peasant["id"] is None:
-        msg = f"Unsuccessful! {peasant_name} is not recognized. Did you enter your name correctly?"
         flash(msg)
         return redirect(url_for("game.show_main"))
 
@@ -316,10 +316,10 @@ def get_quest():
     difficulty = request.form["difficulty"].strip().lower()
 
     player = get_single_player(player_name=player_name)
-    if player["id"] is None:
+    if player is None:
         msg = f"Unsuccessful! {player_name} is not in the party. Did you enter your name correctly?"
         flash(msg)
-        redirect(url_for("game.show_main"))
+        return redirect(url_for("game.show_main"))
 
     quest = get_random_quest(difficulty=difficulty)
     return render_template(
@@ -363,12 +363,12 @@ def kill():
     player = get_single_player(player_name=player_name)
     target = get_single_player(player_name=target_name)
 
-    if player["id"] is None:
+    if player is None:
         msg = f"Unsuccessful! {player_name} is not in the party."
         flash(msg)
         return redirect(url_for("game.show_main"))
 
-    if target["id"] is None:
+    if target is None:
         msg = f"Unsuccessful! {target_name} is not in the party."
         flash(msg)
         return redirect(url_for("game.show_main"))

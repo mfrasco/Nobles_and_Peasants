@@ -111,7 +111,11 @@ def get_single_player(player_name, col=None):
             where party_id = ?
                 and player_name = ?
         """
-        return fetch_all(query=query, args=[party_id, player_name])[0]
+        player = fetch_all(query=query, args=[party_id, player_name])
+        if len(player) == 0:
+            return None
+        else:
+            return player[0]
     else:
         query = f"""
             select {col}
