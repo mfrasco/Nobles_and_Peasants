@@ -282,6 +282,11 @@ li a:hover {
               display: inline-block;
               text-align: center; }
 
+.scrollit {
+    overflow:scroll;
+    height:300px;
+}
+
 /*-------------------Main Page------------------------*/
 
 .flash_main { background: #76323F; padding: 0.5em; color: white; width: 50%}

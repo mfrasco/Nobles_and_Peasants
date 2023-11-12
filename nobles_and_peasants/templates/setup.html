@@ -6,6 +6,7 @@
     <div id="setup_info">
         <div class="setup_block" id="set_drinks">
             <h3>Drinks At Your Party</h3>
+            <p>Please drink responsibly</p>
             <table class="nap_table" id="drinks_table">
                 <thead>
                     <tr>
@@ -30,7 +31,7 @@
         </div>
         <div class="setup_block" id="set_coin">
             <h3>Starting Coin For Nobles and Peasants</h3>
-            <p>Give nobles just enough money to support an army</p>
+            <p>How much class inequality do you want?</p>
             <table class="nap_table" id="coin_table">
                 <thead>
                     <tr>
@@ -78,6 +79,45 @@
                 <input class="num_box" type="number" name="hard" placeholder="Hard" min=1 required></input>
                 <p></p>
                 <input class="submit_button" type="submit" value="Set Quest Rewards"></input>
+            </form>
+        </div>
+        <div class="setup_block" id="add_quest">
+            <h3>Add A Custom Quest</h3>
+            <p>Dont add anything illegal</p>
+            <div class="scrollit">
+                <table class="nap_table" id="quest_table">
+                    <thead>
+                        <tr>
+                            <td>Quest ID</td>
+                            <td>Quest</td>
+                            <td>Difficulty</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for q in quests %}
+                        <tr>
+                            <td>{{q.id}}</td>
+                            <td>{{q.quest}}</td>
+                            <td>{{q.difficulty}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <form action="{{ url_for('game.add_quest') }}" method="post" class="setup_form" id="add_quest_form">
+                <input class="num_box" type="text" name="quest" placeholder="Quest Description" required></input>
+                <select class="select_box" name="difficulty" required>
+                    <option value="easy" selected>Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+                <p></p>
+                <input class="submit_button" type="submit" value="Add Quest"></input>
+            </form>
+            <form action="{{ url_for('game.delete_quest') }}" method="post" class="setup_form" id="delete_quest_form">
+                <input class="num_box" type="number" name="quest_id" placeholder="Quest ID" required></input>
+                <p></p>
+                <input class="submit_button" type="submit" value="Delete Quest"></input>
             </form>
         </div>
     </div>

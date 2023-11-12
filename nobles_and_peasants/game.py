@@ -34,7 +34,13 @@ from nobles_and_peasants.starting_coin import (
     get_starting_coin_for_status,
     update_noble_starting_coin,
 )
-from nobles_and_peasants.quests import get_random_quest
+from nobles_and_peasants.quests import (
+    add_quest_to_party,
+    delete_quest_from_table,
+    get_all_quests,
+    get_random_quest,
+    is_quest_in_party,
+)
 from nobles_and_peasants.quest_rewards import (
     get_quest_difficulty_and_reward,
     get_reward_for_difficulty,
@@ -51,12 +57,14 @@ def set_up():
     drinks = get_drink_name_and_cost()
     starting_coin = get_status_and_starting_coin()
     quest_rewards = get_quest_difficulty_and_reward()
+    quests = get_all_quests()
 
     return render_template(
         "setup.html",
         drinks=drinks,
         starting_coin=starting_coin,
         quest_rewards=quest_rewards,
+        quests=quests,
         party_name=session.get("party_name"),
     )
 
@@ -119,6 +127,31 @@ def set_wages():
 
     return redirect(url_for("game.set_up"))
 
+
+@bp.route("/add_quest", methods=["POST"])
+@login_required
+def add_quest():
+    """Respond to request to add a quest to the party."""
+    quest = request.form["quest"]
+    difficulty = request.form["difficulty"]
+
+    add_quest_to_party(quest=quest, difficulty=difficulty)
+    return redirect(url_for("game.set_up"))
+
+
+@bp.route("/delete_quest", methods=["POST"])
+@login_required
+def delete_quest():
+    """Respond to request to delete a quest from the party."""
+    quest_id = int(request.form["quest_id"])
+
+    if not is_quest_in_party(quest_id=quest_id):
+        msg = f"Unsuccessful! Quest ID: {quest_id} is not registered in your party."
+        flash(msg)
+        return redirect(url_for("game.set_up"))
+
+    delete_quest_from_table(quest_id=quest_id)
+    return redirect(url_for("game.set_up"))
 
 # ############################################################
 # ################### Show main page #########################
