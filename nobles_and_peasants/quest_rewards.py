@@ -1,7 +1,7 @@
 """Functions related to the quest_rewards table."""
 from flask import session
 
-from nobles_and_peasants.query import fetch_one, fetch_all
+from nobles_and_peasants.query import execute, fetch_one, fetch_all
 
 
 def get_quest_difficulty_and_reward():

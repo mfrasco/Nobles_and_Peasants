@@ -12,7 +12,6 @@ from flask import (
 )
 from werkzeug.security import check_password_hash
 
-from nobles_and_peasants.db import get_db
 from nobles_and_peasants.parties import (
     does_party_name_exist,
     insert_new_party,

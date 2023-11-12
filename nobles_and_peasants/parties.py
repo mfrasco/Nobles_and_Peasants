@@ -10,10 +10,11 @@ from nobles_and_peasants.query import execute, fetch_one, fetch_all
 
 def init_party(party_id):
     """Add rows to tables in the schema with default content for this party."""
+    db = get_db()
     with current_app.open_resource("default_values.sql") as f:
         default_values = f.read().decode("utf8")
         default_values = re.sub("~PARTY_ID~", str(party_id), default_values)
-        get_db().executescript(default_values)
+        db.executescript(default_values)
     db.commit()
 
 
@@ -22,11 +23,10 @@ def insert_new_party(party_name, password):
     hashed_password = generate_password_hash(password)
 
     query = "insert into parties (party_name, password) values (?, ?)"
-    execute(query=query, args=[party_name, hashed_password], commit=False)
+    execute(query=query, args=[party_name, hashed_password], commit=True)
 
     party_id = get_party_id(party_name=party_name)
     init_party(party_id=party_id)
-    db.commit()
 
 
 def get_party(party_name):

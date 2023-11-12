@@ -112,7 +112,7 @@ def set_wages():
         easy_reward=easy_reward,
         medium_reward=medium_reward,
         hard_reward=hard_reward,
-        commit=True
+        commit=True,
     )
 
     return redirect(url_for("game.set_up"))
@@ -215,9 +215,7 @@ def pledge_allegiance():
         flash(msg)
         return redirect(url_for("game.show_main"))
 
-    update_after_pledge_allegiance(
-        player_name=player_name, noble_name=noble_name
-    )
+    update_after_pledge_allegiance(player_name=player_name, noble_name=noble_name)
     return redirect(url_for("game.show_main"))
 
 
@@ -404,9 +402,7 @@ def assassinate():
     else:
         loser_name = player_name
 
-    winner_status = get_single_player(
-        player_name=winner_name, col="player_status"
-    )
+    winner_status = get_single_player(player_name=winner_name, col="player_status")
     loser_status = get_single_player(player_name=loser_name, col="player_status")
 
     if winner_status == PEASANT and loser_status == NOBLE:

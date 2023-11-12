@@ -13,6 +13,7 @@ def fetch_one(query, args=None):
     else:
         return result[0]
 
+
 def fetch_all(query, args=None):
     """Execute a query where we are intending to get multiple values."""
     cur = get_db().execute(query, args)
