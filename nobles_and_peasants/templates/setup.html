@@ -84,28 +84,26 @@
         <div class="setup_block" id="add_quest">
             <h3>Add A Custom Quest</h3>
             <p>Dont add anything illegal</p>
-            <div class="scrollit">
-                <table class="nap_table" id="quest_table">
-                    <thead>
-                        <tr>
-                            <td>Quest ID</td>
-                            <td>Quest</td>
-                            <td>Difficulty</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for q in quests %}
-                        <tr>
-                            <td>{{q.id}}</td>
-                            <td>{{q.quest}}</td>
-                            <td>{{q.difficulty}}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            <table class="q_table" id="quest_table">
+                <thead>
+                    <th>
+                        <td>ID</td>
+                        <td>Quest</td>
+                        <td>Difficulty</td>
+                    </th>
+                </thead>
+                <tbody>
+                    {% for q in quests %}
+                    <tr>
+                        <td>{{q.id}}</td>
+                        <td>{{q.quest}}</td>
+                        <td>{{q.difficulty}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
             <form action="{{ url_for('game.add_quest') }}" method="post" class="setup_form" id="add_quest_form">
-                <input class="num_box" type="text" name="quest" placeholder="Quest Description" required></input>
+                <input class="input_box" type="text" name="quest" placeholder="Quest Description" required></input>
                 <select class="select_box" name="difficulty" required>
                     <option value="easy" selected>Easy</option>
                     <option value="medium">Medium</option>

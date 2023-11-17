@@ -78,7 +78,7 @@ li a:hover {
 }
 
 .num_box {
-  width: 40%;
+  width: 20%;
   padding: 10px;
   border: solid 2px #565656;
   transition: border 0.3s;
@@ -105,7 +105,16 @@ li a:hover {
     width: 90%;
     table-layout: fixed;
     border-collapse: collapse;
-    margin: 30px auto 10px auto;
+    margin: 10px auto 10px auto;
+}
+
+.q_table {
+  width: 90%;
+  margin: 10px auto auto auto;
+  border-collapse: collapse;
+  display: block;
+  height: 300px;
+  overflow-y: scroll;
 }
 
 .nap_table th {
@@ -119,9 +128,22 @@ li a:hover {
     min-width: 150px;
 }
 
+.q_table td {
+  padding: 5px;
+}
+
 .nap_table thead {
     background-color: #76323F;
     color: white;
+}
+
+.q_table thead {
+  background-color: #76323F;
+  color: white;
+}
+
+#quest_table tbody {
+  height: 300px;
 }
 
 .nap_table thead tr {
@@ -270,8 +292,9 @@ li a:hover {
 
 .setup_block {
     float: left;
-    width: 33%;
+    width: 30%;
     min-width: 320px;
+    padding: 1em;
 }
 
 .setup_form { margin: 10px auto 0px auto;
@@ -281,11 +304,6 @@ li a:hover {
               height: 160px;
               display: inline-block;
               text-align: center; }
-
-.scrollit {
-    overflow:scroll;
-    height:300px;
-}
 
 /*-------------------Main Page------------------------*/
 
