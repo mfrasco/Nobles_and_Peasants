@@ -2,24 +2,26 @@
 {% block body %}
     <div class="kingdom">
         <table class="nap_table" id="kingdom_table">
-            <thead><tr>
-                <td>Name</td>
-                <td>Status</td>
-                <td>Allegiance</td>
-                <td>Coin</td>
-                <td>Drinks</td>
-                <td>Soldiers</td>
-            </tr></thead>
+            <thead
+                ><tr>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Allegiance</th>
+                    <th>Coin</th>
+                    <th>Drinks</th>
+                    <th>Soldiers</th>
+                </tr>
+            </thead>
             <tbody>
             {% for player in players %}
-            <tr>
-                <td>{{player.player_name}}</td>
-                <td>{{player.player_status}}</td>
-                <td>{{player.noble_name}}</td>
-                <td>{{player.coin}}</td>
-                <td>{{player.drinks}}</td>
-                <td>{{player.soldiers}}</td>
-            </tr>
+                <tr>
+                    <td>{{player.player_name}}</td>
+                    <td>{{player.player_status}}</td>
+                    <td>{{player.noble_name}}</td>
+                    <td>{{player.coin}}</td>
+                    <td>{{player.drinks}}</td>
+                    <td>{{player.soldiers}}</td>
+                </tr>
             {% endfor %}
         </tbody>
         </table>

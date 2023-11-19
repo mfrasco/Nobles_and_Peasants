@@ -6,20 +6,22 @@
     </div>
     <div class="leaderboard">
         <table class="nap_table" id="leaderboard_table">
-            <thead><tr>
-                <td>Name</td>
-                <td>Soldiers</td>
-                <td>Coin</td>
-                <td>Drinks</td>
-            </tr></thead>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Soldiers</th>
+                    <th>Coin</th>
+                    <th>Drinks</th>
+                </tr>
+            </thead>
             <tbody>
             {% for noble in leaderboard %}
-            <tr>
-                <td>{{noble.player_name}}</td>
-                <td>{{noble.soldiers}}</td>
-                <td>{{noble.coin}}</td>
-                <td>{{noble.drinks}}</td>
-            </tr>
+                <tr>
+                    <td>{{noble.player_name}}</td>
+                    <td>{{noble.soldiers}}</td>
+                    <td>{{noble.coin}}</td>
+                    <td>{{noble.drinks}}</td>
+                </tr>
             {% endfor %}
         </tbody>
         </table>
