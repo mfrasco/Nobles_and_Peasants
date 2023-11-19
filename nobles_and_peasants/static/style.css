@@ -108,10 +108,6 @@ li a:hover {
     margin: 30px auto 10px auto;
 }
 
-.nap_table th {
-    text-decoration: underline;
-}
-
 .nap_table th,
 .nap_table td {
     padding: 5px;
@@ -265,22 +261,35 @@ li a:hover {
 #setup_info {
     clear: both;
     padding-top: 20px;
-    margin: 50px auto 20px auto;
+    margin: 20px auto 20px auto;
 }
 
 .setup_block {
     float: left;
     width: 33%;
     min-width: 320px;
+    margin: auto; 
 }
 
-.setup_form { margin: 10px auto 0px auto;
+.setup_form { margin: 10px auto 10px auto;
               width: 90%;
               background: #C09F80;
               padding: 0.5em;
-              height: 160px;
+              height: 120px;
               display: inline-block;
               text-align: center; }
+
+#easy_reward {
+  width: 20%;
+}
+
+#medium_reward {
+  width: 20%;
+}
+
+#hard_reward {
+  width: 20%;
+}
 
 /*-------------------Main Page------------------------*/
 
