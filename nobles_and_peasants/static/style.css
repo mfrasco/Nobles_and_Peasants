@@ -81,6 +81,10 @@ li a:hover {
   width: 50%;
 }
 
+#custom_challenge_input {
+  width: 70%;
+}
+
 .num_box {
   width: 20%;
   padding: 10px;
