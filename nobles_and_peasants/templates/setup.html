@@ -10,8 +10,8 @@
             <table class="nap_table" id="drinks_table">
                 <thead>
                     <tr>
-                        <td>Drink Name</td>
-                        <td>Price</td>
+                        <th>Drink Name</th>
+                        <th>Price</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -24,19 +24,19 @@
                 </tbody>
             </table>
             <form action="{{ url_for('game.add_drink') }}" method="post" class="setup_form" class="add_drink_form">
-                <input class="input_box" type="text" name="drink_name" placeholder="Name" required></input>
+                <input class="input_box" type="text" name="drink_name" placeholder="Drink Name" required></input>
                 <input class="num_box" type="number" name="price" placeholder="Price" min=1 required></input>
                 <input class="submit_button" type="submit" value="Add or Update Drink"></input>
             </form>
         </div>
         <div class="setup_block" id="set_coin">
-            <h3>Starting Coin For Nobles and Peasants</h3>
-            <p>How much class inequality do you want?</p>
+            <h3>Initial Coin For Players</h3>
+            <p>The source of class inequality in the party</p>
             <table class="nap_table" id="coin_table">
                 <thead>
                     <tr>
-                        <td>Status</td>
-                        <td>Starting Coin</td>
+                        <th>Status</th>
+                        <th>Initial Coin</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,17 +51,17 @@
             <form action="{{ url_for('game.set_coin') }}" method="post" class="setup_form" id="set_coin_form">
                 <input class="num_box" type="number" name="noble_coin" placeholder="Noble Coin" min=1 required></input>
                 <p></p>
-                <input class="submit_button" type="submit" value="Update Starting Coin"></input>
+                <input class="submit_button" type="submit" value="Update Initial Coin"></input>
             </form>
         </div>
         <div class="setup_block" id="set_reward">
             <h3>Rewards For Completing Quests</h3>
-            <p>Control how easily peasants can get coin</p>
+            <p>Larger rewards leads to faster upwards mobility</p>
             <table class="nap_table" id="reward_table">
                 <thead>
                     <tr>
-                        <td>Quest Difficulty</td>
-                        <td>Coin Rewarded</td>
+                        <th>Quest Difficulty</th>
+                        <th>Coin Rewarded</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -74,9 +74,9 @@
                 </tbody>
             </table>
             <form action="{{ url_for('game.set_wages') }}" method="post" class="setup_form" id="set_wage_form">
-                <input class="num_box" type="number" name="easy" placeholder="Easy" min=1 required></input>
-                <input class="num_box" type="number" name="medium" placeholder="Medium" min=1 required></input>
-                <input class="num_box" type="number" name="hard" placeholder="Hard" min=1 required></input>
+                <input class="num_box" id="easy_reward" type="number" name="easy" placeholder="Easy" min=1 required></input>
+                <input class="num_box" id="medium_reward" type="number" name="medium" placeholder="Medium" min=1 required></input>
+                <input class="num_box" id="hard_reward" type="number" name="hard" placeholder="Hard" min=1 required></input>
                 <p></p>
                 <input class="submit_button" type="submit" value="Set Quest Rewards"></input>
             </form>
