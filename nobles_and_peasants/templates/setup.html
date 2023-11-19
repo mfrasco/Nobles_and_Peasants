@@ -49,7 +49,7 @@
                 </tbody>
             </table>
             <form action="{{ url_for('game.set_coin') }}" method="post" class="setup_form" id="set_coin_form">
-                <input class="num_box" type="number" name="noble_coin" placeholder="Noble Coin" min=1 required></input>
+                <input class="num_box" id="noble_coin_input" type="number" name="noble_coin" placeholder="Noble Coin" min=1 required></input>
                 <p></p>
                 <input class="submit_button" type="submit" value="Update Initial Coin"></input>
             </form>
@@ -86,11 +86,11 @@
             <p>Dont add anything illegal</p>
             <table class="q_table" id="quest_table">
                 <thead>
-                    <th>
-                        <td>ID</td>
-                        <td>Quest</td>
-                        <td>Difficulty</td>
-                    </th>
+                    <tr>
+                        <th>ID</th>
+                        <th>Quest</th>
+                        <th>Difficulty</th>
+                    </tr>
                 </thead>
                 <tbody>
                     {% for q in quests %}
@@ -103,8 +103,8 @@
                 </tbody>
             </table>
             <form action="{{ url_for('game.add_quest') }}" method="post" class="setup_form" id="add_quest_form">
-                <input class="input_box" type="text" name="quest" placeholder="Quest Description" required></input>
-                <select class="select_box" name="difficulty" required>
+                <input class="input_box" id="custom_quest_input" type="text" name="quest" placeholder="Quest Description" required></input>
+                <select class="select_box" id="custom_quest_difficulty" name="difficulty" required>
                     <option value="easy" selected>Easy</option>
                     <option value="medium">Medium</option>
                     <option value="hard">Hard</option>
