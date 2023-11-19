@@ -2,7 +2,13 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
 from nobles_and_peasants.auth import login_required
-from nobles_and_peasants.challenges import get_random_challenge
+from nobles_and_peasants.challenges import (
+    add_challenge_to_party,
+    delete_challenge_from_table,
+    get_all_challenges,
+    get_random_challenge,
+    is_challenge_in_party,
+)
 from nobles_and_peasants.constants import NOBLE, PEASANT
 from nobles_and_peasants.drinks import (
     add_or_update_drink_name_and_cost,
@@ -34,7 +40,13 @@ from nobles_and_peasants.starting_coin import (
     get_starting_coin_for_status,
     update_noble_starting_coin,
 )
-from nobles_and_peasants.quests import get_random_quest
+from nobles_and_peasants.quests import (
+    add_quest_to_party,
+    delete_quest_from_table,
+    get_all_quests,
+    get_random_quest,
+    is_quest_in_party,
+)
 from nobles_and_peasants.quest_rewards import (
     get_quest_difficulty_and_reward,
     get_reward_for_difficulty,
@@ -51,12 +63,16 @@ def set_up():
     drinks = get_drink_name_and_cost()
     starting_coin = get_status_and_starting_coin()
     quest_rewards = get_quest_difficulty_and_reward()
+    quests = get_all_quests()
+    challenges = get_all_challenges()
 
     return render_template(
         "setup.html",
         drinks=drinks,
         starting_coin=starting_coin,
         quest_rewards=quest_rewards,
+        quests=quests,
+        challenges=challenges,
         party_name=session.get("party_name"),
     )
 
@@ -117,6 +133,57 @@ def set_wages():
         commit=True,
     )
 
+    return redirect(url_for("game.set_up"))
+
+
+@bp.route("/add_quest", methods=["POST"])
+@login_required
+def add_quest():
+    """Respond to request to add a quest to the party."""
+    quest = request.form["quest"]
+    difficulty = request.form["difficulty"]
+
+    add_quest_to_party(quest=quest, difficulty=difficulty)
+    return redirect(url_for("game.set_up"))
+
+
+@bp.route("/delete_quest", methods=["POST"])
+@login_required
+def delete_quest():
+    """Respond to request to delete a quest from the party."""
+    quest_id = int(request.form["quest_id"])
+
+    if not is_quest_in_party(quest_id=quest_id):
+        msg = f"Unsuccessful! Quest ID: {quest_id} is not registered in your party."
+        flash(msg)
+        return redirect(url_for("game.set_up"))
+
+    delete_quest_from_table(quest_id=quest_id)
+    return redirect(url_for("game.set_up"))
+
+
+@bp.route("/add_challenge", methods=["POST"])
+@login_required
+def add_challenge():
+    """Respond to request to add a challenge to the party."""
+    challenge = request.form["challenge"]
+
+    add_challenge_to_party(challenge=challenge)
+    return redirect(url_for("game.set_up"))
+
+
+@bp.route("/delete_challenge", methods=["POST"])
+@login_required
+def delete_challenge():
+    """Respond to request to delete a challenge from the party."""
+    challenge_id = int(request.form["challenge_id"])
+
+    if not is_challenge_in_party(challenge_id=challenge_id):
+        msg = f"Unsuccessful! Challenge ID: {challenge_id} is not registered in your party."
+        flash(msg)
+        return redirect(url_for("game.set_up"))
+
+    delete_challenge_from_table(challenge_id=challenge_id)
     return redirect(url_for("game.set_up"))
 
 

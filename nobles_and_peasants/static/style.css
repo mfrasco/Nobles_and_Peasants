@@ -77,8 +77,16 @@ li a:hover {
     box-shadow: 0 0 10px #76323F;
 }
 
+#custom_quest_input {
+  width: 50%;
+}
+
+#custom_challenge_input {
+  width: 70%;
+}
+
 .num_box {
-  width: 40%;
+  width: 20%;
   padding: 10px;
   border: solid 2px #565656;
   transition: border 0.3s;
@@ -90,6 +98,10 @@ li a:hover {
     outline: none !important;
     border:1px solid #76323F;
     box-shadow: 0 0 10px #76323F;
+}
+
+#noble_coin_input {
+  width: 25%;
 }
 
 .data_list {
@@ -105,7 +117,16 @@ li a:hover {
     width: 90%;
     table-layout: fixed;
     border-collapse: collapse;
-    margin: 30px auto 10px auto;
+    margin: 10px auto 10px auto;
+}
+
+.q_table {
+  width: 90%;
+  margin: 10px auto auto auto;
+  border-collapse: collapse;
+  display: block;
+  height: 300px;
+  overflow: auto;
 }
 
 .nap_table th,
@@ -115,9 +136,22 @@ li a:hover {
     min-width: 150px;
 }
 
+.q_table th, td {
+  padding: 5px;
+  text-align: left;
+}
+
 .nap_table thead {
     background-color: #76323F;
     color: white;
+}
+
+.q_table thead {
+  background-color: #76323F;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .nap_table thead tr {
@@ -266,9 +300,9 @@ li a:hover {
 
 .setup_block {
     float: left;
-    width: 33%;
+    width: 30%;
     min-width: 320px;
-    margin: auto; 
+    margin: auto;
 }
 
 .setup_form { margin: 10px auto 10px auto;
@@ -317,13 +351,17 @@ li a:hover {
 }
 
 .select_box {
-    width: 150px;
+    width: 30%;
     height: 40px;
     font-size: 1em;
 }
 
+#custom_quest_difficulty {
+  width: 20%;
+}
+
 #receive_reward {
-    width: 70%;
+    width: 50%;
 }
 
 /*-------------------Quest Page------------------------*/

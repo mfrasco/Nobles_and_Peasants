@@ -43,7 +43,7 @@ def test_login(client, auth):
     """Test that logging in to a party sets session variables correctly."""
     assert client.get("/auth/login", follow_redirects=True).status_code == 200
     response = auth.login(party_name="party_name_1", password="maya")
-    assert "Randomly Decide" in response.text
+    assert "Random" in response.text
 
     with client:
         client.get("/")

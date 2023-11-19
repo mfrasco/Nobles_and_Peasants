@@ -49,7 +49,7 @@
                 </tbody>
             </table>
             <form action="{{ url_for('game.set_coin') }}" method="post" class="setup_form" id="set_coin_form">
-                <input class="num_box" type="number" name="noble_coin" placeholder="Noble Coin" min=1 required></input>
+                <input class="num_box" id="noble_coin_input" type="number" name="noble_coin" placeholder="Noble Coin" min=1 required></input>
                 <p></p>
                 <input class="submit_button" type="submit" value="Update Initial Coin"></input>
             </form>
@@ -79,6 +79,73 @@
                 <input class="num_box" id="hard_reward" type="number" name="hard" placeholder="Hard" min=1 required></input>
                 <p></p>
                 <input class="submit_button" type="submit" value="Set Quest Rewards"></input>
+            </form>
+        </div>
+        <div class="setup_block" id="add_quest">
+            <h3>Add A Custom Quest</h3>
+            <p>Dont add anything illegal</p>
+            <table class="q_table" id="quest_table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Quest</th>
+                        <th>Difficulty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for q in quests %}
+                    <tr>
+                        <td>{{q.id}}</td>
+                        <td>{{q.quest}}</td>
+                        <td>{{q.difficulty}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <form action="{{ url_for('game.add_quest') }}" method="post" class="setup_form" id="add_quest_form">
+                <input class="input_box" id="custom_quest_input" type="text" name="quest" placeholder="Quest Description" required></input>
+                <select class="select_box" id="custom_quest_difficulty" name="difficulty" required>
+                    <option value="easy" selected>Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+                <p></p>
+                <input class="submit_button" type="submit" value="Add Quest"></input>
+            </form>
+            <form action="{{ url_for('game.delete_quest') }}" method="post" class="setup_form" id="delete_quest_form">
+                <input class="num_box" type="number" name="quest_id" placeholder="Quest ID" required></input>
+                <p></p>
+                <input class="submit_button" type="submit" value="Delete Quest"></input>
+            </form>
+        </div>
+        <div class="setup_block" id="add_challenge">
+            <h3>Add A Custom Challenge</h3>
+            <p>Challenges must involve two people</p>
+            <table class="q_table" id="challenge_table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Challenge</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in challenges %}
+                    <tr>
+                        <td>{{c.id}}</td>
+                        <td>{{c.challenge}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <form action="{{ url_for('game.add_challenge') }}" method="post" class="setup_form" id="add_challenge_form">
+                <input class="input_box" id="custom_challenge_input" type="text" name="challenge" placeholder="Challenge Description" required></input>
+                <p></p>
+                <input class="submit_button" type="submit" value="Add Challenge"></input>
+            </form>
+            <form action="{{ url_for('game.delete_challenge') }}" method="post" class="setup_form" id="delete_challenge_form">
+                <input class="num_box" type="number" name="challenge_id" placeholder="Challenge ID" required></input>
+                <p></p>
+                <input class="submit_button" type="submit" value="Delete Challenge"></input>
             </form>
         </div>
     </div>
