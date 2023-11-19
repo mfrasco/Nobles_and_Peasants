@@ -186,6 +186,7 @@ def delete_challenge():
     delete_challenge_from_table(challenge_id=challenge_id)
     return redirect(url_for("game.set_up"))
 
+
 # ############################################################
 # ################### Show main page #########################
 # ############################################################

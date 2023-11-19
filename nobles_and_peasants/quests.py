@@ -47,7 +47,6 @@ def add_quest_to_party(quest, difficulty, commit=True):
 
 def delete_quest_from_table(quest_id, commit=True):
     """Delete a row from the database for a quest."""
-    party_id = session.get("party_id")
     query = """
         delete from quests where id = ?
     """

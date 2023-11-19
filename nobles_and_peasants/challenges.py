@@ -1,7 +1,7 @@
 """Functions related to the challenges table."""
 from flask import session
 
-from nobles_and_peasants.query import fetch_one
+from nobles_and_peasants.query import execute, fetch_all, fetch_one
 
 
 def get_random_challenge():
@@ -46,7 +46,6 @@ def add_challenge_to_party(challenge, commit=True):
 
 def delete_challenge_from_table(challenge_id, commit=True):
     """Delete a row from the database for a challenge."""
-    party_id = session.get("party_id")
     query = """
         delete from challenges where id = ?
     """
