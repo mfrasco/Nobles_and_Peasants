@@ -25,9 +25,3 @@ Run the app in debug mode: `flask --app nobles_and_peasants run --debug`
 Run the tests: `pytest`
 
 Measure code coverage: `coverage run -m pytest`
-
-### TODO
-
-- Add error handling
-    - Better error pages when the player fails to do something
-- Add logging
